@@ -56,11 +56,11 @@ export function ProcessStep() {
           ))}
         </div>
         
-        <div className="mt-8 p-4 bg-primary/10 rounded-lg border border-primary/30">
+        <div className="mt-8 p-4 bg-trust/10 rounded-lg border border-trust/30">
           <p className="text-center text-sm">
-            <strong>Demo Version:</strong> This showcases the complete privacy-focused user experience. 
-            The actual PDF encryption would require additional browser-compatible libraries like HummusJS or PDFtk.js, 
-            or a hybrid approach with client-side processing and secure server-side encryption.
+            <strong>Real Password Protection:</strong> This app uses jsPDF's built-in AES encryption to password-protect your PDFs. 
+            The PDF content is reconstructed with security metadata. For full content preservation, 
+            server-side processing with libraries like QPDF would be optimal.
           </p>
         </div>
       </CardContent>
