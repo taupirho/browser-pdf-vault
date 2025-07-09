@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
-import { PDFDocument } from "@cantoo/pdf-lib";
-import jsPDF from "jspdf";
+import { PDFDocument } from "pdf-lib-plus-encrypt";
 import { Shield, Lock, Download, FileText, Eye, EyeOff, Copy, Check, Upload, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -72,55 +71,28 @@ export function PDFProtector() {
       // Generate secure password
       const password = generateSecurePassword();
       
-      // Load the existing PDF with pdf-lib
+      // Load the existing PDF with pdf-lib-plus-encrypt
       const existingPdf = await PDFDocument.load(arrayBuffer);
-      const pageCount = existingPdf.getPageCount();
       
-      // Create a new protected PDF that will contain the original pages
-      const protectedPdf = await PDFDocument.create();
-      
-      // Copy all pages from original PDF to new PDF
-      const copiedPages = await protectedPdf.copyPages(existingPdf, 
-        Array.from({ length: pageCount }, (_, i) => i)
-      );
-      
-      // Add all copied pages to the new PDF
-      copiedPages.forEach((page) => protectedPdf.addPage(page));
-      
-      // Set encryption options (this will be handled by jsPDF later)
-      const pdfBytesUnprotected = await protectedPdf.save();
-      
-      // Now create an encrypted version using jsPDF
-      // Convert the pdf-lib output to a format jsPDF can work with
-      const tempPdf = new jsPDF({
-        encryption: {
-          userPassword: password,
-          ownerPassword: password + '_owner',
-          userPermissions: ["print", "copy"]
+      // Encrypt the PDF using pdf-lib-plus-encrypt's encrypt method
+      existingPdf.encrypt({
+        userPassword: password,
+        ownerPassword: password + '_owner',
+        permissions: {
+          printing: 'highResolution',
+          modifying: false,
+          copying: true,
+          annotating: false,
+          fillingForms: false,
+          contentAccessibility: true,
+          documentAssembly: false
         }
       });
       
-      // For now, we'll add the content as embedded data since jsPDF has limitations
-      // This preserves the password protection while indicating the limitation
-      tempPdf.setFontSize(16);
-      tempPdf.text('Password-Protected PDF Content', 50, 50);
-      tempPdf.setFontSize(12);
-      tempPdf.text(`Original file: ${file.name}`, 50, 80);
-      tempPdf.text(`Pages preserved: ${pageCount}`, 50, 100);
-      tempPdf.text(`Protected: ${new Date().toLocaleDateString()}`, 50, 120);
-      tempPdf.text('', 50, 140);
-      tempPdf.text('✓ AES-256 Password Protection: ACTIVE', 50, 160);
-      tempPdf.text('✓ File Security: ENCRYPTED', 50, 180);
-      tempPdf.text('', 50, 200);
-      tempPdf.text('BROWSER LIMITATION:', 50, 220);
-      tempPdf.text('Original content preservation requires server-side processing.', 50, 240);
-      tempPdf.text('This demonstrates the encryption functionality with metadata.', 50, 260);
-
-      // Generate the protected PDF
-      const pdfBytes = tempPdf.output('arraybuffer');
-      
-      // Create download blob
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      // Save the encrypted PDF
+      const encryptedPdfBytes = await existingPdf.save();
+      // Create download blob from the encrypted PDF
+      const blob = new Blob([encryptedPdfBytes], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       
       // Create download link
@@ -138,12 +110,12 @@ export function PDFProtector() {
         name: file.name,
         password,
         originalSize: file.size,
-        protectedSize: pdfBytes.byteLength
+        protectedSize: encryptedPdfBytes.byteLength
       });
 
       toast({
-        title: "PDF Password Protected Successfully!",
-        description: "Your password-protected PDF has been downloaded. Save the password securely!",
+        title: "PDF Successfully Encrypted!",
+        description: "Your PDF has been password-protected with original content preserved. Save the password securely!",
       });
 
     } catch (error) {
