@@ -55,13 +55,6 @@ export function ProcessStep() {
             </div>
           ))}
         </div>
-        
-        <div className="mt-8 p-4 bg-trust/10 rounded-lg border border-trust/30">
-          <p className="text-center text-sm">
-            <strong>Real PDF Encryption:</strong> This app uses pdf-lib-plus-encrypt to add genuine AES password protection 
-            while preserving your original PDF content. All processing happens locally in your browser for maximum privacy.
-          </p>
-        </div>
       </CardContent>
     </Card>
   );
