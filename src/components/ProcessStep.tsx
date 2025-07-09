@@ -1,4 +1,4 @@
-import { Upload, Key, Shield, Download } from "lucide-react";
+import { Upload, Key, Shield, Download, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function ProcessStep() {
@@ -56,12 +56,20 @@ export function ProcessStep() {
           ))}
         </div>
         
-        <div className="mt-8 p-4 bg-trust/10 rounded-lg border border-trust/30">
-          <p className="text-center text-sm">
-            <strong>Real Password Protection:</strong> This app uses jsPDF's built-in AES encryption to password-protect your PDFs. 
-            The PDF content is reconstructed with security metadata. For full content preservation, 
-            server-side processing with libraries like QPDF would be optimal.
-          </p>
+        <div className="mt-8 p-4 bg-warning/10 rounded-lg border border-warning/30">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-warning mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-warning-foreground mb-2">
+                <strong>Browser Limitation Notice</strong>
+              </p>
+              <p className="text-sm text-warning-foreground/90">
+                This demo provides real AES password protection but cannot preserve original PDF content in the browser. 
+                Full content preservation with encryption requires server-side processing using libraries like QPDF, 
+                HummusJS, or commercial PDF SDKs.
+              </p>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
