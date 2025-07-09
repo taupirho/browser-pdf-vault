@@ -135,15 +135,7 @@ const Index = () => {
             </div>
             <span className="font-semibold">SecurePDF</span>
           </div>
-          <p className="text-muted-foreground">
-            Secure, private, and open-source PDF password protection.
-          </p>
           <div className="flex justify-center gap-4">
-            <Button variant="ghost" size="sm" asChild>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-                GitHub
-              </a>
-            </Button>
             <Button variant="ghost" size="sm">
               Privacy Policy
             </Button>
