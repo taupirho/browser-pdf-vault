@@ -33,7 +33,7 @@ export function PrivacyIndicator() {
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Add strong passwords to your PDF documents with complete privacy. 
-          All processing happens locally in your browser - your files never touch our servers.
+          All processing happens locally in your browser - your files never touch our servers and we can't see their contents.
         </p>
       </div>
 
