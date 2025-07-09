@@ -37,18 +37,6 @@ export function PrivacyIndicator() {
         </p>
       </div>
 
-      <Card className="bg-gradient-security text-white border-none shadow-trust">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Server className="h-5 w-5 opacity-50 line-through" />
-            <span className="text-lg font-semibold">No Server Uploads</span>
-          </div>
-          <p className="text-center text-white/90">
-            Your privacy is our priority. All PDF processing happens directly in your browser. 
-            Your files are never uploaded to our servers, and we can never see their contents.
-          </p>
-        </CardContent>
-      </Card>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {indicators.map((item, index) => (
