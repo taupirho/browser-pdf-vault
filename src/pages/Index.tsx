@@ -16,17 +16,6 @@ const Index = () => {
             </div>
             <span className="font-bold text-xl">SecurePDF</span>
           </div>
-          <Button variant="outline" size="sm" asChild>
-            <a 
-              href="https://github.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-2"
-            >
-              <Github className="h-4 w-4" />
-              Open Source
-            </a>
-          </Button>
         </div>
       </header>
 
