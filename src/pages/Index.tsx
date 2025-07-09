@@ -38,7 +38,7 @@ const Index = () => {
         <section className="space-y-8">
           <h2 className="text-3xl font-bold text-center">Why Choose SecurePDF?</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <Card className="shadow-card bg-gradient-card border-border/50 hover:shadow-trust/20 transition-all duration-300">
               <CardContent className="p-6 text-center space-y-4">
                 <div className="w-16 h-16 mx-auto bg-gradient-security rounded-full flex items-center justify-center">
@@ -61,19 +61,6 @@ const Index = () => {
                 <p className="text-muted-foreground">
                   Your files never leave your browser. All processing happens locally, 
                   ensuring absolute privacy and data protection.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-card bg-gradient-card border-border/50 hover:shadow-trust/20 transition-all duration-300">
-              <CardContent className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-gradient-security rounded-full flex items-center justify-center">
-                  <Github className="h-8 w-8 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold">Open Source</h3>
-                <p className="text-muted-foreground">
-                  Our code is completely open source. Verify our privacy claims 
-                  and contribute to making PDF protection better for everyone.
                 </p>
               </CardContent>
             </Card>
