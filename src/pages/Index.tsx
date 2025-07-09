@@ -3,6 +3,7 @@ import { AdPlaceholder } from "@/components/AdPlaceholder";
 import { Github, Shield, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const Index = () => {
   return (
@@ -139,9 +140,71 @@ const Index = () => {
             <Button variant="ghost" size="sm">
               Privacy Policy
             </Button>
-            <Button variant="ghost" size="sm">
-              Terms of Use
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  Terms of Use
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>SecurePDF – Terms of Use</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 text-sm">
+                  <p className="text-muted-foreground">Last revised 9 July 2025</p>
+                  
+                  <div>
+                    <h3 className="font-semibold mb-2">Service Description</h3>
+                    <p>SecurePDF is a browser-based utility that lets you add password protection to PDF files entirely on your local device. No copy of your document is uploaded, stored, or otherwise transmitted to our servers.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Your Responsibility</h3>
+                    <p>You remain solely responsible for the content you process, including any confidential or copyrighted material. By using the service, you confirm you have the legal right to handle that content.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">No Data Storage</h3>
+                    <p>All processing is performed client-side in your browser. We do not receive, collect, or store your PDF files or the passwords you generate.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Security & Encryption</h3>
+                    <p>PDFs are encrypted using the AES-256 algorithm implemented in the open-source pdf-lib-plus-encrypt library. Keep it safe—if it is lost, we cannot help you recover access to the document.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Disclaimer of Warranties</h3>
+                    <p>The service is provided "as is" and "as available." We make no warranties, express or implied, regarding reliability, fitness for a particular purpose, or error-free operation. Nothing in these Terms limits any statutory rights you may have under Scots consumer law.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Limitation of Liability</h3>
+                    <p>To the fullest extent permitted by Scots law, SecurePDF, its owners, and contributors shall not be liable for any direct, indirect, incidental, or consequential losses arising from use of the service—including but not limited to loss of data, loss of profits, or security breaches resulting from weak or compromised passwords.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Prohibited Use</h3>
+                    <p>You may not use the service to create or distribute content that is illegal under Scots or UK-wide law, infringes copyright, violates privacy, or facilitates malicious activity.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Changes to the Service</h3>
+                    <p>We may modify, suspend, or discontinue the service at any time without notice. Updated Terms of Use will be posted on this page and become effective upon publication.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Governing Law</h3>
+                    <p>These Terms are governed by the laws of Scotland and the UK. Any dispute arising under or in connection with the service shall be subject to the exclusive jurisdiction of the Scottish courts.</p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold mb-2">Contact</h3>
+                    <p>Questions about these Terms? Email us at securemypdfdoc@gmail.com.</p>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </footer>
