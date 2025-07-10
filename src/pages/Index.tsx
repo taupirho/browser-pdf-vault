@@ -33,14 +33,7 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8 space-y-12">
         {/* Top Banner Ad */}
         <div className="flex justify-center">
-          <ins 
-            className="adsbygoogle"
-            style={{ display: 'block' }}
-            data-ad-client="ca-pub-7925818683352197"
-            data-ad-slot="9288363270"
-            data-ad-format="auto"
-            data-full-width-responsive="true"
-          />
+          <AdPlaceholder size="banner" />
         </div>
 
         {/* Main PDF Protector */}
