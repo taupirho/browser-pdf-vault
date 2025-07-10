@@ -14,8 +14,24 @@ const Index = () => {
     
     const timer = setTimeout(() => {
       try {
+        const adElements = document.querySelectorAll('.adsbygoogle');
+        console.log('Found ad elements:', adElements.length);
+        
         ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
         adInitialized.current = true;
+        
+        // Check if ad loaded after a delay
+        setTimeout(() => {
+          const adElement = document.querySelector('.adsbygoogle') as HTMLElement;
+          if (adElement) {
+            console.log('Ad element height:', adElement.offsetHeight);
+            console.log('Ad element innerHTML:', adElement.innerHTML);
+            if (adElement.offsetHeight === 0) {
+              console.log('Ad not loaded - likely pending approval or no inventory');
+            }
+          }
+        }, 2000);
+        
       } catch (e) {
         console.error('AdSense error:', e);
       }
