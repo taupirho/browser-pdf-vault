@@ -4,15 +4,24 @@ import { Github, Shield, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const Index = () => {
+  const adInitialized = useRef(false);
+
   useEffect(() => {
-    try {
-      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-    } catch (e) {
-      console.error('AdSense error:', e);
-    }
+    if (adInitialized.current) return;
+    
+    const timer = setTimeout(() => {
+      try {
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+        adInitialized.current = true;
+      } catch (e) {
+        console.error('AdSense error:', e);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -32,10 +41,10 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 space-y-12">
         {/* Top Banner Ad */}
-        <div className="flex justify-center">
+        <div className="flex justify-center w-full">
           <ins 
             className="adsbygoogle"
-            style={{ display: 'block' }}
+            style={{ display: 'block', width: '100%', minHeight: '90px' }}
             data-ad-client="ca-pub-7925818683352197"
             data-ad-slot="9288363270"
             data-ad-format="auto"
