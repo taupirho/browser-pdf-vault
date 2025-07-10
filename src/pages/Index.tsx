@@ -4,40 +4,15 @@ import { Github, Shield, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 const Index = () => {
-  const adInitialized = useRef(false);
-
   useEffect(() => {
-    if (adInitialized.current) return;
-    
-    const timer = setTimeout(() => {
-      try {
-        const adElements = document.querySelectorAll('.adsbygoogle');
-        console.log('Found ad elements:', adElements.length);
-        
-        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
-        adInitialized.current = true;
-        
-        // Check if ad loaded after a delay
-        setTimeout(() => {
-          const adElement = document.querySelector('.adsbygoogle') as HTMLElement;
-          if (adElement) {
-            console.log('Ad element height:', adElement.offsetHeight);
-            console.log('Ad element innerHTML:', adElement.innerHTML);
-            if (adElement.offsetHeight === 0) {
-              console.log('Ad not loaded - likely pending approval or no inventory');
-            }
-          }
-        }, 2000);
-        
-      } catch (e) {
-        console.error('AdSense error:', e);
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
+    try {
+      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+    } catch (e) {
+      console.error('AdSense error:', e);
+    }
   }, []);
 
   return (
@@ -57,10 +32,10 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 space-y-12">
         {/* Top Banner Ad */}
-        <div className="flex justify-center w-full">
+        <div className="flex justify-center">
           <ins 
             className="adsbygoogle"
-            style={{ display: 'block', width: '100%', minHeight: '90px' }}
+            style={{ display: 'block' }}
             data-ad-client="ca-pub-7925818683352197"
             data-ad-slot="9288363270"
             data-ad-format="auto"
