@@ -1,37 +1,28 @@
-
 import { PDFProtector } from "@/components/PDFProtector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Github, Shield, Lock, Eye, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-
 const Index = () => {
-  const indicators = [
-    {
-      icon: Shield,
-      title: "100% Private",
-      description: "Files never leave your browser"
-    },
-    {
-      icon: Lock,
-      title: "Bank-Grade Encryption",
-      description: "AES-256 encryption standard"
-    },
-    {
-      icon: Eye,
-      title: "We Can't See Your Files",
-      description: "Zero server-side processing"
-    },
-    {
-      icon: Zap,
-      title: "Instant Processing",
-      description: "No uploads, no waiting"
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-background">
+  const indicators = [{
+    icon: Shield,
+    title: "100% Private",
+    description: "Files never leave your browser"
+  }, {
+    icon: Lock,
+    title: "Bank-Grade Encryption",
+    description: "AES-256 encryption standard"
+  }, {
+    icon: Eye,
+    title: "We Can't See Your Files",
+    description: "Zero server-side processing"
+  }, {
+    icon: Zap,
+    title: "Instant Processing",
+    description: "No uploads, no waiting"
+  }];
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -42,7 +33,7 @@ const Index = () => {
             <span className="font-bold text-xl">SecurePDF</span>
           </div>
           <div className="flex-1 text-center -ml-20">
-            <span className="text-4xl font-bold bg-gradient-hero bg-clip-text text-transparent">
+            <span className="font-bold bg-gradient-hero bg-clip-text text-transparent text-3xl">
               Free, Secure PDF Password Protection
             </span>
           </div>
@@ -61,18 +52,13 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-center">Why Use SecurePDF?</h2>
           
           <div className="flex justify-center items-center gap-4">
-            {indicators.map((item, index) => (
-              <div
-                key={index}
-                className="flex flex-col items-center text-center p-3 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300 w-[240px]"
-              >
+            {indicators.map((item, index) => <div key={index} className="flex flex-col items-center text-center p-3 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300 w-[240px]">
                 <div className="w-7 h-7 bg-gradient-primary rounded-full flex items-center justify-center mb-2">
                   <item.icon className="h-4 w-4 text-primary-foreground" />
                 </div>
                 <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
                 <p className="text-xs text-muted-foreground">{item.description}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </section>
 
@@ -301,8 +287,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
