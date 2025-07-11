@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { ProcessStep } from "./ProcessStep";
+
 import { PrivacyIndicator } from "./PrivacyIndicator";
 
 interface ProcessedFile {
@@ -239,7 +239,7 @@ export function PDFProtector() {
             </CardContent>
           </Card>
 
-          <ProcessStep />
+          
         </>
       ) : (
         <Card className="shadow-glow bg-gradient-card border-trust/30">
