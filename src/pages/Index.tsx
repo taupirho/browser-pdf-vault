@@ -64,13 +64,13 @@ const Index = () => {
             {indicators.map((item, index) => (
               <div
                 key={index}
-                className="flex flex-col items-center text-center p-4 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300"
+                className="flex flex-col items-center text-center p-2 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300 max-w-[150px] mx-auto"
               >
-                <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center mb-3">
-                  <item.icon className="h-6 w-6 text-primary-foreground" />
+                <div className="w-6 h-6 bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                  <item.icon className="h-3 w-3 text-primary-foreground" />
                 </div>
-                <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
-                <p className="text-xs text-muted-foreground">{item.description}</p>
+                <h3 className="font-semibold text-xs mb-1">{item.title}</h3>
+                <p className="text-[10px] text-muted-foreground">{item.description}</p>
               </div>
             ))}
           </div>
