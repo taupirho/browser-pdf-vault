@@ -36,7 +36,7 @@ const Index = () => {
             
             {/* Center text - hidden on mobile, visible on larger screens */}
             <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
-              <span className="font-bold bg-gradient-hero bg-clip-text text-transparent whitespace-nowrap text-3xl">
+              <span className="font-bold bg-gradient-hero bg-clip-text text-transparent whitespace-nowrap text-xl">
                 Free, Secure PDF Password Protection
               </span>
             </div>
