@@ -46,7 +46,7 @@ const Index = () => {
           
           {/* Mobile tagline - visible only on mobile */}
           <div className="md:hidden mt-2 text-center">
-            <span className="font-medium bg-gradient-hero bg-clip-text text-transparent text-center text-sm">
+            <span className="font-medium bg-gradient-hero bg-clip-text text-transparent text-center text-lg">
               Free, Secure PDF Password Protection
             </span>
           </div>
