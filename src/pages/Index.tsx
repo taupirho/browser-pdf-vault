@@ -60,11 +60,11 @@ const Index = () => {
         <section className="space-y-8">
           <h2 className="text-3xl font-bold text-center">Why Use SecurePDF?</h2>
           
-          <div className="flex justify-center items-center gap-1">
+          <div className="flex justify-center items-center gap-4">
             {indicators.map((item, index) => (
               <div
                 key={index}
-                className="flex flex-col items-center text-center p-2 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300 max-w-[150px] mx-auto"
+                className="flex flex-col items-center text-center p-2 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300 w-[200px]"
               >
                 <div className="w-6 h-6 bg-gradient-primary rounded-full flex items-center justify-center mb-2">
                   <item.icon className="h-3 w-3 text-primary-foreground" />
