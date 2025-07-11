@@ -29,58 +29,6 @@ const Index = () => {
         <PDFProtector />
 
 
-        {/* Features Section */}
-        <section className="space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <Card className="shadow-card bg-gradient-card border-border/50 hover:shadow-trust/20 transition-all duration-300">
-              <CardContent className="p-6 text-center space-y-4">
-                <div className="w-12 h-12 mx-auto bg-blue-500 rounded-full flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold">100% Private</h3>
-                <p className="text-muted-foreground text-sm">
-                  Files never leave your browser
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-card bg-gradient-card border-border/50 hover:shadow-trust/20 transition-all duration-300">
-              <CardContent className="p-6 text-center space-y-4">
-                <div className="w-12 h-12 mx-auto bg-blue-500 rounded-full flex items-center justify-center">
-                  <Lock className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold">Bank-Grade Encryption</h3>
-                <p className="text-muted-foreground text-sm">
-                  AES-256 encryption standard
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-card bg-gradient-card border-border/50 hover:shadow-trust/20 transition-all duration-300">
-              <CardContent className="p-6 text-center space-y-4">
-                <div className="w-12 h-12 mx-auto bg-blue-500 rounded-full flex items-center justify-center">
-                  <Eye className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold">We Can't See Your Files</h3>
-                <p className="text-muted-foreground text-sm">
-                  Zero server-side processing
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-card bg-gradient-card border-border/50 hover:shadow-trust/20 transition-all duration-300">
-              <CardContent className="p-6 text-center space-y-4">
-                <div className="w-12 h-12 mx-auto bg-blue-500 rounded-full flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold">Instant Processing</h3>
-                <p className="text-muted-foreground text-sm">
-                  No uploads, no waiting
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
 
 
         {/* FAQ Section */}
