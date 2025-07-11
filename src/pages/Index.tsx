@@ -1,6 +1,6 @@
 import { PDFProtector } from "@/components/PDFProtector";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Github, Shield, Lock } from "lucide-react";
+import { Github, Shield, Lock, Eye, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -31,31 +31,51 @@ const Index = () => {
 
         {/* Features Section */}
         <section className="space-y-8">
-          <h2 className="text-3xl font-bold text-center">Why Choose SecurePDF?</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             <Card className="shadow-card bg-gradient-card border-border/50 hover:shadow-trust/20 transition-all duration-300">
               <CardContent className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-gradient-security rounded-full flex items-center justify-center">
-                  <Shield className="h-8 w-8 text-white" />
+                <div className="w-12 h-12 mx-auto bg-blue-500 rounded-full flex items-center justify-center">
+                  <Shield className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold">Military-Grade Security</h3>
-                <p className="text-muted-foreground">
-                  AES-256 encryption ensures your documents are protected with the same 
-                  standard used by banks and government agencies.
+                <h3 className="text-lg font-semibold">100% Private</h3>
+                <p className="text-muted-foreground text-sm">
+                  Files never leave your browser
                 </p>
               </CardContent>
             </Card>
 
             <Card className="shadow-card bg-gradient-card border-border/50 hover:shadow-trust/20 transition-all duration-300">
               <CardContent className="p-6 text-center space-y-4">
-                <div className="w-16 h-16 mx-auto bg-gradient-primary rounded-full flex items-center justify-center">
-                  <Lock className="h-8 w-8 text-primary-foreground" />
+                <div className="w-12 h-12 mx-auto bg-blue-500 rounded-full flex items-center justify-center">
+                  <Lock className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold">Complete Privacy</h3>
-                <p className="text-muted-foreground">
-                  Your files never leave your browser. All processing happens locally, 
-                  ensuring absolute privacy and data protection.
+                <h3 className="text-lg font-semibold">Bank-Grade Encryption</h3>
+                <p className="text-muted-foreground text-sm">
+                  AES-256 encryption standard
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-card bg-gradient-card border-border/50 hover:shadow-trust/20 transition-all duration-300">
+              <CardContent className="p-6 text-center space-y-4">
+                <div className="w-12 h-12 mx-auto bg-blue-500 rounded-full flex items-center justify-center">
+                  <Eye className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold">We Can't See Your Files</h3>
+                <p className="text-muted-foreground text-sm">
+                  Zero server-side processing
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="shadow-card bg-gradient-card border-border/50 hover:shadow-trust/20 transition-all duration-300">
+              <CardContent className="p-6 text-center space-y-4">
+                <div className="w-12 h-12 mx-auto bg-blue-500 rounded-full flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold">Instant Processing</h3>
+                <p className="text-muted-foreground text-sm">
+                  No uploads, no waiting
                 </p>
               </CardContent>
             </Card>
