@@ -60,7 +60,7 @@ const Index = () => {
         <section className="space-y-8">
           <h2 className="text-3xl font-bold text-center">Why Use SecurePDF?</h2>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {indicators.map((item, index) => (
               <div
                 key={index}
