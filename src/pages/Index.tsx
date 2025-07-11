@@ -1,3 +1,4 @@
+
 import { PDFProtector } from "@/components/PDFProtector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Github, Shield, Lock, Eye, Zap } from "lucide-react";
@@ -6,6 +7,28 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const Index = () => {
+  const indicators = [
+    {
+      icon: Shield,
+      title: "100% Private",
+      description: "Files never leave your browser"
+    },
+    {
+      icon: Lock,
+      title: "Bank-Grade Encryption",
+      description: "AES-256 encryption standard"
+    },
+    {
+      icon: Eye,
+      title: "We Can't See Your Files",
+      description: "Zero server-side processing"
+    },
+    {
+      icon: Zap,
+      title: "Instant Processing",
+      description: "No uploads, no waiting"
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,8 +51,25 @@ const Index = () => {
         {/* Main PDF Protector */}
         <PDFProtector />
 
-
-
+        {/* Why Use SecurePDF Section */}
+        <section className="space-y-8">
+          <h2 className="text-3xl font-bold text-center">Why Use SecurePDF?</h2>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {indicators.map((item, index) => (
+              <div
+                key={index}
+                className="flex flex-col items-center text-center p-4 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300"
+              >
+                <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center mb-3">
+                  <item.icon className="h-6 w-6 text-primary-foreground" />
+                </div>
+                <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
+                <p className="text-xs text-muted-foreground">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* FAQ Section */}
         <section className="space-y-8">
