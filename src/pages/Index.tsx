@@ -25,15 +25,15 @@ const Index = () => {
   return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container flex items-center justify-between mx-[10px] my-0 py-[15px] px-[16px]">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
               <Shield className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-bold text-xl">SecurePDF</span>
           </div>
-          <div className="flex-1 text-center -ml-20">
-            <span className="font-bold bg-gradient-hero bg-clip-text text-transparent text-sm my-0 py-0 px-0 mx-0">Free, Secure 
+          <div className="flex-1 text-center -ml-20 mx-[13px]">
+            <span className="font-bold bg-gradient-hero bg-clip-text text-transparent text-sm py-0 mx-px my-px px-[12px]">Free, Secure 
 PDF Password Protection</span>
           </div>
           <ThemeToggle />
