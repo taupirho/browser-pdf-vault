@@ -176,7 +176,7 @@ export function PDFProtector() {
                       Maximum file size: 50MB
                     </p>
                   </div>
-                  <Label htmlFor="pdf-upload">
+                  <Label htmlFor="pdf-upload" className="py-0 px-0 mx-0 my-0">
                     <Input id="pdf-upload" type="file" accept=".pdf" className="hidden" onChange={e => {
                   const file = e.target.files?.[0];
                   if (file) handleFileSelect(file);
