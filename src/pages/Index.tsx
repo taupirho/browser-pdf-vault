@@ -41,7 +41,7 @@ const Index = () => {
             </div>
             <span className="font-bold text-xl">SecurePDF</span>
           </div>
-          <div className="flex-1 text-center -ml-8">
+          <div className="flex-1 text-center -ml-12">
             <span className="text-4xl font-bold bg-gradient-hero bg-clip-text text-transparent">
               Free, Secure PDF Password Protection
             </span>
