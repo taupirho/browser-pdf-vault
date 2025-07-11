@@ -25,18 +25,31 @@ const Index = () => {
   return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container flex items-center justify-between mx-[10px] my-0 py-[15px] px-[16px]">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Shield className="h-5 w-5 text-primary-foreground" />
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <Shield className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="font-bold text-xl">SecurePDF</span>
             </div>
-            <span className="font-bold text-xl">SecurePDF</span>
+            
+            {/* Center text - hidden on mobile, visible on larger screens */}
+            <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
+              <span className="font-bold bg-gradient-hero bg-clip-text text-transparent text-sm whitespace-nowrap">
+                Free, Secure PDF Password Protection
+              </span>
+            </div>
+            
+            <ThemeToggle />
           </div>
-          <div className="flex-1 text-center -ml-20 mx-[13px]">
-            <span className="font-bold bg-gradient-hero bg-clip-text text-transparent text-sm py-[6px] my-0 mx-[19px] px-[67px] text-center">Free, Secure 
-PDF Password Protection</span>
+          
+          {/* Mobile tagline - visible only on mobile */}
+          <div className="md:hidden mt-2 text-center">
+            <span className="font-medium bg-gradient-hero bg-clip-text text-transparent text-xs">
+              Free, Secure PDF Password Protection
+            </span>
           </div>
-          <ThemeToggle />
         </div>
       </header>
 
