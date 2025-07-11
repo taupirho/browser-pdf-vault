@@ -157,14 +157,12 @@ export function PDFProtector() {
       
       {!processedFile ? <>
           <Card className="shadow-card bg-gradient-card border-border/50">
-            <CardHeader className="text-center">
+            <CardHeader className="text-center py-0 my-0 mx-0 px-[10px]">
               <CardTitle className="flex items-center justify-center gap-2 text-2xl">
                 <Shield className="h-6 w-6 text-primary" />
                 Upload Your PDF
               </CardTitle>
-              <CardDescription>
-                Select a PDF file to password-protect. All processing happens in your browser.
-              </CardDescription>
+              <CardDescription className="text-xs">Password protect your PDF documents with complete privacy. All processing happens locally in your browser - your files never touch our servers and we can't see their contents.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 ${isDragging ? 'border-primary bg-accent/50 scale-105' : 'border-border hover:border-primary/50 hover:bg-accent/20'}`} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
