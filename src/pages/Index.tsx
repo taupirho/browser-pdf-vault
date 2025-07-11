@@ -54,7 +54,7 @@ const Index = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 space-y-12">
+      <main className="container space-y-12 px-[14px] mx-[5px] my-0 py-0">
 
         {/* Main PDF Protector */}
         <PDFProtector />
