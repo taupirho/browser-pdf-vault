@@ -114,7 +114,7 @@ export function PDFProtector() {
       });
 
       toast({
-        title: "PDF Successfully Encrypted!",
+        title: "PDF Successfully Encrypted and Downloaded!",
         description: "Your PDF has been password-protected with original content preserved. Save the password securely!",
       });
 
