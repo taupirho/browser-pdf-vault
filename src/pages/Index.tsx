@@ -62,10 +62,12 @@ const Index = () => {
         {/* Left Vertical Ad */}
         <div className="hidden lg:block w-48 flex-shrink-0">
           <div className="sticky top-20 p-4">
-            <GoogleAd 
-              slot="7759142262"
-              style={{ width: '160px', height: '600px' }}
-            />
+            <div style={{ width: '160px', height: '600px' }}>
+              <GoogleAd 
+                slot="7759142262"
+                style={{ width: '160px', height: '600px', display: 'block' }}
+              />
+            </div>
           </div>
         </div>
 
@@ -142,10 +144,12 @@ const Index = () => {
 
             {/* Bottom Horizontal Ad */}
             <div className="flex justify-center py-8">
-              <GoogleAd 
-                slot="9288363270"
-                style={{ minHeight: '90px', width: '100%', maxWidth: '728px' }}
-              />
+              <div style={{ width: '728px', height: '90px', maxWidth: '100%' }}>
+                <GoogleAd 
+                  slot="9288363270"
+                  style={{ width: '728px', height: '90px', display: 'block' }}
+                />
+              </div>
             </div>
           </main>
         </div>
@@ -153,10 +157,12 @@ const Index = () => {
         {/* Right Vertical Ad */}
         <div className="hidden lg:block w-48 flex-shrink-0">
           <div className="sticky top-20 p-4">
-            <GoogleAd 
-              slot="7759142262"
-              style={{ width: '160px', height: '600px' }}
-            />
+            <div style={{ width: '160px', height: '600px' }}>
+              <GoogleAd 
+                slot="7759142262"
+                style={{ width: '160px', height: '600px', display: 'block' }}
+              />
+            </div>
           </div>
         </div>
       </div>
