@@ -1,5 +1,6 @@
 import { PDFProtector } from "@/components/PDFProtector";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { GoogleAd } from "@/components/GoogleAd";
 import { Github, Shield, Lock, Eye, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,6 +56,13 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container mx-auto space-y-12 px-4 py-8">
+
+        {/* Banner Ad */}
+        <GoogleAd 
+          slot="1234567890" 
+          style={{ minHeight: '90px' }}
+          className="flex justify-center"
+        />
 
         {/* Main PDF Protector */}
         <PDFProtector />
@@ -121,6 +129,14 @@ const Index = () => {
             </Card>
           </div>
         </section>
+
+        {/* Rectangle Ad */}
+        <div className="flex justify-center">
+          <GoogleAd 
+            slot="0987654321" 
+            style={{ width: '300px', height: '250px' }}
+          />
+        </div>
 
       </main>
 
