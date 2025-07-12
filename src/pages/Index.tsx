@@ -5,6 +5,7 @@ import { Github, Shield, Lock, Eye, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
 const Index = () => {
   const indicators = [{
     icon: Shield,
@@ -23,20 +24,9 @@ const Index = () => {
     title: "Instant Processing",
     description: "No uploads, no waiting"
   }];
-  return <div className="min-h-screen bg-background flex">
-      {/* Left Vertical Ad */}
-      <div className="hidden lg:block w-48 flex-shrink-0">
-        <div className="sticky top-20 p-4">
-          <GoogleAd 
-            slot="7759142262"
-            style={{ width: '160px', height: '600px' }}
-          />
-        </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 max-w-4xl mx-auto">
-        <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
@@ -67,97 +57,111 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto space-y-12 px-4 py-8">
-
-        {/* Main PDF Protector */}
-        <PDFProtector />
-
-        {/* Why Use SecurePDF Section */}
-        <section className="space-y-8">
-          <h2 className="text-3xl font-bold text-center">Why Use SecurePDF?</h2>
-          
-          <div className="flex justify-center items-center gap-4">
-            {indicators.map((item, index) => <div key={index} className="flex flex-col items-center text-center p-3 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300 w-[240px]">
-                <div className="w-7 h-7 bg-gradient-primary rounded-full flex items-center justify-center mb-2">
-                  <item.icon className="h-4 w-4 text-primary-foreground" />
-                </div>
-                <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
-                <p className="text-xs text-muted-foreground">{item.description}</p>
-              </div>)}
+      {/* Main Layout with Side Ads */}
+      <div className="flex">
+        {/* Left Vertical Ad */}
+        <div className="hidden lg:block w-48 flex-shrink-0">
+          <div className="sticky top-20 p-4">
+            <GoogleAd 
+              slot="7759142262"
+              style={{ width: '160px', height: '600px' }}
+            />
           </div>
-        </section>
-
-        {/* FAQ Section */}
-        <section className="space-y-8">
-          <h2 className="text-3xl font-bold text-center">Frequently Asked Questions</h2>
-          
-          <div className="grid gap-6 max-w-3xl mx-auto">
-            <Card className="shadow-card bg-gradient-card border-border/50">
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-3">Is my PDF really secure?</h3>
-                <p className="text-muted-foreground">
-                  Yes! We use AES-256 encryption, the same standard used by banks and military. 
-                  The password is generated using cryptographically secure random values, 
-                  and all processing happens in your browser.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-card bg-gradient-card border-border/50">
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-3">What happens to my files?</h3>
-                <p className="text-muted-foreground">
-                  Your files never leave your browser. They are read into memory, processed locally, 
-                  and then immediately discarded. We never see, store, or have access to your documents.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-card bg-gradient-card border-border/50">
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-3">What if I lose the password?</h3>
-                <p className="text-muted-foreground">
-                  Unfortunately, if you lose the password, the PDF cannot be recovered. This is by design - 
-                  it ensures maximum security. Always save the password in a secure location.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="shadow-card bg-gradient-card border-border/50">
-              <CardContent className="p-6">
-                <h3 className="font-semibold text-lg mb-3">Is there a file size limit?</h3>
-                <p className="text-muted-foreground">
-                  We limit files to 50MB to ensure good performance in your browser. 
-                  Most PDF documents are well under this limit.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* Bottom Horizontal Ad */}
-        <div className="flex justify-center py-8">
-          <GoogleAd 
-            slot="9288363270"
-            style={{ minHeight: '90px' }}
-          />
         </div>
 
-      </main>
+        {/* Main Content */}
+        <div className="flex-1 max-w-4xl mx-auto">
+          <main className="container mx-auto space-y-12 px-4 py-8">
+            {/* Main PDF Protector */}
+            <PDFProtector />
+
+            {/* Why Use SecurePDF Section */}
+            <section className="space-y-8">
+              <h2 className="text-3xl font-bold text-center">Why Use SecurePDF?</h2>
+              
+              <div className="flex justify-center items-center gap-4">
+                {indicators.map((item, index) => (
+                  <div key={index} className="flex flex-col items-center text-center p-3 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300 w-[240px]">
+                    <div className="w-7 h-7 bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                      <item.icon className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
+                    <p className="text-xs text-muted-foreground">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* FAQ Section */}
+            <section className="space-y-8">
+              <h2 className="text-3xl font-bold text-center">Frequently Asked Questions</h2>
+              
+              <div className="grid gap-6 max-w-3xl mx-auto">
+                <Card className="shadow-card bg-gradient-card border-border/50">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-lg mb-3">Is my PDF really secure?</h3>
+                    <p className="text-muted-foreground">
+                      Yes! We use AES-256 encryption, the same standard used by banks and military. 
+                      The password is generated using cryptographically secure random values, 
+                      and all processing happens in your browser.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-card bg-gradient-card border-border/50">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-lg mb-3">What happens to my files?</h3>
+                    <p className="text-muted-foreground">
+                      Your files never leave your browser. They are read into memory, processed locally, 
+                      and then immediately discarded. We never see, store, or have access to your documents.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-card bg-gradient-card border-border/50">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-lg mb-3">What if I lose the password?</h3>
+                    <p className="text-muted-foreground">
+                      Unfortunately, if you lose the password, the PDF cannot be recovered. This is by design - 
+                      it ensures maximum security. Always save the password in a secure location.
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-card bg-gradient-card border-border/50">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-lg mb-3">Is there a file size limit?</h3>
+                    <p className="text-muted-foreground">
+                      We limit files to 50MB to ensure good performance in your browser. 
+                      Most PDF documents are well under this limit.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            {/* Bottom Horizontal Ad */}
+            <div className="flex justify-center py-8">
+              <GoogleAd 
+                slot="9288363270"
+                style={{ minHeight: '90px', width: '100%', maxWidth: '728px' }}
+              />
+            </div>
+          </main>
         </div>
 
-      {/* Right Vertical Ad */}
-      <div className="hidden lg:block w-48 flex-shrink-0">
-        <div className="sticky top-20 p-4">
-          <GoogleAd 
-            slot="7759142262"
-            style={{ width: '160px', height: '600px' }}
-          />
+        {/* Right Vertical Ad */}
+        <div className="hidden lg:block w-48 flex-shrink-0">
+          <div className="sticky top-20 p-4">
+            <GoogleAd 
+              slot="7759142262"
+              style={{ width: '160px', height: '600px' }}
+            />
+          </div>
         </div>
       </div>
-    </div>
 
+      {/* Footer */}
       <footer className="border-t border-border/50 bg-card/50 backdrop-blur-sm mt-16">
         <div className="container mx-auto px-4 py-8 text-center space-y-4">
           <div className="flex items-center justify-center gap-2">
@@ -332,6 +336,8 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
