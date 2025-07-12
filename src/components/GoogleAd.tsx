@@ -22,13 +22,27 @@ export function GoogleAd({
   className = ""
 }: GoogleAdProps) {
   useEffect(() => {
-    try {
-      // Push the ad to Google AdSense
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (error) {
-      console.error('AdSense error:', error);
-    }
-  }, []);
+    const timer = setTimeout(() => {
+      try {
+        console.log('Attempting to load AdSense ad for slot:', slot);
+        console.log('Container dimensions:', style);
+        
+        // Check if AdSense script is loaded
+        if (typeof window.adsbygoogle === 'undefined') {
+          console.error('AdSense script not loaded yet');
+          return;
+        }
+        
+        // Push the ad to Google AdSense
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        console.log('AdSense ad pushed successfully');
+      } catch (error) {
+        console.error('AdSense error:', error);
+      }
+    }, 100); // Small delay to ensure DOM is ready
+
+    return () => clearTimeout(timer);
+  }, [slot, style]);
 
   return (
     <div className={className}>
