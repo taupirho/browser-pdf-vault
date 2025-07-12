@@ -23,7 +23,20 @@ const Index = () => {
     title: "Instant Processing",
     description: "No uploads, no waiting"
   }];
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background flex">
+      {/* Left Vertical Ad */}
+      <div className="hidden lg:block w-48 flex-shrink-0">
+        <div className="sticky top-20 p-4">
+          <GoogleAd 
+            slot="7759142262"
+            style={{ width: '160px', height: '600px' }}
+          />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 max-w-4xl mx-auto">
+        <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
@@ -56,13 +69,6 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container mx-auto space-y-12 px-4 py-8">
-
-        {/* Banner Ad */}
-        <GoogleAd 
-          slot="1234567890" 
-          style={{ minHeight: '90px' }}
-          className="flex justify-center"
-        />
 
         {/* Main PDF Protector */}
         <PDFProtector />
@@ -130,17 +136,28 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Rectangle Ad */}
-        <div className="flex justify-center">
+        {/* Bottom Horizontal Ad */}
+        <div className="flex justify-center py-8">
           <GoogleAd 
-            slot="0987654321" 
-            style={{ width: '300px', height: '250px' }}
+            slot="9288363270"
+            style={{ minHeight: '90px' }}
           />
         </div>
 
       </main>
+        </div>
 
-      {/* Footer */}
+      {/* Right Vertical Ad */}
+      <div className="hidden lg:block w-48 flex-shrink-0">
+        <div className="sticky top-20 p-4">
+          <GoogleAd 
+            slot="7759142262"
+            style={{ width: '160px', height: '600px' }}
+          />
+        </div>
+      </div>
+    </div>
+
       <footer className="border-t border-border/50 bg-card/50 backdrop-blur-sm mt-16">
         <div className="container mx-auto px-4 py-8 text-center space-y-4">
           <div className="flex items-center justify-center gap-2">

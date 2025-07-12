@@ -35,24 +35,14 @@ export function GoogleAd({
       <ins
         className="adsbygoogle"
         style={{
-          backgroundColor: '#f3f4f6',
-          border: '2px dashed #d1d5db',
-          minHeight: '90px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#6b7280',
+          display: 'block',
           ...style
         }}
-        data-ad-client="ca-pub-7925818635321947"
+        data-ad-client="ca-pub-7925818683352197"
         data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive={responsive.toString()}
       >
-        <div style={{ textAlign: 'center' }}>
-          <div>📢 Google AdSense</div>
-          <div style={{ fontSize: '12px' }}>Slot: {slot}</div>
-        </div>
       </ins>
     </div>
   );
