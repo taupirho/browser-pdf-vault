@@ -68,16 +68,15 @@ const Index = () => {
       </header>
 
       {/* Main Layout with Side Ads */}
-      <div className="flex">
+      <div className="flex min-h-screen">
         {/* Left Vertical Ad */}
-        <div className="hidden lg:block w-48 flex-shrink-0">
-          <div className="sticky top-20 p-4">
-            <div style={{ width: '160px', height: '600px' }}>
-              <GoogleAd 
-                slot="7759142262"
-                style={{ width: '160px', height: '600px', display: 'block' }}
-              />
-            </div>
+        <div className="hidden lg:flex w-48 flex-shrink-0">
+          <div className="sticky top-20 p-4 w-full h-fit">
+            <GoogleAd 
+              slot="7759142262"
+              style={{ width: '160px', height: '600px', display: 'block', minWidth: '160px', minHeight: '600px' }}
+              className="w-40 h-[600px]"
+            />
           </div>
         </div>
 
@@ -205,25 +204,23 @@ const Index = () => {
 
             {/* Bottom Horizontal Ad */}
             <div className="flex justify-center py-8">
-              <div style={{ width: '728px', height: '90px', maxWidth: '100%' }}>
-                <GoogleAd 
-                  slot="9288363270"
-                  style={{ width: '728px', height: '90px', display: 'block' }}
-                />
-              </div>
+              <GoogleAd 
+                slot="9288363270"
+                style={{ width: '728px', height: '90px', display: 'block', maxWidth: '100%', minWidth: '320px', minHeight: '90px' }}
+                className="w-full max-w-[728px] h-[90px]"
+              />
             </div>
           </main>
         </div>
 
         {/* Right Vertical Ad */}
-        <div className="hidden lg:block w-48 flex-shrink-0">
-          <div className="sticky top-20 p-4">
-            <div style={{ width: '160px', height: '600px' }}>
-              <GoogleAd 
-                slot="7759142262"
-                style={{ width: '160px', height: '600px', display: 'block' }}
-              />
-            </div>
+        <div className="hidden lg:flex w-48 flex-shrink-0">
+          <div className="sticky top-20 p-4 w-full h-fit">
+            <GoogleAd 
+              slot="7759142262"
+              style={{ width: '160px', height: '600px', display: 'block', minWidth: '160px', minHeight: '600px' }}
+              className="w-40 h-[600px]"
+            />
           </div>
         </div>
       </div>
