@@ -30,88 +30,88 @@ const PrivacyPolicy = () => {
             <p className="text-muted-foreground">Last revised 9 July 2025</p>
           </div>
 
-          <Card className="shadow-card bg-gradient-card border-border/50">
+          <Card className="shadow-card bg-card border-border/50">
             <CardContent className="p-8 space-y-6">
-              <p>This Privacy Policy explains what personal data SecurePDF ("we", "our", "the Service") collects, how we use it, and the choices you have. SecurePDF is operated from Scotland; Scottish data-protection law and the UK GDPR apply.</p>
+              <p className="text-foreground">This Privacy Policy explains what personal data SecurePDF ("we", "our", "the Service") collects, how we use it, and the choices you have. SecurePDF is operated from Scotland; Scottish data-protection law and the UK GDPR apply.</p>
 
               <div>
-                <h3 className="font-semibold text-lg mb-3">1. What we do not collect</h3>
-                <p className="mb-2"><strong>PDF files & passwords</strong> – 100% of the encryption happens in your browser.</p>
-                <p className="mb-2">Your documents, the generated password, and any derived bytes never leave your device.</p>
-                <p><strong>User-supplied text or metadata inside the PDF</strong> – never transmitted.</p>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">1. What we do not collect</h3>
+                <p className="mb-2 text-foreground"><strong>PDF files & passwords</strong> – 100% of the encryption happens in your browser.</p>
+                <p className="mb-2 text-foreground">Your documents, the generated password, and any derived bytes never leave your device.</p>
+                <p className="text-foreground"><strong>User-supplied text or metadata inside the PDF</strong> – never transmitted.</p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-3">2. Data we do collect</h3>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">2. Data we do collect</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse border border-border">
                     <thead>
                       <tr className="border-b border-border bg-muted/50">
-                        <th className="text-left p-3 border-r border-border">Category</th>
-                        <th className="text-left p-3 border-r border-border">What</th>
-                        <th className="text-left p-3 border-r border-border">Why</th>
-                        <th className="text-left p-3">Retention</th>
+                        <th className="text-left p-3 border-r border-border text-foreground">Category</th>
+                        <th className="text-left p-3 border-r border-border text-foreground">What</th>
+                        <th className="text-left p-3 border-r border-border text-foreground">Why</th>
+                        <th className="text-left p-3 text-foreground">Retention</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr className="border-b border-border">
-                        <td className="p-3 border-r border-border">Basic logs</td>
-                        <td className="p-3 border-r border-border">IP address, browser user-agent, timestamp (in standard web-server logs)</td>
-                        <td className="p-3 border-r border-border">Detect abuse, diagnose outages</td>
-                        <td className="p-3">30 days, then anonymised</td>
+                        <td className="p-3 border-r border-border text-foreground">Basic logs</td>
+                        <td className="p-3 border-r border-border text-foreground">IP address, browser user-agent, timestamp (in standard web-server logs)</td>
+                        <td className="p-3 border-r border-border text-foreground">Detect abuse, diagnose outages</td>
+                        <td className="p-3 text-foreground">30 days, then anonymised</td>
                       </tr>
                       <tr className="border-b border-border">
-                        <td className="p-3 border-r border-border">Error telemetry (front-end)</td>
-                        <td className="p-3 border-r border-border">Anonymised stack traces (no file content)</td>
-                        <td className="p-3 border-r border-border">Fix bugs</td>
-                        <td className="p-3">90 days</td>
+                        <td className="p-3 border-r border-border text-foreground">Error telemetry (front-end)</td>
+                        <td className="p-3 border-r border-border text-foreground">Anonymised stack traces (no file content)</td>
+                        <td className="p-3 border-r border-border text-foreground">Fix bugs</td>
+                        <td className="p-3 text-foreground">90 days</td>
                       </tr>
                       <tr>
-                        <td className="p-3 border-r border-border">Advertising cookies (Google AdSense)</td>
-                        <td className="p-3 border-r border-border">Google may set or read cookies to personalise ads and limit frequency</td>
-                        <td className="p-3 border-r border-border">Fund the free service</td>
-                        <td className="p-3">Controlled by Google; see their policy</td>
+                        <td className="p-3 border-r border-border text-foreground">Advertising cookies (Google AdSense)</td>
+                        <td className="p-3 border-r border-border text-foreground">Google may set or read cookies to personalise ads and limit frequency</td>
+                        <td className="p-3 border-r border-border text-foreground">Fund the free service</td>
+                        <td className="p-3 text-foreground">Controlled by Google; see their policy</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
-                <p className="mt-3">We do not combine log data with advertising identifiers, nor attempt to re-identify users from anonymised error reports.</p>
+                <p className="mt-3 text-foreground">We do not combine log data with advertising identifiers, nor attempt to re-identify users from anonymised error reports.</p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-3">3. Legal basis</h3>
-                <p className="mb-2"><strong>Legitimate interests</strong> – operating and securing the web-site (Recital 47 UK GDPR).</p>
-                <p><strong>Consent</strong> – AdSense cookies load only after you click "Accept Cookies".</p>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">3. Legal basis</h3>
+                <p className="mb-2 text-foreground"><strong>Legitimate interests</strong> – operating and securing the web-site (Recital 47 UK GDPR).</p>
+                <p className="text-foreground"><strong>Consent</strong> – AdSense cookies load only after you click "Accept Cookies".</p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-3">4. Your rights</h3>
-                <p>Under UK GDPR/Scots law you can: access, correct, erase, or restrict processing of any personal data we hold about you. Contact us (see §7) with your request; we'll respond within 30 days. Because we store no document content, we cannot help recover lost passwords.</p>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">4. Your rights</h3>
+                <p className="text-foreground">Under UK GDPR/Scots law you can: access, correct, erase, or restrict processing of any personal data we hold about you. Contact us (see §7) with your request; we'll respond within 30 days. Because we store no document content, we cannot help recover lost passwords.</p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-3">5. Children</h3>
-                <p>SecurePDF is not directed to children under 13. We do not knowingly collect personal data from them.</p>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">5. Children</h3>
+                <p className="text-foreground">SecurePDF is not directed to children under 13. We do not knowingly collect personal data from them.</p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-3">6. Changes</h3>
-                <p>We may update this Privacy Policy from time to time. Material changes are announced on the homepage; the new policy becomes effective when posted.</p>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">6. Changes</h3>
+                <p className="text-foreground">We may update this Privacy Policy from time to time. Material changes are announced on the homepage; the new policy becomes effective when posted.</p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-3">7. Contact</h3>
-                <p>Questions or data-rights requests: securemypdfdoc@gmail.com</p>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">7. Contact</h3>
+                <p className="text-foreground">Questions or data-rights requests: securemypdfdoc@gmail.com</p>
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-3">8. Governing law</h3>
-                <p>This Policy is governed by the laws of Scotland and the UK, and any dispute falls under the exclusive jurisdiction of the Scottish and UK courts.</p>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">8. Governing law</h3>
+                <p className="text-foreground">This Policy is governed by the laws of Scotland and the UK, and any dispute falls under the exclusive jurisdiction of the Scottish and UK courts.</p>
               </div>
 
               <div className="p-4 bg-muted rounded-lg">
-                <p className="font-medium mb-2">Key takeaway:</p>
-                <p>Apart from minimal server logs and optional advertising cookies, SecurePDF processes everything locally in your browser, so your PDF content and password never touch our servers.</p>
+                <p className="font-medium mb-2 text-foreground">Key takeaway:</p>
+                <p className="text-foreground">Apart from minimal server logs and optional advertising cookies, SecurePDF processes everything locally in your browser, so your PDF content and password never touch our servers.</p>
               </div>
             </CardContent>
           </Card>

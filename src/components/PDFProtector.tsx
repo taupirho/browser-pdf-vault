@@ -156,9 +156,9 @@ export function PDFProtector() {
       <PrivacyIndicator />
       
       {!processedFile ? <>
-          <Card className="shadow-card bg-gradient-card border-border/50">
+          <Card className="shadow-card bg-card border-border/50">
             <CardHeader className="text-center py-0 my-0 mx-0 px-[10px]">
-              <CardTitle className="flex items-center justify-center gap-2 text-2xl">
+              <CardTitle className="flex items-center justify-center gap-2 text-2xl text-foreground">
                 <Shield className="h-6 w-6 text-primary" />
                 Upload Your PDF
               </CardTitle>

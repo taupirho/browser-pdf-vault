@@ -69,9 +69,9 @@ const Contact = () => {
 
           <div className="grid gap-8 md:grid-cols-2">
             {/* Contact Form */}
-            <Card className="shadow-card bg-gradient-card border-border/50">
+            <Card className="shadow-card bg-card border-border/50">
               <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Send us a message</h2>
+                <h2 className="text-xl font-semibold mb-4 text-foreground">Send us a message</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <Label htmlFor="name">Name</Label>
@@ -124,28 +124,28 @@ const Contact = () => {
 
             {/* Contact Information */}
             <div className="space-y-6">
-              <Card className="shadow-card bg-gradient-card border-border/50">
+              <Card className="shadow-card bg-card border-border/50">
                 <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Contact Information</h2>
+                  <h2 className="text-xl font-semibold mb-4 text-foreground">Contact Information</h2>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <Mail className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <p className="font-medium">Email</p>
+                        <p className="font-medium text-foreground">Email</p>
                         <p className="text-muted-foreground">securemypdfdoc@gmail.com</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <MapPin className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <p className="font-medium">Location</p>
+                        <p className="font-medium text-foreground">Location</p>
                         <p className="text-muted-foreground">Scotland, United Kingdom</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <Clock className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <p className="font-medium">Response Time</p>
+                        <p className="font-medium text-foreground">Response Time</p>
                         <p className="text-muted-foreground">Within 48 hours</p>
                       </div>
                     </div>
@@ -153,22 +153,22 @@ const Contact = () => {
                 </CardContent>
               </Card>
 
-              <Card className="shadow-card bg-gradient-card border-border/50">
+              <Card className="shadow-card bg-card border-border/50">
                 <CardContent className="p-6">
-                  <h3 className="font-semibold text-lg mb-3">Frequently Asked Subjects</h3>
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">Frequently Asked Subjects</h3>
                   <div className="space-y-2 text-sm">
-                    <p><strong>Technical Support:</strong> Issues with PDF processing or encryption</p>
-                    <p><strong>Privacy Questions:</strong> How your data is handled</p>
-                    <p><strong>Feature Requests:</strong> Suggestions for improving SecurePDF</p>
-                    <p><strong>Business Inquiries:</strong> Partnership or licensing opportunities</p>
-                    <p><strong>Legal Matters:</strong> DMCA notices or terms clarification</p>
+                    <p className="text-foreground"><strong>Technical Support:</strong> Issues with PDF processing or encryption</p>
+                    <p className="text-foreground"><strong>Privacy Questions:</strong> How your data is handled</p>
+                    <p className="text-foreground"><strong>Feature Requests:</strong> Suggestions for improving SecurePDF</p>
+                    <p className="text-foreground"><strong>Business Inquiries:</strong> Partnership or licensing opportunities</p>
+                    <p className="text-foreground"><strong>Legal Matters:</strong> DMCA notices or terms clarification</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="shadow-card bg-gradient-card border-border/50">
+              <Card className="shadow-card bg-card border-border/50">
                 <CardContent className="p-6">
-                  <h3 className="font-semibold text-lg mb-3">Privacy Note</h3>
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">Privacy Note</h3>
                   <p className="text-sm text-muted-foreground">
                     When you contact us, we collect only the information you provide in your message. 
                     This is used solely to respond to your inquiry and is not shared with third parties. 

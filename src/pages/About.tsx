@@ -84,10 +84,10 @@ const About = () => {
           </div>
 
           {/* Mission Statement */}
-          <Card className="shadow-card bg-gradient-card border-border/50">
+          <Card className="shadow-card bg-card border-border/50">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
-              <p className="text-lg leading-relaxed">
+              <h2 className="text-2xl font-bold mb-4 text-foreground">Our Mission</h2>
+              <p className="text-lg leading-relaxed text-foreground">
                 SecurePDF was created to address a critical gap in online security tools. While many PDF protection services require uploading your sensitive documents to unknown servers, we believe your private files should never leave your control. Our browser-based approach ensures maximum security and privacy while maintaining the convenience of a web-based tool.
               </p>
             </CardContent>
@@ -98,14 +98,14 @@ const About = () => {
             <h2 className="text-3xl font-bold text-center">Why Browser-Based Security Matters</h2>
             <div className="grid gap-6 md:grid-cols-2">
               {securityFeatures.map((feature, index) => (
-                <Card key={index} className="shadow-card bg-gradient-card border-border/50">
+                <Card key={index} className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center flex-shrink-0">
                         <feature.icon className="h-5 w-5 text-primary-foreground" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg mb-2">{feature.title}</h3>
+                        <h3 className="font-semibold text-lg mb-2 text-foreground">{feature.title}</h3>
                         <p className="text-muted-foreground">{feature.description}</p>
                       </div>
                     </div>
@@ -120,14 +120,14 @@ const About = () => {
             <h2 className="text-3xl font-bold text-center">How SecurePDF Works</h2>
             <div className="space-y-4">
               {howItWorks.map((step, index) => (
-                <Card key={index} className="shadow-card bg-gradient-card border-border/50">
+                <Card key={index} className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center flex-shrink-0 text-primary-foreground font-bold">
                         {step.step}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg mb-2">{step.title}</h3>
+                        <h3 className="font-semibold text-lg mb-2 text-foreground">{step.title}</h3>
                         <p className="text-muted-foreground">{step.description}</p>
                       </div>
                     </div>
@@ -138,30 +138,30 @@ const About = () => {
           </section>
 
           {/* Technical Details */}
-          <Card className="shadow-card bg-gradient-card border-border/50">
+          <Card className="shadow-card bg-card border-border/50">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold mb-4">Technical Implementation</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">Technical Implementation</h2>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Encryption Standard</h3>
+                  <h3 className="font-semibold text-lg mb-2 text-foreground">Encryption Standard</h3>
                   <p className="text-muted-foreground">
                     SecurePDF uses AES-256 encryption through the pdf-lib-plus-encrypt library, implementing the same encryption standard used by the U.S. government for classified information and by banks for financial transactions.
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Password Generation</h3>
+                  <h3 className="font-semibold text-lg mb-2 text-foreground">Password Generation</h3>
                   <p className="text-muted-foreground">
                     Passwords are generated using the Web Crypto API's crypto.getRandomValues() method, ensuring cryptographically secure randomness. Each password contains a mix of uppercase, lowercase, numbers, and special characters.
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Memory Management</h3>
+                  <h3 className="font-semibold text-lg mb-2 text-foreground">Memory Management</h3>
                   <p className="text-muted-foreground">
                     Your original PDF is loaded into browser memory temporarily, processed, and then immediately cleared. No copies are retained, cached, or transmitted over the network.
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">Open Source Foundation</h3>
+                  <h3 className="font-semibold text-lg mb-2 text-foreground">Open Source Foundation</h3>
                   <p className="text-muted-foreground">
                     Built on open-source libraries including pdf-lib for PDF manipulation and standard Web APIs for cryptographic operations, ensuring transparency and auditability.
                   </p>
@@ -171,11 +171,11 @@ const About = () => {
           </Card>
 
           {/* Privacy Commitment */}
-          <Card className="shadow-card bg-gradient-card border-border/50">
+          <Card className="shadow-card bg-card border-border/50">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold mb-4">Our Privacy Commitment</h2>
+              <h2 className="text-2xl font-bold mb-4 text-foreground">Our Privacy Commitment</h2>
               <div className="space-y-4">
-                <p className="text-lg">
+                <p className="text-lg text-foreground">
                   Privacy is not just a feature—it's our foundational principle. Here's our commitment to you:
                 </p>
                 <ul className="space-y-2 text-muted-foreground">
