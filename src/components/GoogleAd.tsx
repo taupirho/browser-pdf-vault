@@ -12,23 +12,18 @@ declare global {
   interface Window {
     adsbygoogle: any[];
     loadedAdSlots?: Set<string>;
+    adLoadingSlots?: Set<string>;
   }
 }
 
-// Global tracking of loaded ad slots per page
+// Global tracking with more aggressive prevention
 if (typeof window !== 'undefined') {
   if (!window.loadedAdSlots) {
     window.loadedAdSlots = new Set();
   }
-  // Clear slots when page changes
-  let currentPath = window.location.pathname;
-  const checkPath = () => {
-    if (window.location.pathname !== currentPath) {
-      window.loadedAdSlots = new Set();
-      currentPath = window.location.pathname;
-    }
-  };
-  setInterval(checkPath, 100);
+  if (!window.adLoadingSlots) {
+    window.adLoadingSlots = new Set();
+  }
 }
 
 export function GoogleAd({ 
@@ -40,13 +35,17 @@ export function GoogleAd({
 }: GoogleAdProps) {
   const adRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
-  const uniqueSlotId = `${slot}-${Math.random().toString(36).substr(2, 9)}`;
 
   useEffect(() => {
-    // Prevent any duplicate loading - check both local and global state
-    if (loadedRef.current || window.loadedAdSlots?.has(slot)) {
+    // Triple check - prevent any loading if slot is already loaded or loading
+    if (loadedRef.current || 
+        window.loadedAdSlots?.has(slot) || 
+        window.adLoadingSlots?.has(slot)) {
       return;
     }
+
+    // Mark as loading immediately to prevent races
+    window.adLoadingSlots?.add(slot);
 
     const timer = setTimeout(() => {
       try {
@@ -78,20 +77,27 @@ export function GoogleAd({
           return;
         }
         
-        // Mark as loaded globally to prevent any other instances
+        // Mark as loaded globally and remove from loading
         loadedRef.current = true;
         window.loadedAdSlots?.add(slot);
+        window.adLoadingSlots?.delete(slot);
         
         // Push the ad to Google AdSense
         (window.adsbygoogle = window.adsbygoogle || []).push({});
         console.log('AdSense ad loaded successfully for slot:', slot);
       } catch (error) {
         console.error('AdSense error for slot', slot, ':', error);
+        // Remove from loading set if error occurs
+        window.adLoadingSlots?.delete(slot);
       }
     }, 500); // Longer delay for layout stability
 
     return () => {
       clearTimeout(timer);
+      // Clean up loading state if component unmounts before loading
+      if (!loadedRef.current) {
+        window.adLoadingSlots?.delete(slot);
+      }
     };
     }, [slot]);
 
