@@ -203,12 +203,14 @@ const Index = () => {
             </section>
 
             {/* Bottom Horizontal Ad - bot_horiz_responsive */}
-            <div className="flex justify-center py-8">
-              <GoogleAd 
-                slot="7978634115"
-                style={{ width: '728px', height: '90px', display: 'block', maxWidth: '100%', minWidth: '320px', minHeight: '90px' }}
-                className="w-full max-w-[728px] h-[90px]"
-              />
+            <div className="flex justify-center py-8 w-full">
+              <div className="w-full max-w-[728px] min-h-[90px] flex justify-center">
+                <GoogleAd 
+                  slot="7978634115"
+                  style={{ width: '100%', height: '90px', display: 'block', minWidth: '320px', minHeight: '90px', maxWidth: '728px' }}
+                  className="w-full h-[90px] max-w-[728px]"
+                />
+              </div>
             </div>
           </main>
         </div>
