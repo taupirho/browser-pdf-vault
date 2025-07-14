@@ -213,11 +213,11 @@ const Index = () => {
           </main>
         </div>
 
-        {/* Right Vertical Ad */}
+        {/* Right Vertical Ad - Different slot ID */}
         <div className="hidden lg:flex w-48 flex-shrink-0">
           <div className="sticky top-20 p-4 w-full h-fit">
             <GoogleAd 
-              slot="7759142262"
+              slot="8765432109"
               style={{ width: '160px', height: '600px', display: 'block', minWidth: '160px', minHeight: '600px' }}
               className="w-40 h-[600px]"
             />
