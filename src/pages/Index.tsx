@@ -90,14 +90,14 @@ const Index = () => {
             <section className="space-y-8">
               <h2 className="text-3xl font-bold text-center">Why Use SecurePDF?</h2>
               
-              <div className="flex justify-center items-center gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
                 {indicators.map((item, index) => (
-                  <div key={index} className="flex flex-col items-center text-center p-3 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300 w-[240px]">
-                    <div className="w-7 h-7 bg-gradient-primary rounded-full flex items-center justify-center mb-2">
-                      <item.icon className="h-4 w-4 text-primary-foreground" />
+                  <div key={index} className="flex flex-col items-center text-center p-4 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300">
+                    <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center mb-3">
+                      <item.icon className="h-5 w-5 text-primary-foreground" />
                     </div>
-                    <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
-                    <p className="text-xs text-muted-foreground">{item.description}</p>
+                    <h3 className="font-semibold text-base mb-2">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
                   </div>
                 ))}
               </div>
