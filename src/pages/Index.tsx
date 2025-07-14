@@ -1,10 +1,10 @@
 import { PDFProtector } from "@/components/PDFProtector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { GoogleAd } from "@/components/GoogleAd";
-import { Github, Shield, Lock, Eye, Zap } from "lucide-react";
+import { Shield, Lock, Eye, Zap, FileText, HelpCircle, Users, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const indicators = [{
@@ -31,12 +31,12 @@ const Index = () => {
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                 <Shield className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="font-bold text-xl">SecurePDF</span>
-            </div>
+            </Link>
             
             {/* Center text - hidden on mobile, visible on larger screens */}
             <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
@@ -45,7 +45,17 @@ const Index = () => {
               </span>
             </div>
             
-            <ThemeToggle />
+            <div className="flex items-center gap-4">
+              <nav className="hidden md:flex items-center gap-4">
+                <Link to="/about">
+                  <Button variant="ghost" size="sm">About</Button>
+                </Link>
+                <Link to="/contact">
+                  <Button variant="ghost" size="sm">Contact</Button>
+                </Link>
+              </nav>
+              <ThemeToggle />
+            </div>
           </div>
           
           {/* Mobile tagline - visible only on mobile */}
@@ -130,15 +140,66 @@ const Index = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-card bg-gradient-card border-border/50">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-3">Is there a file size limit?</h3>
-                    <p className="text-muted-foreground">
-                      We limit files to 50MB to ensure good performance in your browser. 
-                      Most PDF documents are well under this limit.
-                    </p>
-                  </CardContent>
-                </Card>
+                 <Card className="shadow-card bg-gradient-card border-border/50">
+                   <CardContent className="p-6">
+                     <h3 className="font-semibold text-lg mb-3">Is there a file size limit?</h3>
+                     <p className="text-muted-foreground">
+                       We limit files to 50MB to ensure good performance in your browser. 
+                       Most PDF documents are well under this limit.
+                     </p>
+                   </CardContent>
+                 </Card>
+
+                 <Card className="shadow-card bg-gradient-card border-border/50">
+                   <CardContent className="p-6">
+                     <h3 className="font-semibold text-lg mb-3">How strong is the encryption?</h3>
+                     <p className="text-muted-foreground">
+                       SecurePDF uses AES-256 encryption, the same military-grade standard used by governments and financial institutions worldwide. 
+                       This encryption is virtually unbreakable with current technology and would take billions of years to crack with today's computers.
+                     </p>
+                   </CardContent>
+                 </Card>
+
+                 <Card className="shadow-card bg-gradient-card border-border/50">
+                   <CardContent className="p-6">
+                     <h3 className="font-semibold text-lg mb-3">Can I use this for sensitive documents?</h3>
+                     <p className="text-muted-foreground">
+                       Absolutely! Since all processing happens locally in your browser and files never touch our servers, 
+                       SecurePDF is perfect for confidential business documents, legal papers, medical records, and other sensitive materials. 
+                       Your privacy is guaranteed by design.
+                     </p>
+                   </CardContent>
+                 </Card>
+
+                 <Card className="shadow-card bg-gradient-card border-border/50">
+                   <CardContent className="p-6">
+                     <h3 className="font-semibold text-lg mb-3">What browsers are supported?</h3>
+                     <p className="text-muted-foreground">
+                       SecurePDF works in all modern web browsers including Chrome, Firefox, Safari, and Edge. 
+                       We use standard Web APIs for cryptography and file handling, ensuring broad compatibility across desktop and mobile devices.
+                     </p>
+                   </CardContent>
+                 </Card>
+
+                 <Card className="shadow-card bg-gradient-card border-border/50">
+                   <CardContent className="p-6">
+                     <h3 className="font-semibold text-lg mb-3">Is SecurePDF really free?</h3>
+                     <p className="text-muted-foreground">
+                       Yes! SecurePDF is completely free to use with no hidden fees, registration requirements, or usage limits. 
+                       The service is supported by minimal, privacy-respecting advertising that doesn't interfere with your document processing.
+                     </p>
+                   </CardContent>
+                 </Card>
+
+                 <Card className="shadow-card bg-gradient-card border-border/50">
+                   <CardContent className="p-6">
+                     <h3 className="font-semibold text-lg mb-3">How do I remove a password from a PDF?</h3>
+                     <p className="text-muted-foreground">
+                       SecurePDF is designed for adding password protection to PDFs. To remove a password from an existing protected PDF, 
+                       you'll need to use a different tool or PDF reader that supports password removal, provided you know the current password.
+                     </p>
+                   </CardContent>
+                 </Card>
               </div>
             </section>
 
@@ -176,169 +237,23 @@ const Index = () => {
             </div>
             <span className="font-semibold">SecurePDF</span>
           </div>
-          <div className="flex justify-center gap-4">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  Privacy Policy
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>SecurePDF – Privacy Policy</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 text-sm">
-                  <p className="text-muted-foreground">Last revised 9 July 2025</p>
-                  
-                  <p>This Privacy Policy explains what personal data SecurePDF ("we", "our", "the Service") collects, how we use it, and the choices you have. SecurePDF is operated from Scotland; Scottish data-protection law and the UK GDPR apply.</p>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">1 What we do not collect</h3>
-                    <p className="mb-2"><strong>PDF files & passwords</strong> – 100% of the encryption happens in your browser.</p>
-                    <p className="mb-2">Your documents, the generated password, and any derived bytes never leave your device.</p>
-                    <p><strong>User-supplied text or metadata inside the PDF</strong> – never transmitted.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">2 Data we do collect</h3>
-                    <div className="overflow-x-auto">
-                      <table className="w-full border-collapse border border-border">
-                        <thead>
-                          <tr className="border-b border-border">
-                            <th className="text-left p-2 border-r border-border">Category</th>
-                            <th className="text-left p-2 border-r border-border">What</th>
-                            <th className="text-left p-2 border-r border-border">Why</th>
-                            <th className="text-left p-2">Retention</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr className="border-b border-border">
-                            <td className="p-2 border-r border-border">Basic logs</td>
-                            <td className="p-2 border-r border-border">IP address, browser user-agent, timestamp (in standard web-server logs)</td>
-                            <td className="p-2 border-r border-border">Detect abuse, diagnose outages</td>
-                            <td className="p-2">30 days, then anonymised</td>
-                          </tr>
-                          <tr className="border-b border-border">
-                            <td className="p-2 border-r border-border">Error telemetry (front-end)</td>
-                            <td className="p-2 border-r border-border">Anonymised stack traces (no file content)</td>
-                            <td className="p-2 border-r border-border">Fix bugs</td>
-                            <td className="p-2">90 days</td>
-                          </tr>
-                          <tr>
-                            <td className="p-2 border-r border-border">Advertising cookies (Google AdSense)</td>
-                            <td className="p-2 border-r border-border">Google may set or read cookies to personalise ads and limit frequency</td>
-                            <td className="p-2 border-r border-border">Fund the free service</td>
-                            <td className="p-2">Controlled by Google; see their policy</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                    <p className="mt-2">We do not combine log data with advertising identifiers, nor attempt to re-identify users from anonymised error reports.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">3 Legal basis</h3>
-                    <p className="mb-2"><strong>Legitimate interests</strong> – operating and securing the web-site (Recital 47 UK GDPR).</p>
-                    <p><strong>Consent</strong> – AdSense cookies load only after you click "Accept Cookies".</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">4 Your rights</h3>
-                    <p>Under UK GDPR/Scots law you can: access, correct, erase, or restrict processing of any personal data we hold about you. Contact us (see §7) with your request; we'll respond within 30 days. Because we store no document content, we cannot help recover lost passwords.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">5 Children</h3>
-                    <p>SecurePDF is not directed to children under 13. We do not knowingly collect personal data from them.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">6 Changes</h3>
-                    <p>We may update this Privacy Policy from time to time. Material changes are announced on the homepage; the new policy becomes effective when posted.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">7 Contact</h3>
-                    <p>Questions or data-rights requests: securemypdfdoc@gmail.com</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">8 Governing law</h3>
-                    <p>This Policy is governed by the laws of Scotland and the UK, and any dispute falls under the exclusive jurisdiction of the Scottish and UK courts.</p>
-                  </div>
-
-                  <div className="p-4 bg-muted rounded-lg">
-                    <p className="font-medium">Key takeaway:</p>
-                    <p>Apart from minimal server logs and optional advertising cookies, SecurePDF processes everything locally in your browser, so your PDF content and password never touch our servers.</p>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  Terms of Use
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>SecurePDF – Terms of Use</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 text-sm">
-                  <p className="text-muted-foreground">Last revised 9 July 2025</p>
-                  
-                  <div>
-                    <h3 className="font-semibold mb-2">Service Description</h3>
-                    <p>SecurePDF is a browser-based utility that lets you add password protection to PDF files entirely on your local device. No copy of your document is uploaded, stored, or otherwise transmitted to our servers.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">Your Responsibility</h3>
-                    <p>You remain solely responsible for the content you process, including any confidential or copyrighted material. By using the service, you confirm you have the legal right to handle that content.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">No Data Storage</h3>
-                    <p>All processing is performed client-side in your browser. We do not receive, collect, or store your PDF files or the passwords you generate.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">Security & Encryption</h3>
-                    <p>PDFs are encrypted using the AES-256 algorithm implemented in the open-source pdf-lib-plus-encrypt library. Keep it safe—if it is lost, we cannot help you recover access to the document.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">Disclaimer of Warranties</h3>
-                    <p>The service is provided "as is" and "as available." We make no warranties, express or implied, regarding reliability, fitness for a particular purpose, or error-free operation. Nothing in these Terms limits any statutory rights you may have under Scots consumer law.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">Limitation of Liability</h3>
-                    <p>To the fullest extent permitted by Scots law, SecurePDF, its owners, and contributors shall not be liable for any direct, indirect, incidental, or consequential losses arising from use of the service—including but not limited to loss of data, loss of profits, or security breaches resulting from weak or compromised passwords.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">Prohibited Use</h3>
-                    <p>You may not use the service to create or distribute content that is illegal under Scots or UK-wide law, infringes copyright, violates privacy, or facilitates malicious activity.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">Changes to the Service</h3>
-                    <p>We may modify, suspend, or discontinue the service at any time without notice. Updated Terms of Use will be posted on this page and become effective upon publication.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">Governing Law</h3>
-                    <p>These Terms are governed by the laws of Scotland and the UK. Any dispute arising under or in connection with the service shall be subject to the exclusive jurisdiction of the Scottish courts.</p>
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold mb-2">Contact</h3>
-                    <p>Questions about these Terms? Email us at securemypdfdoc@gmail.com.</p>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+          <div className="flex flex-wrap justify-center gap-4 text-sm">
+            <Link to="/privacy-policy">
+              <Button variant="ghost" size="sm">Privacy Policy</Button>
+            </Link>
+            <Link to="/terms-of-service">
+              <Button variant="ghost" size="sm">Terms of Service</Button>
+            </Link>
+            <Link to="/contact">
+              <Button variant="ghost" size="sm">Contact</Button>
+            </Link>
+            <Link to="/about">
+              <Button variant="ghost" size="sm">About SecurePDF</Button>
+            </Link>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            <p>© 2025 SecurePDF. All rights reserved.</p>
+            <p>Your privacy is protected by design - all processing happens locally in your browser.</p>
           </div>
         </div>
       </footer>
