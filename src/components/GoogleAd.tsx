@@ -33,13 +33,27 @@ export function GoogleAd({
           return;
         }
         
+        // Get the actual container element to check its dimensions
+        const container = document.querySelector(`ins[data-ad-slot="${slot}"]`);
+        if (!container) {
+          console.error('Ad container not found for slot:', slot);
+          return;
+        }
+        
+        // Check if container has proper dimensions
+        const rect = container.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+          console.warn('Ad container has zero dimensions, skipping ad load for slot:', slot);
+          return;
+        }
+        
         // Push the ad to Google AdSense
         (window.adsbygoogle = window.adsbygoogle || []).push({});
         console.log('AdSense ad pushed successfully');
       } catch (error) {
         console.error('AdSense error:', error);
       }
-    }, 100); // Small delay to ensure DOM is ready
+    }, 200); // Increased delay to allow layout to settle
 
     return () => clearTimeout(timer);
   }, [slot, style]);
