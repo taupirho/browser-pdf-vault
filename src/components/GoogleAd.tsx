@@ -15,9 +15,20 @@ declare global {
   }
 }
 
-// Global tracking of loaded ad slots
-if (typeof window !== 'undefined' && !window.loadedAdSlots) {
-  window.loadedAdSlots = new Set();
+// Global tracking of loaded ad slots per page
+if (typeof window !== 'undefined') {
+  if (!window.loadedAdSlots) {
+    window.loadedAdSlots = new Set();
+  }
+  // Clear slots when page changes
+  let currentPath = window.location.pathname;
+  const checkPath = () => {
+    if (window.location.pathname !== currentPath) {
+      window.loadedAdSlots = new Set();
+      currentPath = window.location.pathname;
+    }
+  };
+  setInterval(checkPath, 100);
 }
 
 export function GoogleAd({ 
@@ -29,11 +40,11 @@ export function GoogleAd({
 }: GoogleAdProps) {
   const adRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
-  const slotKey = `${slot}-${window.location.pathname}`;
+  const uniqueSlotId = `${slot}-${Math.random().toString(36).substr(2, 9)}`;
 
   useEffect(() => {
-    // Prevent duplicate loading for the same slot on the same page
-    if (loadedRef.current || window.loadedAdSlots?.has(slotKey)) {
+    // Prevent any duplicate loading - check both local and global state
+    if (loadedRef.current || window.loadedAdSlots?.has(slot)) {
       return;
     }
 
@@ -67,9 +78,9 @@ export function GoogleAd({
           return;
         }
         
-        // Mark as loaded
+        // Mark as loaded globally to prevent any other instances
         loadedRef.current = true;
-        window.loadedAdSlots?.add(slotKey);
+        window.loadedAdSlots?.add(slot);
         
         // Push the ad to Google AdSense
         (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -82,17 +93,17 @@ export function GoogleAd({
     return () => {
       clearTimeout(timer);
     };
-  }, [slot, slotKey]);
+    }, [slot]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (loadedRef.current) {
-        window.loadedAdSlots?.delete(slotKey);
+        // Don't remove from global tracking to prevent reloading
         loadedRef.current = false;
       }
     };
-  }, [slotKey]);
+  }, []);
 
   return (
     <div ref={adRef} className={className} style={style}>
