@@ -29,19 +29,16 @@ export function GoogleAd({
 }: GoogleAdProps) {
   const adRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef(false);
+  const slotKey = `${slot}-${window.location.pathname}`;
 
   useEffect(() => {
-    // Prevent duplicate loading for the same slot
-    if (loadedRef.current || window.loadedAdSlots?.has(slot)) {
-      console.log('Ad already loaded for slot:', slot);
+    // Prevent duplicate loading for the same slot on the same page
+    if (loadedRef.current || window.loadedAdSlots?.has(slotKey)) {
       return;
     }
 
     const timer = setTimeout(() => {
       try {
-        console.log('Attempting to load AdSense ad for slot:', slot);
-        console.log('Container dimensions:', style);
-        
         // Check if AdSense script is loaded
         if (typeof window.adsbygoogle === 'undefined') {
           console.error('AdSense script not loaded yet');
@@ -55,63 +52,63 @@ export function GoogleAd({
           return;
         }
         
-        // Check if container has proper dimensions
+        // Check if the ad container is visible and has dimensions
         const rect = container.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(container);
         const parentRect = container.parentElement?.getBoundingClientRect();
         
-        console.log(`Container ${slot} dimensions:`, {
-          width: rect.width,
-          height: rect.height,
-          parentWidth: parentRect?.width,
-          parentHeight: parentRect?.height
-        });
+        if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
+          console.warn('Ad container is hidden, skipping ad load for slot:', slot);
+          return;
+        }
         
         if (rect.width === 0 || rect.height === 0 || !parentRect || parentRect.width === 0) {
-          console.warn('Ad container or parent has zero dimensions, skipping ad load for slot:', slot);
+          console.warn('Ad container has zero dimensions, skipping ad load for slot:', slot);
           return;
         }
         
         // Mark as loaded
         loadedRef.current = true;
-        window.loadedAdSlots?.add(slot);
+        window.loadedAdSlots?.add(slotKey);
         
         // Push the ad to Google AdSense
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log('AdSense ad pushed successfully');
+        console.log('AdSense ad loaded successfully for slot:', slot);
       } catch (error) {
-        console.error('AdSense error:', error);
+        console.error('AdSense error for slot', slot, ':', error);
       }
-    }, 300);
+    }, 500); // Longer delay for layout stability
 
     return () => {
       clearTimeout(timer);
     };
-  }, [slot, style]);
+  }, [slot, slotKey]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (loadedRef.current) {
-        window.loadedAdSlots?.delete(slot);
+        window.loadedAdSlots?.delete(slotKey);
         loadedRef.current = false;
       }
     };
-  }, [slot]);
+  }, [slotKey]);
 
   return (
-    <div ref={adRef} className={className} style={{ minWidth: style?.width, minHeight: style?.height }}>
+    <div ref={adRef} className={className} style={style}>
       <ins
         className="adsbygoogle"
         style={{
           display: 'block',
+          width: '100%',
+          height: '100%',
           ...style
         }}
         data-ad-client="ca-pub-7925818683352197"
         data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive={responsive.toString()}
-      >
-      </ins>
+      />
     </div>
   );
 }
