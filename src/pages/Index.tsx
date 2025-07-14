@@ -108,9 +108,9 @@ const Index = () => {
               <h2 className="text-3xl font-bold text-center">Frequently Asked Questions</h2>
               
               <div className="grid gap-6 max-w-3xl mx-auto">
-                <Card className="shadow-card bg-gradient-card border-border/50">
+                <Card className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-3">Is my PDF really secure?</h3>
+                    <h3 className="font-semibold text-lg mb-3 text-foreground">Is my PDF really secure?</h3>
                     <p className="text-muted-foreground">
                       Yes! We use AES-256 encryption, the same standard used by banks and military. 
                       The password is generated using cryptographically secure random values, 
@@ -119,9 +119,9 @@ const Index = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-card bg-gradient-card border-border/50">
+                <Card className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-3">What happens to my files?</h3>
+                    <h3 className="font-semibold text-lg mb-3 text-foreground">What happens to my files?</h3>
                     <p className="text-muted-foreground">
                       Your files never leave your browser. They are read into memory, processed locally, 
                       and then immediately discarded. We never see, store, or have access to your documents.
@@ -129,9 +129,9 @@ const Index = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-card bg-gradient-card border-border/50">
+                <Card className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-3">What if I lose the password?</h3>
+                    <h3 className="font-semibold text-lg mb-3 text-foreground">What if I lose the password?</h3>
                     <p className="text-muted-foreground">
                       Unfortunately, if you lose the password, the PDF cannot be recovered. This is by design - 
                       it ensures maximum security. Always save the password in a secure location.
@@ -139,9 +139,9 @@ const Index = () => {
                   </CardContent>
                 </Card>
 
-                 <Card className="shadow-card bg-gradient-card border-border/50">
+                 <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3">Is there a file size limit?</h3>
+                     <h3 className="font-semibold text-lg mb-3 text-foreground">Is there a file size limit?</h3>
                      <p className="text-muted-foreground">
                        We limit files to 50MB to ensure good performance in your browser. 
                        Most PDF documents are well under this limit.
@@ -149,9 +149,9 @@ const Index = () => {
                    </CardContent>
                  </Card>
 
-                 <Card className="shadow-card bg-gradient-card border-border/50">
+                 <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3">How strong is the encryption?</h3>
+                     <h3 className="font-semibold text-lg mb-3 text-foreground">How strong is the encryption?</h3>
                      <p className="text-muted-foreground">
                        SecurePDF uses AES-256 encryption, the same military-grade standard used by governments and financial institutions worldwide. 
                        This encryption is virtually unbreakable with current technology and would take billions of years to crack with today's computers.
@@ -159,9 +159,9 @@ const Index = () => {
                    </CardContent>
                  </Card>
 
-                 <Card className="shadow-card bg-gradient-card border-border/50">
+                 <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3">Can I use this for sensitive documents?</h3>
+                     <h3 className="font-semibold text-lg mb-3 text-foreground">Can I use this for sensitive documents?</h3>
                      <p className="text-muted-foreground">
                        Absolutely! Since all processing happens locally in your browser and files never touch our servers, 
                        SecurePDF is perfect for confidential business documents, legal papers, medical records, and other sensitive materials. 
@@ -170,9 +170,9 @@ const Index = () => {
                    </CardContent>
                  </Card>
 
-                 <Card className="shadow-card bg-gradient-card border-border/50">
+                 <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3">What browsers are supported?</h3>
+                     <h3 className="font-semibold text-lg mb-3 text-foreground">What browsers are supported?</h3>
                      <p className="text-muted-foreground">
                        SecurePDF works in all modern web browsers including Chrome, Firefox, Safari, and Edge. 
                        We use standard Web APIs for cryptography and file handling, ensuring broad compatibility across desktop and mobile devices.
@@ -180,9 +180,9 @@ const Index = () => {
                    </CardContent>
                  </Card>
 
-                 <Card className="shadow-card bg-gradient-card border-border/50">
+                 <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3">Is SecurePDF really free?</h3>
+                     <h3 className="font-semibold text-lg mb-3 text-foreground">Is SecurePDF really free?</h3>
                      <p className="text-muted-foreground">
                        Yes! SecurePDF is completely free to use with no hidden fees, registration requirements, or usage limits. 
                        The service is supported by minimal, privacy-respecting advertising that doesn't interfere with your document processing.
@@ -190,9 +190,9 @@ const Index = () => {
                    </CardContent>
                  </Card>
 
-                 <Card className="shadow-card bg-gradient-card border-border/50">
+                 <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3">How do I remove a password from a PDF?</h3>
+                     <h3 className="font-semibold text-lg mb-3 text-foreground">How do I remove a password from a PDF?</h3>
                      <p className="text-muted-foreground">
                        SecurePDF is designed for adding password protection to PDFs. To remove a password from an existing protected PDF, 
                        you'll need to use a different tool or PDF reader that supports password removal, provided you know the current password.
