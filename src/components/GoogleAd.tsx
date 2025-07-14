@@ -42,10 +42,23 @@ export function GoogleAd({
         
         // Check if container has proper dimensions
         const rect = container.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) {
-          console.warn('Ad container has zero dimensions, skipping ad load for slot:', slot);
+        const parentRect = container.parentElement?.getBoundingClientRect();
+        
+        console.log(`Container ${slot} dimensions:`, {
+          width: rect.width,
+          height: rect.height,
+          parentWidth: parentRect?.width,
+          parentHeight: parentRect?.height
+        });
+        
+        if (rect.width === 0 || rect.height === 0 || !parentRect || parentRect.width === 0) {
+          console.warn('Ad container or parent has zero dimensions, skipping ad load for slot:', slot);
           return;
         }
+        
+        // Clear any existing ads in this slot to prevent duplicates
+        const existingAds = container.querySelectorAll('[data-adsbygoogle-status]');
+        existingAds.forEach(ad => ad.remove());
         
         // Push the ad to Google AdSense
         (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -53,13 +66,13 @@ export function GoogleAd({
       } catch (error) {
         console.error('AdSense error:', error);
       }
-    }, 200); // Increased delay to allow layout to settle
+    }, 300); // Increased delay to allow layout to fully settle
 
     return () => clearTimeout(timer);
   }, [slot, style]);
 
   return (
-    <div className={className}>
+    <div className={className} style={{ minWidth: style?.width, minHeight: style?.height }}>
       <ins
         className="adsbygoogle"
         style={{
