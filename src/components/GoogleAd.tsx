@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface GoogleAdProps {
   slot: string;
@@ -11,7 +11,13 @@ interface GoogleAdProps {
 declare global {
   interface Window {
     adsbygoogle: any[];
+    loadedAdSlots?: Set<string>;
   }
+}
+
+// Global tracking of loaded ad slots
+if (typeof window !== 'undefined' && !window.loadedAdSlots) {
+  window.loadedAdSlots = new Set();
 }
 
 export function GoogleAd({ 
@@ -21,7 +27,16 @@ export function GoogleAd({
   style,
   className = ""
 }: GoogleAdProps) {
+  const adRef = useRef<HTMLDivElement>(null);
+  const loadedRef = useRef(false);
+
   useEffect(() => {
+    // Prevent duplicate loading for the same slot
+    if (loadedRef.current || window.loadedAdSlots?.has(slot)) {
+      console.log('Ad already loaded for slot:', slot);
+      return;
+    }
+
     const timer = setTimeout(() => {
       try {
         console.log('Attempting to load AdSense ad for slot:', slot);
@@ -33,8 +48,8 @@ export function GoogleAd({
           return;
         }
         
-        // Get the actual container element to check its dimensions
-        const container = document.querySelector(`ins[data-ad-slot="${slot}"]`);
+        // Get the actual container element
+        const container = adRef.current?.querySelector('ins');
         if (!container) {
           console.error('Ad container not found for slot:', slot);
           return;
@@ -56,9 +71,9 @@ export function GoogleAd({
           return;
         }
         
-        // Clear any existing ads in this slot to prevent duplicates
-        const existingAds = container.querySelectorAll('[data-adsbygoogle-status]');
-        existingAds.forEach(ad => ad.remove());
+        // Mark as loaded
+        loadedRef.current = true;
+        window.loadedAdSlots?.add(slot);
         
         // Push the ad to Google AdSense
         (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -66,13 +81,25 @@ export function GoogleAd({
       } catch (error) {
         console.error('AdSense error:', error);
       }
-    }, 300); // Increased delay to allow layout to fully settle
+    }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [slot, style]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (loadedRef.current) {
+        window.loadedAdSlots?.delete(slot);
+        loadedRef.current = false;
+      }
+    };
+  }, [slot]);
+
   return (
-    <div className={className} style={{ minWidth: style?.width, minHeight: style?.height }}>
+    <div ref={adRef} className={className} style={{ minWidth: style?.width, minHeight: style?.height }}>
       <ins
         className="adsbygoogle"
         style={{
