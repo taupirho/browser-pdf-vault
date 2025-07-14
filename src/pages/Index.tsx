@@ -202,10 +202,10 @@ const Index = () => {
               </div>
             </section>
 
-            {/* Bottom Horizontal Ad */}
+            {/* Bottom Horizontal Ad - bot_horiz_responsive */}
             <div className="flex justify-center py-8">
               <GoogleAd 
-                slot="9288363270"
+                slot="7978634115"
                 style={{ width: '728px', height: '90px', display: 'block', maxWidth: '100%', minWidth: '320px', minHeight: '90px' }}
                 className="w-full max-w-[728px] h-[90px]"
               />
