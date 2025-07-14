@@ -47,87 +47,90 @@ export function GoogleAd({
     // Mark as loading immediately
     window.adLoadingSlots?.add(slot);
 
-    // Use intersection observer to ensure container is visible and sized
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && entry.target === adRef.current) {
-          // Wait a bit more for layout to stabilize
-          setTimeout(() => {
-            try {
-              // Check if AdSense script is loaded
-              if (typeof window.adsbygoogle === 'undefined') {
-                console.error('AdSense script not loaded yet');
-                window.adLoadingSlots?.delete(slot);
-                return;
-              }
-              
-              // Get the actual container element
-              const container = adRef.current?.querySelector('ins');
-              if (!container) {
-                console.error('Ad container not found for slot:', slot);
-                window.adLoadingSlots?.delete(slot);
-                return;
-              }
-              
-              // Check if container has proper dimensions
-              const rect = container.getBoundingClientRect();
-              const computedStyle = window.getComputedStyle(container);
-              
-              if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
-                console.warn('Ad container is hidden, skipping ad load for slot:', slot);
-                window.adLoadingSlots?.delete(slot);
-                return;
-              }
-              
-              if (rect.width === 0 || rect.height === 0) {
-                console.warn('Ad container has zero dimensions, skipping ad load for slot:', slot);
-                window.adLoadingSlots?.delete(slot);
-                return;
-              }
-              
-              // Final check - make sure we haven't already loaded this slot
-              if (loadedRef.current || window.loadedAdSlots?.has(slot)) {
-                window.adLoadingSlots?.delete(slot);
-                return;
-              }
-              
-              // Mark as loaded and push to AdSense
-              loadedRef.current = true;
-              window.loadedAdSlots?.add(slot);
-              window.adLoadingSlots?.delete(slot);
-              
-              (window.adsbygoogle = window.adsbygoogle || []).push({});
-              console.log('AdSense ad loaded successfully for slot:', slot);
-              
-              // Disconnect observer after successful load
-              observer.disconnect();
-              
-            } catch (error) {
-              console.error('AdSense error for slot', slot, ':', error);
-              window.adLoadingSlots?.delete(slot);
-            }
-          }, 800); // Wait for layout to fully settle
-        }
-      });
-    }, {
-      threshold: 0.1, // Load when 10% visible
-      rootMargin: '50px' // Start loading 50px before coming into view
-    });
+    // Multiple attempts with increasing delays to handle layout timing
+    const attemptLoad = (attempt = 1, maxAttempts = 5) => {
+      const delay = attempt * 200; // 200ms, 400ms, 600ms, 800ms, 1000ms
+      
+      setTimeout(() => {
+        try {
+          // Check if already loaded
+          if (loadedRef.current || window.loadedAdSlots?.has(slot)) {
+            window.adLoadingSlots?.delete(slot);
+            return;
+          }
 
-    // Start observing when container is ready
-    const checkContainer = () => {
-      if (adRef.current) {
-        observer.observe(adRef.current);
-      } else {
-        // Retry if container not ready
-        setTimeout(checkContainer, 100);
-      }
+          // Check if AdSense script is loaded
+          if (typeof window.adsbygoogle === 'undefined') {
+            if (attempt < maxAttempts) {
+              attemptLoad(attempt + 1, maxAttempts);
+              return;
+            }
+            console.error('AdSense script not loaded after', maxAttempts, 'attempts');
+            window.adLoadingSlots?.delete(slot);
+            return;
+          }
+          
+          // Get the container element
+          const container = adRef.current?.querySelector('ins');
+          if (!container) {
+            if (attempt < maxAttempts) {
+              attemptLoad(attempt + 1, maxAttempts);
+              return;
+            }
+            console.error('Ad container not found for slot:', slot, 'after', maxAttempts, 'attempts');
+            window.adLoadingSlots?.delete(slot);
+            return;
+          }
+          
+          // Check dimensions
+          const rect = container.getBoundingClientRect();
+          const computedStyle = window.getComputedStyle(container);
+          const parentRect = container.parentElement?.getBoundingClientRect();
+          
+          if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
+            if (attempt < maxAttempts) {
+              attemptLoad(attempt + 1, maxAttempts);
+              return;
+            }
+            console.warn('Ad container still hidden after', maxAttempts, 'attempts for slot:', slot);
+            window.adLoadingSlots?.delete(slot);
+            return;
+          }
+          
+          if (rect.width === 0 || rect.height === 0 || !parentRect || parentRect.width === 0) {
+            if (attempt < maxAttempts) {
+              console.log(`Attempt ${attempt}: Container dimensions not ready for slot ${slot}, retrying...`);
+              attemptLoad(attempt + 1, maxAttempts);
+              return;
+            }
+            console.warn('Ad container has zero dimensions after', maxAttempts, 'attempts for slot:', slot);
+            window.adLoadingSlots?.delete(slot);
+            return;
+          }
+          
+          // Success! Load the ad
+          loadedRef.current = true;
+          window.loadedAdSlots?.add(slot);
+          window.adLoadingSlots?.delete(slot);
+          
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          console.log('AdSense ad loaded successfully for slot:', slot, 'on attempt', attempt);
+          
+        } catch (error) {
+          console.error('AdSense error for slot', slot, 'on attempt', attempt, ':', error);
+          if (attempt < maxAttempts) {
+            attemptLoad(attempt + 1, maxAttempts);
+          } else {
+            window.adLoadingSlots?.delete(slot);
+          }
+        }
+      }, delay);
     };
-    
-    checkContainer();
+
+    // Start loading attempts
+    attemptLoad();
 
     return () => {
-      observer.disconnect();
       if (!loadedRef.current) {
         window.adLoadingSlots?.delete(slot);
       }
