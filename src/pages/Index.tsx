@@ -1,6 +1,6 @@
 import { PDFProtector } from "@/components/PDFProtector";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { GoogleAd } from "@/components/GoogleAd";
+
 import { Shield, Lock, Eye, Zap, FileText, HelpCircle, Users, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -67,21 +67,10 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main Layout with Side Ads */}
-      <div className="flex min-h-screen">
-        {/* Left Vertical Ad */}
-        <div className="hidden lg:flex w-48 flex-shrink-0">
-          <div className="sticky top-20 p-4 w-full h-fit">
-            <GoogleAd 
-              slot="7880848617"
-              style={{ width: '160px', height: '600px', display: 'block', minWidth: '160px', minHeight: '600px' }}
-              className="w-40 h-[600px]"
-            />
-          </div>
-        </div>
+      {/* Main Content */}
+      <div className="min-h-screen">
 
-        {/* Main Content */}
-        <div className="flex-1 max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <main className="container mx-auto space-y-12 px-4 py-8">
             {/* Main PDF Protector */}
             <PDFProtector />
@@ -202,29 +191,9 @@ const Index = () => {
               </div>
             </section>
 
-            {/* Bottom Horizontal Ad - bot_horiz_responsive */}
-            <div className="flex justify-center py-8 w-full">
-              <div className="w-full max-w-[728px] min-h-[90px] flex justify-center">
-                <GoogleAd 
-                  slot="7978634115"
-                  style={{ width: '100%', height: '90px', display: 'block', minWidth: '320px', minHeight: '90px', maxWidth: '728px' }}
-                  className="w-full h-[90px] max-w-[728px]"
-                />
-              </div>
-            </div>
           </main>
         </div>
 
-        {/* Right Vertical Ad - rhs_vertical_responsive */}
-        <div className="hidden lg:flex w-48 flex-shrink-0">
-          <div className="sticky top-20 p-4 w-full h-fit">
-            <GoogleAd 
-              slot="7759142262"
-              style={{ width: '160px', height: '600px', display: 'block', minWidth: '160px', minHeight: '600px' }}
-              className="w-40 h-[600px]"
-            />
-          </div>
-        </div>
       </div>
 
       {/* Footer */}
