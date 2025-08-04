@@ -3,7 +3,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-
 import { Shield, Lock, Eye, Zap, FileText, HelpCircle, Users, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,31 +10,34 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Link } from "react-router-dom";
 import Auth from './Auth';
 import type { User, Session } from '@supabase/supabase-js';
-
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const navigate = useNavigate();
-
   useEffect(() => {
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
+    const {
+      data: {
+        subscription
       }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
     });
 
+    // THEN check for existing session
+    supabase.auth.getSession().then(({
+      data: {
+        session
+      }
+    }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -43,23 +45,20 @@ const Index = () => {
   const handleLoginRequired = () => {
     setShowAuthModal(true);
   };
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
 
   // Show loading while checking auth status
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4">
             <Shield className="h-5 w-5 text-primary-foreground" />
           </div>
           <p>Loading...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Show the interface to everyone, but with login modal for unauthenticated users
@@ -81,9 +80,7 @@ const Index = () => {
     title: "Instant Processing",
     description: "No uploads, no waiting"
   }];
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
@@ -111,15 +108,11 @@ const Index = () => {
                   <Button variant="ghost" size="sm">Contact</Button>
                 </Link>
               </nav>
-              {user ? (
-                <Button variant="outline" size="sm" onClick={handleSignOut}>
+              {user ? <Button variant="outline" size="sm" onClick={handleSignOut}>
                   Sign Out
-                </Button>
-              ) : (
-                <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
+                </Button> : <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
                   Sign In
-                </Button>
-              )}
+                </Button>}
               <ThemeToggle />
             </div>
           </div>
@@ -146,15 +139,13 @@ const Index = () => {
               <h2 className="text-3xl font-bold text-center">Why Use SecurePDF?</h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
-                {indicators.map((item, index) => (
-                  <div key={index} className="flex flex-col items-center text-center p-4 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300">
+                {indicators.map((item, index) => <div key={index} className="flex flex-col items-center text-center p-4 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300">
                     <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center mb-3">
                       <item.icon className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <h3 className="font-semibold text-base mb-2">{item.title}</h3>
                     <p className="text-sm text-muted-foreground">{item.description}</p>
-                  </div>
-                ))}
+                  </div>)}
               </div>
             </section>
 
@@ -196,11 +187,8 @@ const Index = () => {
 
                  <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3 text-foreground">Is there a file size limit?</h3>
-                     <p className="text-muted-foreground">
-                       We limit files to 50MB to ensure good performance in your browser. 
-                       Most PDF documents are well under this limit.
-                     </p>
+                     <h3 className="font-semibold text-lg mb-3 text-foreground">What is your pricing model?</h3>
+                     <p className="text-muted-foreground">The good news is that there is a FREE tier. Once registered, you can password-protect two files per day, with each file being a maximum of 250KB in size. Alternatively, you can opt to pay for higher limits. For $4.99 per month (or $50 per year), the starter tier allows you to password-protect up to 10 files per day, with each file being up to 500KB in size. Our Pro tier allows you to password protect up to 50 files per day, each of up to 50MB in size. That costs $15.99 per month or $150 per year. </p>
                    </CardContent>
                  </Card>
 
@@ -238,10 +226,7 @@ const Index = () => {
                  <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
                      <h3 className="font-semibold text-lg mb-3 text-foreground">Is SecurePDF really free?</h3>
-                     <p className="text-muted-foreground">
-                       Yes! SecurePDF is completely free to use with no hidden fees, registration requirements, or usage limits. 
-                       The service is supported by minimal, privacy-respecting advertising that doesn't interfere with your document processing.
-                     </p>
+                     <p className="text-muted-foreground">Yes! Registered users can use SecurePDF to password-protect 2 PDFs per day, with each file being up to 250KB in size..</p>
                    </CardContent>
                  </Card>
 
@@ -306,8 +291,6 @@ const Index = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
