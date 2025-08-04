@@ -80,6 +80,7 @@ export function PDFProtector({
     setIsDragging(false);
   }, []);
   const handleFileSelect = useCallback(async (file: File) => {
+    console.log('File selected:', file.name, 'Size:', file.size, 'bytes', '(' + Math.round(file.size / 1024) + 'KB)');
     // Check if user is authenticated
     if (!user) {
       onLoginRequired?.();
@@ -116,11 +117,24 @@ export function PDFProtector({
     // Check file size limit based on subscription tier
     const maxFileSizeBytes = userProfile.max_file_size_kb * 1024;
     if (file.size > maxFileSizeBytes) {
-      const maxSizeMB = userProfile.max_file_size_kb / 1024;
+      const currentSizeKB = Math.round(file.size / 1024);
       const currentSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      const maxSizeDisplay = userProfile.max_file_size_kb >= 1024 
+        ? `${(userProfile.max_file_size_kb / 1024).toFixed(0)}MB` 
+        : `${userProfile.max_file_size_kb}KB`;
+      
+      let upgradeMessage = "";
+      if (userProfile.subscription_tier === "free") {
+        upgradeMessage = " Upgrade to Starter (1MB limit) or Pro (10MB limit) for larger files.";
+      } else if (userProfile.subscription_tier === "starter") {
+        upgradeMessage = " Upgrade to Pro (10MB limit) for larger files.";
+      } else if (userProfile.subscription_tier === "pro") {
+        upgradeMessage = " Please contact us for custom requests with larger file sizes.";
+      }
+
       toast({
         title: "File Too Large",
-        description: `File size ${currentSizeMB}MB exceeds your ${userProfile.subscription_tier} plan limit of ${maxSizeMB >= 1 ? `${maxSizeMB}MB` : `${userProfile.max_file_size_kb}KB`}. Please choose a smaller file or upgrade your plan.`,
+        description: `File size ${currentSizeKB}KB (${currentSizeMB}MB) exceeds your ${userProfile.subscription_tier} plan limit of ${maxSizeDisplay}.${upgradeMessage}`,
         variant: "destructive"
       });
       return;
@@ -207,7 +221,7 @@ export function PDFProtector({
     } finally {
       setIsProcessing(false);
     }
-  }, [generateSecurePassword, toast]);
+  }, [generateSecurePassword, toast, user, userProfile]);
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
