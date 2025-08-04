@@ -1,8 +1,15 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const Pricing = () => {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState<string | null>(null);
   const plans = [
     {
       name: "Free",
@@ -45,6 +52,48 @@ const Pricing = () => {
       popular: false
     }
   ];
+
+  const handlePlanSelection = async (planName: string) => {
+    if (planName === "Free") {
+      navigate("/");
+      return;
+    }
+
+    try {
+      setLoading(planName);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to subscribe to a plan.",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { plan: planName.toLowerCase() }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error creating checkout:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start checkout process. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -100,8 +149,10 @@ const Pricing = () => {
                 <Button 
                   className="w-full" 
                   variant={plan.popular ? "default" : "outline"}
+                  onClick={() => handlePlanSelection(plan.name)}
+                  disabled={loading === plan.name}
                 >
-                  {plan.buttonText}
+                  {loading === plan.name ? "Loading..." : plan.buttonText}
                 </Button>
               </CardContent>
             </Card>
