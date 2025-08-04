@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { PDFDocument } from "pdf-lib-plus-encrypt";
 import { Shield, Lock, Download, FileText, Eye, EyeOff, Copy, Check, Upload, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { PrivacyIndicator } from "./PrivacyIndicator";
+import { supabase } from "@/integrations/supabase/client";
 import type { User } from '@supabase/supabase-js';
 interface ProcessedFile {
   name: string;
@@ -18,6 +19,13 @@ interface PDFProtectorProps {
   user?: User | null;
   onLoginRequired?: () => void;
 }
+
+interface UserProfile {
+  subscription_tier: string;
+  max_file_size_kb: number;
+  max_daily_files: number;
+  daily_usage_count: number;
+}
 export function PDFProtector({
   user,
   onLoginRequired
@@ -27,9 +35,36 @@ export function PDFProtector({
   const [processedFile, setProcessedFile] = useState<ProcessedFile | null>(null);
   const [showPassword, setShowPassword] = useState(true);
   const [passwordCopied, setPasswordCopied] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { toast } = useToast();
+
+  // Check subscription and get user profile
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase.functions.invoke('check-subscription');
+        if (error) throw error;
+        
+        // Get user profile with updated limits
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count')
+          .eq('user_id', user.id)
+          .single();
+          
+        if (profileError) throw profileError;
+        setUserProfile(profile);
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+      }
+    };
+
+    if (user) {
+      checkSubscription();
+    }
+  }, [user]);
   const generateSecurePassword = useCallback((): string => {
     const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
     const array = new Uint8Array(15);
@@ -58,11 +93,34 @@ export function PDFProtector({
       });
       return;
     }
-    if (file.size > 50 * 1024 * 1024) {
-      // 50MB limit
+    // Check user profile and file size limits
+    if (!userProfile) {
+      toast({
+        title: "Loading Profile",
+        description: "Please wait while we load your subscription details.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check daily usage limit
+    if (userProfile.daily_usage_count >= userProfile.max_daily_files) {
+      toast({
+        title: "Daily Limit Reached",
+        description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check file size limit based on subscription tier
+    const maxFileSizeBytes = userProfile.max_file_size_kb * 1024;
+    if (file.size > maxFileSizeBytes) {
+      const maxSizeMB = userProfile.max_file_size_kb / 1024;
+      const currentSizeMB = (file.size / 1024 / 1024).toFixed(2);
       toast({
         title: "File Too Large",
-        description: "Please select a PDF file smaller than 50MB.",
+        description: `File size ${currentSizeMB}MB exceeds your ${userProfile.subscription_tier} plan limit of ${maxSizeMB >= 1 ? `${maxSizeMB}MB` : `${userProfile.max_file_size_kb}KB`}. Please choose a smaller file or upgrade your plan.`,
         variant: "destructive"
       });
       return;
@@ -119,6 +177,22 @@ export function PDFProtector({
         originalSize: file.size,
         protectedSize: encryptedPdfBytes.byteLength
       });
+      // Update daily usage count
+      try {
+        await supabase
+          .from('profiles')
+          .update({ 
+            daily_usage_count: userProfile.daily_usage_count + 1,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+        
+        // Update local state
+        setUserProfile(prev => prev ? { ...prev, daily_usage_count: prev.daily_usage_count + 1 } : null);
+      } catch (error) {
+        console.error('Error updating usage count:', error);
+      }
+
       toast({
         title: "PDF Successfully Encrypted and Downloaded!",
         description: "Your PDF has been password-protected with original content preserved. Save the password securely!"
