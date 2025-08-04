@@ -171,10 +171,7 @@ const Index = () => {
                 <Card className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
                     <h3 className="font-semibold text-lg mb-3 text-foreground">What happens to my files?</h3>
-                    <p className="text-muted-foreground">
-                      Your files never leave your browser. They are read into memory, processed locally, 
-                      and then immediately discarded. We never see, store, or have access to your documents.
-                    </p>
+                    <p className="text-muted-foreground">Your files never leave your browser. They are read into memory, processed locally, downloaded to your local file system and then immediately discarded. We never see, store, or have access to your documents.</p>
                   </CardContent>
                 </Card>
 
