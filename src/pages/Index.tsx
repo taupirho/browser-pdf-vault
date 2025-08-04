@@ -191,7 +191,7 @@ const Index = () => {
                  <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
                      <h3 className="font-semibold text-lg mb-3 text-foreground">What is your pricing model?</h3>
-                     <p className="text-muted-foreground">The good news is that there is a FREE tier. Once registered, you can password-protect two files per day, with each file being a maximum of 250KB in size. Alternatively, you can opt to pay for higher limits. For $4.99 per month (or $50 per year), the starter tier allows you to password-protect up to 10 files per day, with each file being up to 1MB in size. Our Pro tier allows you to password protect up to 50 files per day, each of up to 10MB in size. That costs $15.99 per month or $150 per year. </p>
+                     <p className="text-muted-foreground">The good news is that there is a FREE tier. Once registered, you can password-protect two files per day, with each file being a maximum of 250KB in size. Alternatively, you can opt to pay for higher limits. For $6.99 per month (or $70 per year), the starter tier allows you to password-protect up to 10 files per day, with each file being up to 1MB in size. Our Pro tier allows you to password protect up to 50 files per day, each of up to 10MB in size. That costs $15.99 per month or $150 per year. </p>
                    </CardContent>
                  </Card>
 
@@ -228,8 +228,8 @@ const Index = () => {
 
                  <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3 text-foreground">Is SecurePDF really free?</h3>
-                     <p className="text-muted-foreground">Yes! Registered users can instantly use SecurePDF to password-protect 2 PDFs per day, with each file being up to 250KB in size.</p>
+                     <h3 className="font-semibold text-lg mb-3 text-foreground">What kind of passwords do you generate?</h3>
+                     <p className="text-muted-foreground">For the Free and Starter tiers, the password is a random 13 character long piece of text consisting of a mix of upper and lowercase letters, numbers and other common keyboard symbols such as the dollar sign ($), underscore character (_), the hash sign (#) etc ... Pro tier users can specify the length and format of the password, e.g. must be a minimum of 15 characters long and only contain lowercase letters.</p>
                    </CardContent>
                  </Card>
 
