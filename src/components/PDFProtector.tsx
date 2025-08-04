@@ -7,13 +7,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { PrivacyIndicator } from "./PrivacyIndicator";
+import type { User } from '@supabase/supabase-js';
 interface ProcessedFile {
   name: string;
   password: string;
   originalSize: number;
   protectedSize: number;
 }
-export function PDFProtector() {
+
+interface PDFProtectorProps {
+  user?: User | null;
+  onLoginRequired?: () => void;
+}
+
+export function PDFProtector({ user, onLoginRequired }: PDFProtectorProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedFile, setProcessedFile] = useState<ProcessedFile | null>(null);
@@ -37,6 +44,12 @@ export function PDFProtector() {
     setIsDragging(false);
   }, []);
   const handleFileSelect = useCallback(async (file: File) => {
+    // Check if user is authenticated
+    if (!user) {
+      onLoginRequired?.();
+      return;
+    }
+    
     if (!file.type.includes('pdf')) {
       toast({
         title: "Invalid File Type",
@@ -185,9 +198,12 @@ export function PDFProtector() {
                       {isProcessing ? <>
                           <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                           Processing...
-                        </> : <>
+                        </> : user ? <>
                           <FileText className="mr-2 h-4 w-4" />
                           Choose File
+                        </> : <>
+                          <Lock className="mr-2 h-4 w-4" />
+                          Sign In to Use
                         </>}
                     </Button>
                   </Label>

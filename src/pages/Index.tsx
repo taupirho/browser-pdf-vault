@@ -7,13 +7,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Shield, Lock, Eye, Zap, FileText, HelpCircle, Users, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
+import Auth from './Auth';
 import type { User, Session } from '@supabase/supabase-js';
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,12 +39,10 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Redirect unauthenticated users to auth page
-  useEffect(() => {
-    if (!isLoading && !user) {
-      navigate('/auth');
-    }
-  }, [user, isLoading, navigate]);
+  // Handle login requirement for unauthenticated users
+  const handleLoginRequired = () => {
+    setShowAuthModal(true);
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -61,10 +62,7 @@ const Index = () => {
     );
   }
 
-  // Don't render anything if not authenticated (will redirect)
-  if (!user) {
-    return null;
-  }
+  // Show the interface to everyone, but with login modal for unauthenticated users
 
   const indicators = [{
     icon: Shield,
@@ -113,9 +111,15 @@ const Index = () => {
                   <Button variant="ghost" size="sm">Contact</Button>
                 </Link>
               </nav>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                Sign Out
-              </Button>
+              {user ? (
+                <Button variant="outline" size="sm" onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
+                  Sign In
+                </Button>
+              )}
               <ThemeToggle />
             </div>
           </div>
@@ -135,7 +139,7 @@ const Index = () => {
         <div className="max-w-4xl mx-auto">
           <main className="container mx-auto space-y-12 px-4 py-8">
             {/* Main PDF Protector */}
-            <PDFProtector />
+            <PDFProtector user={user} onLoginRequired={handleLoginRequired} />
 
             {/* Why Use SecurePDF Section */}
             <section className="space-y-8">
@@ -287,6 +291,21 @@ const Index = () => {
           </div>
         </div>
       </footer>
+
+      {/* Auth Modal */}
+      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Sign in to SecurePDF
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            <Auth isModal={true} onSuccess={() => setShowAuthModal(false)} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

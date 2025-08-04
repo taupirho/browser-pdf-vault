@@ -8,7 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import type { User, Session } from '@supabase/supabase-js';
-export default function Auth() {
+interface AuthProps {
+  isModal?: boolean;
+  onSuccess?: () => void;
+}
+
+export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState('');
@@ -44,12 +49,16 @@ export default function Auth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Redirect authenticated users to main page
+  // Redirect authenticated users to main page (only if not in modal mode)
   useEffect(() => {
     if (user) {
-      navigate('/');
+      if (isModal) {
+        onSuccess?.();
+      } else {
+        navigate('/');
+      }
     }
-  }, [user, navigate]);
+  }, [user, navigate, isModal, onSuccess]);
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -231,10 +240,18 @@ export default function Auth() {
         </Card>
       </div>;
   }
-  return <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+  const containerClass = isModal 
+    ? "w-full" 
+    : "min-h-screen flex items-center justify-center bg-background p-4";
+  
+  const cardClass = isModal 
+    ? "w-full border-0 shadow-none" 
+    : "w-full max-w-md";
+
+  return <div className={containerClass}>
+      <Card className={cardClass}>
         <CardHeader>
-          <CardTitle>Welcome to PDF Protector</CardTitle>
+          <CardTitle>Welcome to SecurePDF</CardTitle>
           <CardDescription>
             Sign in to your account or create a new one to get started
           </CardDescription>
