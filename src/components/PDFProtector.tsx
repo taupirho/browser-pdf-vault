@@ -83,20 +83,14 @@ export function PDFProtector({
     console.log('File selected:', file.name, 'Size:', file.size, 'bytes', '(' + Math.round(file.size / 1024) + 'KB)');
     console.log('User profile:', userProfile);
     console.log('User authenticated:', !!user);
+    
     // Check if user is authenticated
     if (!user) {
       onLoginRequired?.();
       return;
     }
-    if (!file.type.includes('pdf')) {
-      toast({
-        title: "Invalid File Type",
-        description: "Please select a PDF file.",
-        variant: "destructive"
-      });
-      return;
-    }
-    // Check user profile and file size limits
+
+    // Check user profile is loaded
     if (!userProfile) {
       toast({
         title: "Loading Profile",
@@ -106,11 +100,20 @@ export function PDFProtector({
       return;
     }
 
-    // Check daily usage limit
+    // Check daily usage limit FIRST - before any other processing
     if (userProfile.daily_usage_count >= userProfile.max_daily_files) {
       toast({
         title: "Daily Limit Reached",
         description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!file.type.includes('pdf')) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please select a PDF file.",
         variant: "destructive"
       });
       return;
