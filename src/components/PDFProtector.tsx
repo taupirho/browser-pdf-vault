@@ -281,12 +281,12 @@ export function PDFProtector({
                     </p>
                     
                   </div>
-                  {user ? <Label htmlFor="pdf-upload" className="py-0 px-0 mx-0 my-0">
+                    {user ? <Label htmlFor="pdf-upload" className="py-0 px-0 mx-0 my-0 cursor-pointer">
                       <Input id="pdf-upload" type="file" accept=".pdf" className="hidden" onChange={e => {
                   const file = e.target.files?.[0];
                   if (file) handleFileSelect(file);
                 }} disabled={isProcessing} />
-                      <Button variant="outline" size="lg" className="pointer-events-none" disabled={isProcessing}>
+                      <Button variant="outline" size="lg" className="cursor-pointer" disabled={isProcessing} type="button">
                         {isProcessing ? <>
                             <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                             Processing...
