@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          company_name: string | null
           created_at: string
           daily_usage_count: number
           email: string
@@ -28,6 +29,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_name?: string | null
           created_at?: string
           daily_usage_count?: number
           email: string
@@ -40,6 +42,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_name?: string | null
           created_at?: string
           daily_usage_count?: number
           email?: string
