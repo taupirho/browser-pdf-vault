@@ -11,7 +11,7 @@ const Pricing = () => {
       features: [
         "2 PDFs per day",
         "Max file size: 250KB",
-        "Advanced encryption",
+        "Secure encryption",
         "Email support"
       ],
       buttonText: "Get Started",
@@ -24,7 +24,7 @@ const Pricing = () => {
       features: [
         "10 PDFs per day",
         "Max file size: 1MB",
-        "Advanced encryption",
+        "Secure encryption",
         "Priority email support"
       ],
       buttonText: "Choose Starter",
@@ -37,7 +37,7 @@ const Pricing = () => {
       features: [
         "50 PDFs per day",
         "Max file size: 10MB",
-        "Enterprise encryption",
+        "Secure encryption",
         "24/7 phone & email support",
         "Custom passwords"
       ],
