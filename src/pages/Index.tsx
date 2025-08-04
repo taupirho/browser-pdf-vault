@@ -101,6 +101,9 @@ const Index = () => {
             
             <div className="flex items-center gap-4">
               <nav className="hidden md:flex items-center gap-4">
+                <Link to="/pricing">
+                  <Button variant="ghost" size="sm">Pricing</Button>
+                </Link>
                 <Link to="/about">
                   <Button variant="ghost" size="sm">About</Button>
                 </Link>
