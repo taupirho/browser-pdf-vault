@@ -14,13 +14,14 @@ interface ProcessedFile {
   originalSize: number;
   protectedSize: number;
 }
-
 interface PDFProtectorProps {
   user?: User | null;
   onLoginRequired?: () => void;
 }
-
-export function PDFProtector({ user, onLoginRequired }: PDFProtectorProps) {
+export function PDFProtector({
+  user,
+  onLoginRequired
+}: PDFProtectorProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedFile, setProcessedFile] = useState<ProcessedFile | null>(null);
@@ -49,7 +50,6 @@ export function PDFProtector({ user, onLoginRequired }: PDFProtectorProps) {
       onLoginRequired?.();
       return;
     }
-    
     if (!file.type.includes('pdf')) {
       toast({
         title: "Invalid File Type",
@@ -178,11 +178,7 @@ export function PDFProtector({ user, onLoginRequired }: PDFProtectorProps) {
               <CardDescription className="text-lg font-bold text-foreground">Password protect your PDF documents with complete privacy. All processing happens locally in your browser - your files never touch our servers and we can't see their contents.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 ${isDragging ? 'border-primary bg-accent/50 scale-105' : 'border-border hover:border-primary/50 hover:bg-accent/20'} ${!user ? 'cursor-pointer' : ''}`} 
-                onDragOver={handleDragOver} 
-                onDragLeave={handleDragLeave} 
-                onDrop={handleDrop}
-                onClick={!user ? onLoginRequired : undefined}>
+              <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 ${isDragging ? 'border-primary bg-accent/50 scale-105' : 'border-border hover:border-primary/50 hover:bg-accent/20'} ${!user ? 'cursor-pointer' : ''}`} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} onClick={!user ? onLoginRequired : undefined}>
                 <div className="space-y-4">
                   <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
                     {user ? <Upload className="h-8 w-8 text-primary-foreground" /> : <Lock className="h-8 w-8 text-primary-foreground" />}
@@ -191,16 +187,13 @@ export function PDFProtector({ user, onLoginRequired }: PDFProtectorProps) {
                     <p className="text-lg font-medium">
                       {user ? "Drag and drop your PDF here, or click Choose File to browse" : "Sign in to protect your PDF files"}
                     </p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {user ? "Maximum file size: 50MB" : "Secure, private, and processed locally in your browser"}
-                    </p>
+                    
                   </div>
-                  {user ? (
-                    <Label htmlFor="pdf-upload" className="py-0 px-0 mx-0 my-0">
+                  {user ? <Label htmlFor="pdf-upload" className="py-0 px-0 mx-0 my-0">
                       <Input id="pdf-upload" type="file" accept=".pdf" className="hidden" onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (file) handleFileSelect(file);
-                  }} disabled={isProcessing} />
+                  const file = e.target.files?.[0];
+                  if (file) handleFileSelect(file);
+                }} disabled={isProcessing} />
                       <Button variant="outline" size="lg" className="pointer-events-none" disabled={isProcessing}>
                         {isProcessing ? <>
                             <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -210,13 +203,10 @@ export function PDFProtector({ user, onLoginRequired }: PDFProtectorProps) {
                             Choose File
                           </>}
                       </Button>
-                    </Label>
-                  ) : (
-                    <Button variant="outline" size="lg" onClick={onLoginRequired}>
+                    </Label> : <Button variant="outline" size="lg" onClick={onLoginRequired}>
                       <Lock className="mr-2 h-4 w-4" />
                       Sign In to Use
-                    </Button>
-                  )}
+                    </Button>}
                 </div>
               </div>
             </CardContent>
