@@ -196,17 +196,29 @@ export function PDFProtector({
         protectedSize: encryptedPdfBytes.byteLength
       });
       // Update daily usage count
+      console.log('Updating daily usage count from', userProfile.daily_usage_count, 'to', userProfile.daily_usage_count + 1);
       try {
-        await supabase
+        const { data, error } = await supabase
           .from('profiles')
           .update({ 
             daily_usage_count: userProfile.daily_usage_count + 1,
             updated_at: new Date().toISOString()
           })
-          .eq('user_id', user.id);
+          .eq('user_id', user.id)
+          .select();
         
-        // Update local state
-        setUserProfile(prev => prev ? { ...prev, daily_usage_count: prev.daily_usage_count + 1 } : null);
+        if (error) {
+          console.error('Error updating usage count:', error);
+        } else {
+          console.log('Usage count updated successfully:', data);
+          // Update local state with the actual database response
+          if (data && data[0]) {
+            setUserProfile(prev => prev ? { ...prev, daily_usage_count: data[0].daily_usage_count } : null);
+          } else {
+            // Fallback: increment local state
+            setUserProfile(prev => prev ? { ...prev, daily_usage_count: prev.daily_usage_count + 1 } : null);
+          }
+        }
       } catch (error) {
         console.error('Error updating usage count:', error);
       }
