@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           company_name: string | null
           created_at: string
+          custom_password_settings: Json | null
           daily_usage_count: number
           email: string
           id: string
@@ -31,6 +32,7 @@ export type Database = {
         Insert: {
           company_name?: string | null
           created_at?: string
+          custom_password_settings?: Json | null
           daily_usage_count?: number
           email: string
           id?: string
@@ -44,6 +46,7 @@ export type Database = {
         Update: {
           company_name?: string | null
           created_at?: string
+          custom_password_settings?: Json | null
           daily_usage_count?: number
           email?: string
           id?: string
