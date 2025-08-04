@@ -226,7 +226,7 @@ const Index = () => {
                  <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
                      <h3 className="font-semibold text-lg mb-3 text-foreground">Is SecurePDF really free?</h3>
-                     <p className="text-muted-foreground">Yes! Registered users can use SecurePDF to password-protect 2 PDFs per day, with each file being up to 250KB in size..</p>
+                     <p className="text-muted-foreground">Yes! Registered users can instantly use SecurePDF to password-protect 2 PDFs per day, with each file being up to 250KB in size.</p>
                    </CardContent>
                  </Card>
 
