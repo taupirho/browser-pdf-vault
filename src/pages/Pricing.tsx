@@ -11,7 +11,7 @@ const Pricing = () => {
       features: [
         "2 PDFs per day",
         "Max file size: 250KB",
-        "Basic encryption",
+        "Advanced encryption",
         "Email support"
       ],
       buttonText: "Get Started",
@@ -19,30 +19,27 @@ const Pricing = () => {
     },
     {
       name: "Starter",
-      price: "$9.99",
+      price: "$6.99",
       description: "Great for regular users",
       features: [
         "10 PDFs per day",
         "Max file size: 1MB",
         "Advanced encryption",
-        "Priority email support",
-        "Custom passwords"
+        "Priority email support"
       ],
       buttonText: "Choose Starter",
       popular: true
     },
     {
       name: "Pro",
-      price: "$29.99",
+      price: "$15.99",
       description: "For power users and businesses",
       features: [
         "50 PDFs per day",
         "Max file size: 10MB",
         "Enterprise encryption",
         "24/7 phone & email support",
-        "Custom passwords",
-        "Bulk processing",
-        "API access"
+        "Custom passwords"
       ],
       buttonText: "Choose Pro",
       popular: false
@@ -79,7 +76,13 @@ const Pricing = () => {
                 <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-primary">{plan.price}</span>
-                  {plan.price !== "$0" && <span className="text-muted-foreground">/month</span>}
+                  {plan.price !== "$0" && (
+                    <div className="text-muted-foreground">
+                      <span>/month</span>
+                      {plan.price === "$6.99" && <div className="text-sm">or $70/year</div>}
+                      {plan.price === "$15.99" && <div className="text-sm">or $150/year</div>}
+                    </div>
+                  )}
                 </div>
                 <p className="text-muted-foreground mt-2">{plan.description}</p>
               </CardHeader>
