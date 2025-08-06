@@ -301,7 +301,21 @@ export function PDFProtector({
                   const file = e.target.files?.[0];
                   if (file) handleFileSelect(file);
                 }} disabled={isProcessing} />
-                      <Label htmlFor="pdf-upload" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer">
+                      <Label 
+                        htmlFor="pdf-upload" 
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer"
+                        onClick={(e) => {
+                          // Check daily limit before opening file dialog
+                          if (userProfile && userProfile.daily_usage_count >= userProfile.max_daily_files) {
+                            e.preventDefault();
+                            toast({
+                              title: "Daily Limit Reached",
+                              description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
+                              variant: "destructive"
+                            });
+                          }
+                        }}
+                      >
                         {isProcessing ? <>
                             <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                             Processing...
