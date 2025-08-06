@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { PDFDocument } from "pdf-lib-plus-encrypt";
-import { Shield, Lock, Download, FileText, Eye, EyeOff, Copy, Check, Upload, AlertCircle } from "lucide-react";
+import { Shield, Lock, Download, FileText, Eye, EyeOff, Copy, Check, Upload, AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -39,32 +39,32 @@ export function PDFProtector({
   const { toast } = useToast();
 
   // Check subscription and get user profile
-  useEffect(() => {
-    const checkSubscription = async () => {
-      if (!user) return;
+  const checkSubscription = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      if (error) throw error;
       
-      try {
-        const { data, error } = await supabase.functions.invoke('check-subscription');
-        if (error) throw error;
+      // Get user profile with updated limits
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count')
+        .eq('user_id', user.id)
+        .single();
         
-        // Get user profile with updated limits
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count')
-          .eq('user_id', user.id)
-          .single();
-          
-        if (profileError) throw profileError;
-        setUserProfile(profile);
-      } catch (error) {
-        console.error('Error checking subscription:', error);
-      }
-    };
+      if (profileError) throw profileError;
+      setUserProfile(profile);
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+    }
+  }, [user]);
 
+  useEffect(() => {
     if (user) {
       checkSubscription();
     }
-  }, [user]);
+  }, [user, checkSubscription]);
   const generateSecurePassword = useCallback((): string => {
     const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
     const array = new Uint8Array(15);
@@ -281,6 +281,17 @@ export function PDFProtector({
               <CardTitle className="flex items-center justify-center gap-2 text-2xl text-foreground">
                 <Shield className="h-6 w-6 text-primary" />
                 Upload Your PDF
+                {user && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={checkSubscription}
+                    className="ml-2"
+                    title="Refresh subscription limits"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                )}
               </CardTitle>
               <CardDescription className="text-lg font-bold text-foreground">Password protect your PDF documents with complete privacy. All processing happens locally in your browser - your files never touch our servers and we can't see their contents.</CardDescription>
             </CardHeader>
