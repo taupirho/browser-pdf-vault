@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { PDFDocument } from "pdf-lib-plus-encrypt";
-import { Shield, Lock, Download, FileText, Eye, EyeOff, Copy, Check, Upload, AlertCircle, RefreshCw } from "lucide-react";
+import { Shield, Lock, Download, FileText, Eye, EyeOff, Copy, Check, Upload, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -63,6 +63,17 @@ export function PDFProtector({
   useEffect(() => {
     if (user) {
       checkSubscription();
+    }
+  }, [user, checkSubscription]);
+
+  // Refresh profile data periodically to get latest limits
+  useEffect(() => {
+    if (user) {
+      const interval = setInterval(() => {
+        checkSubscription();
+      }, 5000); // Check every 5 seconds
+      
+      return () => clearInterval(interval);
     }
   }, [user, checkSubscription]);
   const generateSecurePassword = useCallback((): string => {
@@ -281,17 +292,6 @@ export function PDFProtector({
               <CardTitle className="flex items-center justify-center gap-2 text-2xl text-foreground">
                 <Shield className="h-6 w-6 text-primary" />
                 Upload Your PDF
-                {user && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={checkSubscription}
-                    className="ml-2"
-                    title="Refresh subscription limits"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
-                )}
               </CardTitle>
               <CardDescription className="text-lg font-bold text-foreground">Password protect your PDF documents with complete privacy. All processing happens locally in your browser - your files never touch our servers and we can't see their contents.</CardDescription>
             </CardHeader>
