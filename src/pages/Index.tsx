@@ -171,17 +171,14 @@ const Index = () => {
                 <Card className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
                     <h3 className="font-semibold text-lg mb-3 text-foreground">What happens to my files?</h3>
-                    <p className="text-muted-foreground">Your files never leave your browser. They are read into memory, processed locally, downloaded to your local file system and then immediately discarded. We never see, store, or have access to your documents.</p>
+                    <p className="text-muted-foreground">Your files never leave your browser. They are read into memory and processed locally. The newly created password-protected PDF is downloaded to your local file system and then immediately discarded. Your original input PDF is unchanged and is also discarded after processing. An appropriate password is created for your new PDF which you should copy somewhere safe as we don't store that either. We never see, store, or have access to your documents.</p>
                   </CardContent>
                 </Card>
 
                 <Card className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
                     <h3 className="font-semibold text-lg mb-3 text-foreground">What if I lose the password?</h3>
-                    <p className="text-muted-foreground">
-                      Unfortunately, if you lose the password, the PDF cannot be recovered. This is by design - 
-                      it ensures maximum security. Always save the password in a secure location.
-                    </p>
+                    <p className="text-muted-foreground">Unfortunately, if you lose the password, the PDF cannot be recovered. This is by design - it ensures maximum security. Always save the password in a secure location. Remember that your original PDF is unchanged and you can always re-attach it for password protection again.</p>
                   </CardContent>
                 </Card>
 
