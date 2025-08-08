@@ -112,7 +112,15 @@ const Pricing = () => {
 
       const { data, error } = await supabase.functions.invoke('customer-portal');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Customer portal error:', error);
+        throw new Error(error.message || 'Failed to create customer portal session');
+      }
+
+      if (data?.error) {
+        console.error('Customer portal data error:', data.error);
+        throw new Error(data.error);
+      }
 
       if (data?.url) {
         // Open Stripe customer portal in a new tab
@@ -122,12 +130,15 @@ const Pricing = () => {
           title: "Redirecting to Stripe",
           description: "Opening the customer portal where you can manage your subscription, including cancellation.",
         });
+      } else {
+        throw new Error('No portal URL received from Stripe');
       }
     } catch (error) {
       console.error('Error opening customer portal:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Error",
-        description: "Failed to open subscription management. Please try again.",
+        description: `Failed to open subscription management: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
