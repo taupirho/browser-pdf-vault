@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -136,11 +136,21 @@ const Pricing = () => {
     } catch (error) {
       console.error('Error opening customer portal:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      toast({
-        title: "Error",
-        description: `Failed to open subscription management: ${errorMessage}`,
-        variant: "destructive",
-      });
+      
+      // Show specific help for Stripe Customer Portal configuration error
+      if (errorMessage.includes('No configuration provided') || errorMessage.includes('default configuration has not been created')) {
+        toast({
+          title: "Stripe Customer Portal Setup Required",
+          description: "You need to configure your Stripe Customer Portal settings. Please visit your Stripe dashboard to set this up.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: `Failed to open subscription management: ${errorMessage}`,
+          variant: "destructive",
+        });
+      }
     } finally {
       setManagingSubscription(false);
     }
@@ -190,6 +200,11 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Breadcrumb */}
+      <div className="container mx-auto px-4 py-2">
+        <Link to="/" className="text-primary hover:underline text-sm">← Back to Home</Link>
+      </div>
+      
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-foreground mb-4">
