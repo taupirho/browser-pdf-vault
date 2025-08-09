@@ -188,17 +188,14 @@ const Index = () => {
                  <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
                      <h3 className="font-semibold text-lg mb-3 text-foreground">Are my PDF's really secure?</h3>
-                     <p className="text-muted-foreground">Yes! We use AES-256 encryption, the same standard used by banks and military. The password is generated using cryptographically secure random values, and all processing happens in your browser.</p>
+                     <p className="text-muted-foreground">Yes! We use AES-256 encryption, the same standard used by banks and the military. The password is generated using cryptographically secure random values, and all processing happens in your browser. </p>
                    </CardContent>
                  </Card>
 
                  <Card className="shadow-card bg-card border-border/50">
                    <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3 text-foreground">How strong is the encryption?</h3>
-                     <p className="text-muted-foreground">
-                       SecurePDF uses AES-256 encryption, the same military-grade standard used by governments and financial institutions worldwide. 
-                       This encryption is virtually unbreakable with current technology and would take billions of years to crack with today's computers.
-                     </p>
+                     <h3 className="font-semibold text-lg mb-3 text-foreground">How do I start?</h3>
+                     <p className="text-muted-foreground">Simply sign up using your email and a password. After that, you can use the FREE tier to see if you like the product. If you do, you can switch to a paid plan for higher limits. We use Stripe to process payments, which can be made using your Credit Card. You can elect to pay monthly or for a whole year and can amend or cancel your subscription at ANY time.</p>
                    </CardContent>
                  </Card>
 
