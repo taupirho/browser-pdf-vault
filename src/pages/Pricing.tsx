@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { format } from "date-fns";
 interface SubscriptionStatus {
   subscribed: boolean;
   subscription_tier?: string;
@@ -224,7 +225,7 @@ const Pricing = () => {
                   <div>
                     <strong>Current Plan: {subscriptionStatus.subscription_tier || 'Unknown'}</strong>
                     {subscriptionStatus.subscription_end && <div className="text-sm text-muted-foreground mt-1">
-                        Next billing: {new Date(subscriptionStatus.subscription_end).toLocaleDateString()}
+                        Next billing: {format(new Date(subscriptionStatus.subscription_end), "dd-MMM-yyyy")}
                       </div>}
                   </div>
                   <Button variant="outline" size="sm" onClick={handleManageSubscription} disabled={managingSubscription} className="ml-4">
