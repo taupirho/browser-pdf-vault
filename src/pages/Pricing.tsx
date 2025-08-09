@@ -1,4 +1,4 @@
-import { Check, Settings, AlertCircle } from "lucide-react";
+import { Check, Settings, AlertCircle, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -200,10 +200,22 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Breadcrumb */}
-      <div className="container mx-auto px-4 py-2">
-        <Link to="/" className="text-primary hover:underline text-sm">← Back to Home</Link>
-      </div>
+      {/* Header */}
+      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <Shield className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <span className="font-bold text-xl">SecurePDF</span>
+            </Link>
+            <Link to="/">
+              <Button variant="ghost">Back to Home</Button>
+            </Link>
+          </div>
+        </div>
+      </header>
       
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { PrivacyIndicator } from "./PrivacyIndicator";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,6 +39,13 @@ export function PDFProtector({
   const [passwordCopied, setPasswordCopied] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { toast } = useToast();
+  const [passwordOptions, setPasswordOptions] = useState({
+    length: 15,
+    includeLowercase: true,
+    includeUppercase: true,
+    includeNumbers: true,
+    includeSymbols: true,
+  });
 
   // Check subscription and get user profile
   const checkSubscription = useCallback(async () => {
@@ -77,11 +86,57 @@ export function PDFProtector({
     }
   }, [user, checkSubscription]);
   const generateSecurePassword = useCallback((): string => {
-    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-    const array = new Uint8Array(15);
-    window.crypto.getRandomValues(array);
-    return Array.from(array, byte => charset[byte % charset.length]).join('');
-  }, []);
+    const isCustomizable = userProfile && (userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro");
+    const opts = isCustomizable ? passwordOptions : {
+      length: 15,
+      includeLowercase: true,
+      includeUppercase: true,
+      includeNumbers: true,
+      includeSymbols: true,
+    };
+
+    const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+    const length = clamp(opts.length, 5, 30);
+
+    const lower = "abcdefghijklmnopqrstuvwxyz";
+    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const nums = "0123456789";
+    const syms = "!@#$%^&*";
+
+    const sets: string[] = [];
+    if (opts.includeLowercase) sets.push(lower);
+    if (opts.includeUppercase) sets.push(upper);
+    if (opts.includeNumbers) sets.push(nums);
+    if (opts.includeSymbols) sets.push(syms);
+    if (sets.length === 0) {
+      sets.push(lower, nums); // sensible fallback
+    }
+    const all = sets.join("");
+
+    const randomIndex = (max: number) => {
+      const array = new Uint32Array(1);
+      crypto.getRandomValues(array);
+      return array[0] % max;
+    };
+
+    const chars: string[] = [];
+    // Ensure at least one from each selected set
+    sets.forEach((set) => {
+      chars.push(set[randomIndex(set.length)]);
+    });
+
+    while (chars.length < length) {
+      chars.push(all[randomIndex(all.length)]);
+    }
+
+    // Shuffle with crypto randomness
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = randomIndex(i + 1);
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+
+    return chars.join("");
+  }, [passwordOptions, userProfile]);
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -343,6 +398,46 @@ export function PDFProtector({
               </div>
             </CardContent>
           </Card>
+
+          {userProfile && (userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro") && (
+            <Card className="shadow-card bg-card border-border/50 mt-6">
+              <CardHeader>
+                <CardTitle className="text-lg">Password Options</CardTitle>
+                <CardDescription>Customize your generated password</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
+                  <Slider
+                    value={[passwordOptions.length]}
+                    min={5}
+                    max={30}
+                    step={1}
+                    onValueChange={(val) => setPasswordOptions((prev) => ({ ...prev, length: val[0] }))}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={(c) => setPasswordOptions((p) => ({ ...p, includeLowercase: Boolean(c) }))} />
+                    <Label htmlFor="lower">Lowercase letters</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={(c) => setPasswordOptions((p) => ({ ...p, includeUppercase: Boolean(c) }))} />
+                    <Label htmlFor="upper">Uppercase letters</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={(c) => setPasswordOptions((p) => ({ ...p, includeNumbers: Boolean(c) }))} />
+                    <Label htmlFor="numbers">Numbers</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={(c) => setPasswordOptions((p) => ({ ...p, includeSymbols: Boolean(c) }))} />
+                    <Label htmlFor="symbols">Special characters</Label>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">Passwords include at least one of each selected type.</p>
+              </CardContent>
+            </Card>
+          )}
 
           
         </> : <Card className="shadow-glow bg-gradient-card border-trust/30">
