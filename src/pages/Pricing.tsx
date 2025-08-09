@@ -262,8 +262,8 @@ const Pricing = () => {
                   <span className="text-4xl font-bold text-primary">{plan.price}</span>
                   {plan.price !== "$0" && <div className="text-muted-foreground">
                       <span>/month per user</span>
-                      {plan.price === "$6.99" && <div className="text-sm">or $70/year</div>}
-                      {plan.price === "$15.99" && <div className="text-sm">or $150 /year per user</div>}
+                      {plan.price === "$6.99" && <div className="text-sm">or $70/year per user</div>}
+                      {plan.price === "$15.99" && <div className="text-sm">or $150/year per user</div>}
                     </div>}
                 </div>
                 <p className="text-muted-foreground mt-2">{plan.description}</p>
