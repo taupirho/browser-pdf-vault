@@ -166,6 +166,13 @@ const Index = () => {
 
                 <Card className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
+                    <h3 className="font-semibold text-lg mb-3 text-foreground">Are my payment details secure?</h3>
+                    <p className="text-muted-foreground">Yes—your payment details are handled by Stripe, not us. We never see or store your full card number or CVC. Your card info is sent directly to Stripe over an encrypted connection and stored securely by them. Stripe is a PCI DSS Level 1–certified provider (the highest level). We only keep non-sensitive details (like the last 4 digits and card brand) and a token so we can bill you. We also use HTTPS everywhere, require 2-factor auth on our admin access, and follow Stripe’s best practices for webhooks and API keys. You can remove your payment method at any time.</p>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-card bg-card border-border/50">
+                  <CardContent className="p-6">
                     <h3 className="font-semibold text-lg mb-3 text-foreground">What happens to my files?</h3>
                     <p className="text-muted-foreground">Your files never leave your browser. They are read into memory and processed locally. The newly created password-protected PDF is downloaded to your local file system and then immediately discarded. Your original input PDF is unchanged and is also discarded after processing. An appropriate password is created for your new PDF which you should copy somewhere safe as we don't store that either. We never see, store, or have access to your documents.</p>
                   </CardContent>
