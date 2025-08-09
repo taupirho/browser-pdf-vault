@@ -85,6 +85,13 @@ export function PDFProtector({
       return () => clearInterval(interval);
     }
   }, [user, checkSubscription]);
+
+  // Clear profile when user signs out
+  useEffect(() => {
+    if (!user) {
+      setUserProfile(null);
+    }
+  }, [user]);
   const generateSecurePassword = useCallback((): string => {
     const isCustomizable = userProfile && (userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro");
     const opts = isCustomizable ? passwordOptions : {
@@ -399,7 +406,7 @@ export function PDFProtector({
             </CardContent>
           </Card>
 
-          {userProfile && (userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro") && (
+          {user && userProfile && (userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro") && (
             <Card className="shadow-card bg-card border-border/50 mt-6">
               <CardHeader>
                 <CardTitle className="text-lg">Password Options</CardTitle>
