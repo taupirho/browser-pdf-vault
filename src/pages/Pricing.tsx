@@ -289,7 +289,15 @@ const Pricing = () => {
           <p className="text-muted-foreground">
             All plans include secure encryption and file deletion after processing.
           </p>
-          <p className="text-sm text-muted-foreground">You can cancel or modify your subscription anytime using the Manage Subscription page.</p>
+          <p className="text-sm text-muted-foreground">You can cancel or modify your subscription anytime using the {" "}
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); handleManageSubscription(); }}
+              className="text-primary underline underline-offset-2 hover:no-underline"
+            >
+              Manage Subscription page
+            </a>.
+          </p>
         </div>
       </div>
     </div>;
