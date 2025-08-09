@@ -41,12 +41,14 @@ export function PDFProtector({
     toast
   } = useToast();
   const [passwordOptions, setPasswordOptions] = useState({
-    length: 15,
+    length: 13,
     includeLowercase: true,
     includeUppercase: true,
     includeNumbers: true,
-    includeSymbols: true
+    includeSymbols: true,
   });
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
 
   // Check subscription and get user profile
   const checkSubscription = useCallback(async () => {
@@ -92,6 +94,66 @@ export function PDFProtector({
       setUserProfile(null);
     }
   }, [user]);
+
+  // Load saved custom password settings (if any)
+  useEffect(() => {
+    const loadSettings = async () => {
+      if (!user || !userProfile || settingsLoaded) return;
+
+      // Only applicable for customizable tiers
+      if (!(userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro")) {
+        setSettingsLoaded(true);
+        setPasswordOptions({
+          length: 13,
+          includeLowercase: true,
+          includeUppercase: true,
+          includeNumbers: true,
+          includeSymbols: true,
+        });
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('custom_password_settings')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error loading saved password settings:', error);
+          setSettingsLoaded(true);
+          return;
+        }
+
+        const saved = (data?.custom_password_settings as any) || null;
+        if (saved && typeof saved === 'object') {
+          const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+          setPasswordOptions({
+            length: clamp(Number(saved.length ?? 13), 5, 30),
+            includeLowercase: Boolean(saved.includeLowercase ?? true),
+            includeUppercase: Boolean(saved.includeUppercase ?? true),
+            includeNumbers: Boolean(saved.includeNumbers ?? true),
+            includeSymbols: Boolean(saved.includeSymbols ?? true),
+          });
+        } else {
+          setPasswordOptions({
+            length: 13,
+            includeLowercase: true,
+            includeUppercase: true,
+            includeNumbers: true,
+            includeSymbols: true,
+          });
+        }
+      } catch (e) {
+        console.error('Unexpected error loading settings:', e);
+      } finally {
+        setSettingsLoaded(true);
+      }
+    };
+
+    loadSettings();
+  }, [user, userProfile, settingsLoaded]);
   const generateSecurePassword = useCallback((): string => {
     const isCustomizable = userProfile && (userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro");
     const opts = isCustomizable ? passwordOptions : {
@@ -336,6 +398,39 @@ export function PDFProtector({
     setProcessedFile(null);
     setPasswordCopied(false);
   }, []);
+
+  const handleSavePasswordSettings = useCallback(async () => {
+    if (!user) {
+      toast({ title: 'Sign in required', description: 'Please sign in to save your preferences.', variant: 'destructive' });
+      return;
+    }
+    setSavingSettings(true);
+    try {
+      const payload = {
+        custom_password_settings: {
+          length: Math.max(5, Math.min(30, Number(passwordOptions.length || 13))),
+          includeLowercase: Boolean(passwordOptions.includeLowercase),
+          includeUppercase: Boolean(passwordOptions.includeUppercase),
+          includeNumbers: Boolean(passwordOptions.includeNumbers),
+          includeSymbols: Boolean(passwordOptions.includeSymbols),
+        }
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(payload)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({ title: 'Settings saved', description: 'Your password preferences have been saved.' });
+    } catch (e: any) {
+      console.error('Error saving password settings:', e);
+      toast({ title: 'Save failed', description: e?.message || 'Could not save settings. Please try again.', variant: 'destructive' });
+    } finally {
+      setSavingSettings(false);
+    }
+  }, [user, passwordOptions, toast]);
   return <div className="w-full max-w-4xl mx-auto space-y-8">
       <PrivacyIndicator />
       
@@ -456,7 +551,12 @@ export function PDFProtector({
                     <Label htmlFor="symbols">Special characters</Label>
                   </div>
                 </div>
-                
+
+                <div className="flex justify-end pt-2">
+                  <Button onClick={handleSavePasswordSettings} disabled={savingSettings}>
+                    {savingSettings ? 'Saving...' : 'Save Settings'}
+                  </Button>
+                </div>
               </CardContent>
             </Card>}
 
