@@ -501,9 +501,10 @@ export function PDFProtector({
               length: val[0]
             }))} />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={c => setPasswordOptions(p => {
+                <div className="md:flex md:items-start md:justify-between gap-4">
+                  <div className="grid grid-cols-2 gap-4 flex-1">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={c => setPasswordOptions(p => {
                 const next = { ...p, includeLowercase: Boolean(c) };
                 const count = (next.includeLowercase?1:0) + (next.includeUppercase?1:0) + (next.includeNumbers?1:0) + (next.includeSymbols?1:0);
                 if (count === 0) {
@@ -512,10 +513,10 @@ export function PDFProtector({
                 }
                 return next;
               })} />
-                    <Label htmlFor="lower">Lowercase letters</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={c => setPasswordOptions(p => {
+                      <Label htmlFor="lower">Lowercase letters</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={c => setPasswordOptions(p => {
                 const next = { ...p, includeUppercase: Boolean(c) };
                 const count = (next.includeLowercase?1:0) + (next.includeUppercase?1:0) + (next.includeNumbers?1:0) + (next.includeSymbols?1:0);
                 if (count === 0) {
@@ -524,10 +525,10 @@ export function PDFProtector({
                 }
                 return next;
               })} />
-                    <Label htmlFor="upper">Uppercase letters</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={c => setPasswordOptions(p => {
+                      <Label htmlFor="upper">Uppercase letters</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={c => setPasswordOptions(p => {
                 const next = { ...p, includeNumbers: Boolean(c) };
                 const count = (next.includeLowercase?1:0) + (next.includeUppercase?1:0) + (next.includeNumbers?1:0) + (next.includeSymbols?1:0);
                 if (count === 0) {
@@ -536,10 +537,10 @@ export function PDFProtector({
                 }
                 return next;
               })} />
-                    <Label htmlFor="numbers">Numbers</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={c => setPasswordOptions(p => {
+                      <Label htmlFor="numbers">Numbers</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={c => setPasswordOptions(p => {
                 const next = { ...p, includeSymbols: Boolean(c) };
                 const count = (next.includeLowercase?1:0) + (next.includeUppercase?1:0) + (next.includeNumbers?1:0) + (next.includeSymbols?1:0);
                 if (count === 0) {
@@ -548,14 +549,14 @@ export function PDFProtector({
                 }
                 return next;
               })} />
-                    <Label htmlFor="symbols">Special characters</Label>
+                      <Label htmlFor="symbols">Special characters</Label>
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex justify-end pt-2">
-                  <Button onClick={handleSavePasswordSettings} disabled={savingSettings}>
-                    {savingSettings ? 'Saving...' : 'Save Settings'}
-                  </Button>
+                  <div className="mt-4 md:mt-0 md:ml-4 shrink-0">
+                    <Button onClick={handleSavePasswordSettings} disabled={savingSettings}>
+                      {savingSettings ? 'Saving...' : 'Save Settings'}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>}
