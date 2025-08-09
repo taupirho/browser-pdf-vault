@@ -37,6 +37,15 @@ serve(async (req) => {
     
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Fetch existing profile to detect tier changes
+    const { data: existingProfile } = await supabaseClient
+      .from("profiles")
+      .select("subscription_tier")
+      .eq("user_id", user.id)
+      .single();
+
+    const previousTier = existingProfile?.subscription_tier || "free";
+
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2023-10-16",
     });
@@ -45,22 +54,60 @@ serve(async (req) => {
     
     if (customers.data.length === 0) {
       logStep("No customer found, updating to free tier");
-      await supabaseClient.from("profiles").update({
-        subscription_tier: "free",
-        max_daily_files: 2,
-        max_file_size_kb: 250,
-        updated_at: new Date().toISOString(),
-      }).eq("user_id", user.id);
-      
-      return new Response(JSON.stringify({ 
-        subscribed: false, 
-        subscription_tier: "free",
-        max_daily_files: 2,
-        max_file_size_kb: 250 
-      }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      await supabaseClient
+        .from("profiles")
+        .update({
+          subscription_tier: "free",
+          max_daily_files: 2,
+          max_file_size_kb: 250,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", user.id);
+
+      // If user previously had a paid tier, notify them of cancellation/downgrade
+      if (previousTier !== "free") {
+        try {
+          const { error: fnError } = await supabaseClient.functions.invoke(
+            "send-subscription-email",
+            {
+              body: {
+                type: "cancellation",
+                email: user.email,
+                previous_tier: previousTier,
+                new_tier: "free",
+                subscription_end: null,
+              },
+            }
+          );
+          if (fnError) {
+            logStep("send-subscription-email error (no customer path)", {
+              message: fnError.message,
+            });
+          } else {
+            logStep("Lifecycle email enqueued (no customer path)", {
+              previousTier,
+              newTier: "free",
+            });
+          }
+        } catch (e) {
+          logStep("Failed to invoke send-subscription-email (no customer)", {
+            message: e instanceof Error ? e.message : String(e),
+          });
+        }
+      }
+
+      return new Response(
+        JSON.stringify({
+          subscribed: false,
+          subscription_tier: "free",
+          max_daily_files: 2,
+          max_file_size_kb: 250,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
     }
 
     const customerId = customers.data[0].id;
@@ -76,7 +123,7 @@ serve(async (req) => {
     let subscriptionTier = "free";
     let maxDailyFiles = 2;
     let maxFileSizeKb = 250;
-    let subscriptionEnd = null;
+    let subscriptionEnd: string | null = null;
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
@@ -120,6 +167,47 @@ serve(async (req) => {
       maxDailyFiles,
       maxFileSizeKb 
     });
+
+    // Detect tier change and send lifecycle email
+    try {
+      if (previousTier !== subscriptionTier) {
+        let type = "change";
+        if (previousTier === "free" && (subscriptionTier === "starter" || subscriptionTier === "pro")) {
+          type = "activated";
+        } else if (previousTier === "starter" && subscriptionTier === "pro") {
+          type = "upgrade";
+        } else if (previousTier === "pro" && subscriptionTier === "starter") {
+          type = "downgrade";
+        } else if (previousTier !== "free" && subscriptionTier === "free") {
+          type = "cancellation";
+        }
+
+        const { error: fnError } = await supabaseClient.functions.invoke(
+          "send-subscription-email",
+          {
+            body: {
+              type,
+              email: user.email,
+              previous_tier: previousTier,
+              new_tier: subscriptionTier,
+              subscription_end: subscriptionEnd,
+            },
+          }
+        );
+
+        if (fnError) {
+          logStep("send-subscription-email error", { message: fnError.message });
+        } else {
+          logStep("Lifecycle email enqueued", { previousTier, subscriptionTier, type });
+        }
+      } else {
+        logStep("No tier change detected; no email sent", { tier: subscriptionTier });
+      }
+    } catch (e) {
+      logStep("Failed to invoke send-subscription-email", {
+        message: e instanceof Error ? e.message : String(e),
+      });
+    }
 
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
