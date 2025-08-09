@@ -169,7 +169,7 @@ const Index = () => {
                 <Card className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
                     <h3 className="font-semibold text-lg mb-3 text-foreground">Are my payment details secure?</h3>
-                    <p className="text-muted-foreground">Yes—your payment details are handled by Stripe, not us. We never see or store your full card number or CVC. Your card info is sent directly to Stripe over an encrypted connection and stored securely by them. Stripe is a PCI DSS Level 1–certified provider (the highest level). We only keep non-sensitive details (like the last 4 digits and card brand) and a token so we can bill you. We also use HTTPS everywhere, require 2-factor auth on our admin access, and follow Stripe’s best practices for webhooks and API keys. You can remove your payment method at any time.</p>
+                    <p className="text-muted-foreground">Yes—your payment details are handled by Stripe, not us. We never see or store your full card number or CVC. Your card info is sent directly to Stripe over an encrypted connection and stored securely by them. Stripe is a PCI DSS Level 1–certified provider (the highest level). We only keep non-sensitive details (like the last 4 digits and card brand) and a token so we can bill you. We also use HTTPS everywhere, require 2-factor auth on our admin access, and follow Stripe’s best practices for webhooks and API keys. You can remove your payment method at any time. Once logged in, you can manage your subscription using the link on the Pricing page.</p>
                   </CardContent>
                 </Card>
 
