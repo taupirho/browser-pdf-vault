@@ -605,14 +605,14 @@ export function PDFProtector({
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="bg-muted/50 rounded-lg p-3">
+              <div className="bg-muted/50 dark:bg-background rounded-lg p-3">
                 <p className="font-medium">Original File</p>
                 <p className="text-foreground">{processedFile.name}</p>
                 <p className="text-foreground">
                   {(processedFile.originalSize / 1024 / 1024).toFixed(2)} MB
                 </p>
               </div>
-              <div className="bg-muted/50 rounded-lg p-3">
+              <div className="bg-muted/50 dark:bg-background rounded-lg p-3">
                 <p className="font-medium">Protected File</p>
                 <p className="text-foreground">protected-{processedFile.name}</p>
                 <p className="text-foreground">
