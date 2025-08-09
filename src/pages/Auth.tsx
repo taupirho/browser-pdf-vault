@@ -23,6 +23,7 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
   const [companyName, setCompanyName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [activeTab, setActiveTab] = useState<"signin" | "signup" | "forgot">("signin");
   const navigate = useNavigate();
   const {
     toast
@@ -263,7 +264,7 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "signin" | "signup" | "forgot")} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -279,6 +280,16 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
                 <div className="space-y-2">
                   <Label htmlFor="signin-password">Password</Label>
                   <Input id="signin-password" type="password" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required />
+                </div>
+                <div className="flex sm:justify-end">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="px-0 h-auto"
+                    onClick={() => setActiveTab("forgot")}
+                  >
+                    Forgot password?
+                  </Button>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign In"}
