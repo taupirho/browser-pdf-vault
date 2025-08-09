@@ -159,7 +159,7 @@ const Index = () => {
               <div className="grid gap-6 max-w-3xl mx-auto">
                 <Card className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-3 text-foreground">Is my PDF really secure?</h3>
+                    <h3 className="font-semibold text-lg mb-3 text-foreground">What is your pricing model?</h3>
                     <p className="text-muted-foreground">
                       Yes! We use AES-256 encryption, the same standard used by banks and military. 
                       The password is generated using cryptographically secure random values, 
