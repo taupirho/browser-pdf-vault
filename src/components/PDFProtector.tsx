@@ -101,7 +101,7 @@ export function PDFProtector({
       if (!user || !userProfile || settingsLoaded) return;
 
       // Only applicable for customizable tiers
-      if (!(userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro")) {
+      if (userProfile.subscription_tier !== "pro") {
         setSettingsLoaded(true);
         setPasswordOptions({
           length: 13,
@@ -155,7 +155,7 @@ export function PDFProtector({
     loadSettings();
   }, [user, userProfile, settingsLoaded]);
   const generateSecurePassword = useCallback((): string => {
-    const isCustomizable = userProfile && (userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro");
+    const isCustomizable = userProfile && userProfile.subscription_tier === "pro";
     const opts = isCustomizable ? passwordOptions : {
       length: 15,
       includeLowercase: true,
@@ -488,7 +488,7 @@ export function PDFProtector({
             </CardContent>
           </Card>
 
-          {user && userProfile && (userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro") && <Card className="shadow-card bg-card border-border/50 mt-6">
+          {user && userProfile && userProfile.subscription_tier === "pro" && <Card className="shadow-card bg-card border-border/50 mt-6">
               <CardHeader>
                 <CardTitle className="text-lg">Password Options</CardTitle>
                 <CardDescription>Customize your generated password. Will include at least one of each selected type.</CardDescription>
