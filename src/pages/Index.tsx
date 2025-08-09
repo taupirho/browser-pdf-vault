@@ -3,22 +3,19 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, Lock, Eye, Zap, FileText, HelpCircle, Users, Globe, RefreshCcw, CreditCard } from "lucide-react";
+import { Shield, Lock, Eye, Zap, FileText, HelpCircle, Users, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import Auth from './Auth';
 import type { User, Session } from '@supabase/supabase-js';
-import { useToast } from "@/hooks/use-toast";
+
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isManaging, setIsManaging] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -51,54 +48,6 @@ const Index = () => {
   };
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-  };
-
-  const handleManageSubscription = async () => {
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
-    try {
-      setIsManaging(true);
-      const { data, error } = await supabase.functions.invoke('customer-portal');
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, '_blank');
-        toast({ title: 'Opening customer portal', description: 'Manage billing, invoices, and payment methods.' });
-      } else {
-        throw new Error('No portal URL returned');
-      }
-    } catch (err: any) {
-      toast({ title: 'Unable to open portal', description: err.message || 'Please try again.', variant: 'destructive' as any });
-    } finally {
-      setIsManaging(false);
-    }
-  };
-
-  const handleRefreshSubscription = async () => {
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
-    try {
-      setIsRefreshing(true);
-      const { data, error } = await supabase.functions.invoke('check-subscription');
-      if (error) throw error;
-      if (data?.subscribed) {
-        const tier = data.subscription_tier || 'Active';
-        const end = data.subscription_end ? new Date(data.subscription_end).toLocaleDateString() : '';
-        toast({
-          title: `Subscription: ${tier}`,
-          description: end ? `Current period ends ${end}` : 'Active subscription detected.',
-        });
-      } else {
-        toast({ title: 'No active subscription', description: 'You can subscribe from the customer portal.' });
-      }
-    } catch (err: any) {
-      toast({ title: 'Refresh failed', description: err.message || 'Please try again.', variant: 'destructive' as any });
-    } finally {
-      setIsRefreshing(false);
-    }
   };
 
   // Show loading while checking auth status
@@ -189,53 +138,6 @@ const Index = () => {
             {/* Main PDF Protector */}
             <PDFProtector user={user} onLoginRequired={handleLoginRequired} />
 
-            {/* Billing & Subscription */}
-            <section aria-labelledby="billing-section" className="space-y-4">
-              <h2 id="billing-section" className="sr-only">Billing & Subscription</h2>
-              <Card className="shadow-card bg-card border-border/50">
-                <CardContent className="p-4 sm:p-6">
-                  {user ? (
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="text-sm text-muted-foreground">
-                        Manage your subscription, invoices, and payment methods.
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={handleRefreshSubscription}
-                          disabled={isRefreshing}
-                        >
-                          <RefreshCcw className="mr-2" />
-                          {isRefreshing ? 'Refreshing...' : 'Refresh Status'}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleManageSubscription}
-                          disabled={isManaging}
-                        >
-                          <CreditCard className="mr-2" />
-                          {isManaging ? 'Opening...' : 'Manage Subscription'}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <div className="text-sm text-muted-foreground">
-                        Sign in to view and manage your subscription.
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
-                        Sign In
-                      </Button>
-                    </div>
-                  )}
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    Billing help: If you can’t find Stripe email receipts in your dashboard, use “Manage Subscription” to access the Customer Portal for invoices, plan changes, or cancellation. We also send confirmation emails from the app when actions complete.
-                  </p>
-                </CardContent>
-              </Card>
-            </section>
 
             {/* Why Use SecurePDF Section */}
             <section className="space-y-8">
