@@ -261,9 +261,9 @@ const Pricing = () => {
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-primary">{plan.price}</span>
                   {plan.price !== "$0" && <div className="text-muted-foreground">
-                      <span>/month</span>
+                      <span>/month per user</span>
                       {plan.price === "$6.99" && <div className="text-sm">or $70/year</div>}
-                      {plan.price === "$15.99" && <div className="text-sm">or $150/year</div>}
+                      {plan.price === "$15.99" && <div className="text-sm">or $150 /year per user</div>}
                     </div>}
                 </div>
                 <p className="text-muted-foreground mt-2">{plan.description}</p>
@@ -290,11 +290,10 @@ const Pricing = () => {
             All plans include secure encryption and file deletion after processing.
           </p>
           <p className="text-sm text-muted-foreground">You can cancel or modify your subscription anytime using the {" "}
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); handleManageSubscription(); }}
-              className="text-primary underline underline-offset-2 hover:no-underline"
-            >
+            <a href="#" onClick={e => {
+            e.preventDefault();
+            handleManageSubscription();
+          }} className="text-primary underline underline-offset-2 hover:no-underline">
               Manage Subscription page
             </a>.
           </p>
