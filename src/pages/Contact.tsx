@@ -43,10 +43,6 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Breadcrumb */}
-      <div className="container mx-auto px-4 py-2">
-        <Link to="/" className="text-primary hover:underline text-sm">← Back to Home</Link>
-      </div>
       
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -59,7 +55,7 @@ const Contact = () => {
               <span className="font-bold text-xl">SecurePDF</span>
             </Link>
             <Link to="/">
-              <Button variant="ghost">Back to Tool</Button>
+              <Button variant="ghost">Back to Home</Button>
             </Link>
           </div>
         </div>
