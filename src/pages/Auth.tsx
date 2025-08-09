@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import type { User, Session } from '@supabase/supabase-js';
+import { ThemeToggle } from "@/components/ThemeToggle";
 interface AuthProps {
   isModal?: boolean;
   onSuccess?: () => void;
@@ -242,13 +243,18 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
   }
   const containerClass = isModal 
     ? "w-full" 
-    : "min-h-screen flex items-center justify-center bg-background p-4";
+    : "min-h-screen relative flex items-center justify-center bg-background p-4";
   
   const cardClass = isModal 
     ? "w-full border-0 shadow-none" 
     : "w-full max-w-md";
 
   return <div className={containerClass}>
+      {!isModal && (
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
+      )}
       <Card className={cardClass}>
         <CardHeader>
           <CardTitle>Welcome to SecurePDF</CardTitle>

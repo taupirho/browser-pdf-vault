@@ -1,6 +1,7 @@
 import { Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card, CardContent } from "@/components/ui/card";
 
 const PrivacyPolicy = () => {
@@ -17,9 +18,12 @@ const PrivacyPolicy = () => {
               </div>
               <span className="font-bold text-xl">SecurePDF</span>
             </Link>
-            <Link to="/">
-              <Button variant="ghost">Back to Home</Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/">
+                <Button variant="ghost">Back to Home</Button>
+              </Link>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>
@@ -102,7 +106,7 @@ const PrivacyPolicy = () => {
 
               <div>
                 <h3 className="font-semibold text-lg mb-3 text-foreground">7. Contact</h3>
-                <p className="text-foreground">Questions or data-rights requests: securemypdfdoc@gmail.com</p>
+                <p className="text-foreground">Questions or data-rights requests: info@securepdf.io</p>
               </div>
 
               <div>

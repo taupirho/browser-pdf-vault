@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ const Contact = () => {
     const body = encodeURIComponent(
       `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
     );
-    const mailtoLink = `mailto:securemypdfdoc@gmail.com?subject=${subject}&body=${body}`;
+    const mailtoLink = `mailto:info@securepdf.io?subject=${subject}&body=${body}`;
     
     window.location.href = mailtoLink;
     
@@ -54,9 +55,12 @@ const Contact = () => {
               </div>
               <span className="font-bold text-xl">SecurePDF</span>
             </Link>
-            <Link to="/">
-              <Button variant="ghost">Back to Home</Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/">
+                <Button variant="ghost">Back to Home</Button>
+              </Link>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>
@@ -133,7 +137,7 @@ const Contact = () => {
                       <Mail className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-medium text-foreground">Email</p>
-                        <p className="text-muted-foreground">securemypdfdoc@gmail.com</p>
+                        <p className="text-muted-foreground">info@securepdf.io</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">

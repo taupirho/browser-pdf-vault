@@ -7,6 +7,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format } from "date-fns";
+import { ThemeToggle } from "@/components/ThemeToggle";
 interface SubscriptionStatus {
   subscribed: boolean;
   subscription_tier?: string;
@@ -200,9 +201,12 @@ const Pricing = () => {
               </div>
               <span className="font-bold text-xl">SecurePDF</span>
             </Link>
-            <Link to="/">
-              <Button variant="ghost">Back to Home</Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/">
+                <Button variant="ghost">Back to Home</Button>
+              </Link>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>

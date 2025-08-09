@@ -2,6 +2,7 @@ import { Shield, Lock, Eye, Zap, Server, Globe, Key, FileCheck } from "lucide-re
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const About = () => {
   const securityFeatures = [
@@ -68,9 +69,12 @@ const About = () => {
               </div>
               <span className="font-bold text-xl">SecurePDF</span>
             </Link>
-            <Link to="/">
-              <Button variant="ghost">Back to Home</Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/">
+                <Button variant="ghost">Back to Home</Button>
+              </Link>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>

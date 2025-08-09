@@ -35,7 +35,7 @@ serve(async (req) => {
       throw new Error("Missing required fields: email, type");
     }
 
-    const from = "Lovable App <onboarding@resend.dev>";
+    const from = "SecurePDF <info@securepdf.io>";
 
     let subject = "Your subscription has changed";
     switch (type) {
@@ -85,6 +85,7 @@ serve(async (req) => {
       to: [email],
       subject,
       html,
+      reply_to: ["info@securepdf.io"],
     });
 
     if (error) throw error;
