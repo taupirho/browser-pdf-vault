@@ -21,7 +21,6 @@ interface PDFProtectorProps {
   user?: User | null;
   onLoginRequired?: () => void;
 }
-
 interface UserProfile {
   subscription_tier: string;
   max_file_size_kb: number;
@@ -38,37 +37,38 @@ export function PDFProtector({
   const [showPassword, setShowPassword] = useState(true);
   const [passwordCopied, setPasswordCopied] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [passwordOptions, setPasswordOptions] = useState({
     length: 15,
     includeLowercase: true,
     includeUppercase: true,
     includeNumbers: true,
-    includeSymbols: true,
+    includeSymbols: true
   });
 
   // Check subscription and get user profile
   const checkSubscription = useCallback(async () => {
     if (!user) return;
-    
     try {
-      const { data, error } = await supabase.functions.invoke('check-subscription');
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('check-subscription');
       if (error) throw error;
-      
+
       // Get user profile with updated limits
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count')
-        .eq('user_id', user.id)
-        .single();
-        
+      const {
+        data: profile,
+        error: profileError
+      } = await supabase.from('profiles').select('subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count').eq('user_id', user.id).single();
       if (profileError) throw profileError;
       setUserProfile(profile);
     } catch (error) {
       console.error('Error checking subscription:', error);
     }
   }, [user]);
-
   useEffect(() => {
     if (user) {
       checkSubscription();
@@ -81,7 +81,7 @@ export function PDFProtector({
       const interval = setInterval(() => {
         checkSubscription();
       }, 5000); // Check every 5 seconds
-      
+
       return () => clearInterval(interval);
     }
   }, [user, checkSubscription]);
@@ -99,17 +99,14 @@ export function PDFProtector({
       includeLowercase: true,
       includeUppercase: true,
       includeNumbers: true,
-      includeSymbols: true,
+      includeSymbols: true
     };
-
     const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
     const length = clamp(opts.length, 5, 30);
-
     const lower = "abcdefghijklmnopqrstuvwxyz";
     const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const nums = "0123456789";
     const syms = "!@#$%^&*";
-
     const sets: string[] = [];
     if (opts.includeLowercase) sets.push(lower);
     if (opts.includeUppercase) sets.push(upper);
@@ -119,19 +116,16 @@ export function PDFProtector({
       sets.push(lower, nums); // sensible fallback
     }
     const all = sets.join("");
-
     const randomIndex = (max: number) => {
       const array = new Uint32Array(1);
       crypto.getRandomValues(array);
       return array[0] % max;
     };
-
     const chars: string[] = [];
     // Ensure at least one from each selected set
-    sets.forEach((set) => {
+    sets.forEach(set => {
       chars.push(set[randomIndex(set.length)]);
     });
-
     while (chars.length < length) {
       chars.push(all[randomIndex(all.length)]);
     }
@@ -141,7 +135,6 @@ export function PDFProtector({
       const j = randomIndex(i + 1);
       [chars[i], chars[j]] = [chars[j], chars[i]];
     }
-
     return chars.join("");
   }, [passwordOptions, userProfile]);
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -156,7 +149,7 @@ export function PDFProtector({
     console.log('File selected:', file.name, 'Size:', file.size, 'bytes', '(' + Math.round(file.size / 1024) + 'KB)');
     console.log('User profile:', userProfile);
     console.log('User authenticated:', !!user);
-    
+
     // Check if user is authenticated
     if (!user) {
       onLoginRequired?.();
@@ -182,7 +175,6 @@ export function PDFProtector({
       });
       return;
     }
-
     if (!file.type.includes('pdf')) {
       toast({
         title: "Invalid File Type",
@@ -199,10 +191,7 @@ export function PDFProtector({
       console.log('File is too large, showing toast');
       const currentSizeKB = Math.round(file.size / 1024);
       const currentSizeMB = (file.size / 1024 / 1024).toFixed(2);
-      const maxSizeDisplay = userProfile.max_file_size_kb >= 1024 
-        ? `${(userProfile.max_file_size_kb / 1024).toFixed(0)}MB` 
-        : `${userProfile.max_file_size_kb}KB`;
-      
+      const maxSizeDisplay = userProfile.max_file_size_kb >= 1024 ? `${(userProfile.max_file_size_kb / 1024).toFixed(0)}MB` : `${userProfile.max_file_size_kb}KB`;
       let upgradeMessage = "";
       if (userProfile.subscription_tier === "free") {
         upgradeMessage = " Upgrade to Starter (1MB limit) or Pro (10MB limit) for larger files.";
@@ -211,7 +200,6 @@ export function PDFProtector({
       } else if (userProfile.subscription_tier === "pro") {
         upgradeMessage = " Please contact us for custom requests with larger file sizes.";
       }
-
       toast({
         title: "File Too Large",
         description: `File size ${currentSizeKB}KB (${currentSizeMB}MB) exceeds your ${userProfile.subscription_tier} plan limit of ${maxSizeDisplay}.${upgradeMessage}`,
@@ -274,31 +262,34 @@ export function PDFProtector({
       // Update daily usage count
       console.log('Updating daily usage count from', userProfile.daily_usage_count, 'to', userProfile.daily_usage_count + 1);
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .update({ 
-            daily_usage_count: userProfile.daily_usage_count + 1,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id)
-          .select();
-        
+        const {
+          data,
+          error
+        } = await supabase.from('profiles').update({
+          daily_usage_count: userProfile.daily_usage_count + 1,
+          updated_at: new Date().toISOString()
+        }).eq('user_id', user.id).select();
         if (error) {
           console.error('Error updating usage count:', error);
         } else {
           console.log('Usage count updated successfully:', data);
           // Update local state with the actual database response
           if (data && data[0]) {
-            setUserProfile(prev => prev ? { ...prev, daily_usage_count: data[0].daily_usage_count } : null);
+            setUserProfile(prev => prev ? {
+              ...prev,
+              daily_usage_count: data[0].daily_usage_count
+            } : null);
           } else {
             // Fallback: increment local state
-            setUserProfile(prev => prev ? { ...prev, daily_usage_count: prev.daily_usage_count + 1 } : null);
+            setUserProfile(prev => prev ? {
+              ...prev,
+              daily_usage_count: prev.daily_usage_count + 1
+            } : null);
           }
         }
       } catch (error) {
         console.error('Error updating usage count:', error);
       }
-
       toast({
         title: "PDF Successfully Encrypted and Downloaded!",
         description: "Your PDF has been password-protected with original content preserved. Save the password securely!"
@@ -374,21 +365,17 @@ export function PDFProtector({
                   const file = e.target.files?.[0];
                   if (file) handleFileSelect(file);
                 }} disabled={isProcessing} />
-                      <Label 
-                        htmlFor="pdf-upload" 
-                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer"
-                        onClick={(e) => {
-                          // Check daily limit before opening file dialog
-                          if (userProfile && userProfile.daily_usage_count >= userProfile.max_daily_files) {
-                            e.preventDefault();
-                            toast({
-                              title: "Daily Limit Reached",
-                              description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
-                              variant: "destructive"
-                            });
-                          }
-                        }}
-                      >
+                      <Label htmlFor="pdf-upload" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer" onClick={e => {
+                  // Check daily limit before opening file dialog
+                  if (userProfile && userProfile.daily_usage_count >= userProfile.max_daily_files) {
+                    e.preventDefault();
+                    toast({
+                      title: "Daily Limit Reached",
+                      description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
+                      variant: "destructive"
+                    });
+                  }
+                }}>
                         {isProcessing ? <>
                             <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                             Processing...
@@ -406,45 +393,52 @@ export function PDFProtector({
             </CardContent>
           </Card>
 
-          {user && userProfile && (userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro") && (
-            <Card className="shadow-card bg-card border-border/50 mt-6">
+          {user && userProfile && (userProfile.subscription_tier === "starter" || userProfile.subscription_tier === "pro") && <Card className="shadow-card bg-card border-border/50 mt-6">
               <CardHeader>
                 <CardTitle className="text-lg">Password Options</CardTitle>
-                <CardDescription>Customize your generated password</CardDescription>
+                <CardDescription>Customize your generated password. Will include at least one of each selected type.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
-                  <Slider
-                    value={[passwordOptions.length]}
-                    min={5}
-                    max={30}
-                    step={1}
-                    onValueChange={(val) => setPasswordOptions((prev) => ({ ...prev, length: val[0] }))}
-                  />
+                  <Slider value={[passwordOptions.length]} min={5} max={30} step={1} onValueChange={val => setPasswordOptions(prev => ({
+              ...prev,
+              length: val[0]
+            }))} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center space-x-2">
-                    <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={(c) => setPasswordOptions((p) => ({ ...p, includeLowercase: Boolean(c) }))} />
+                    <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={c => setPasswordOptions(p => ({
+                ...p,
+                includeLowercase: Boolean(c)
+              }))} />
                     <Label htmlFor="lower">Lowercase letters</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={(c) => setPasswordOptions((p) => ({ ...p, includeUppercase: Boolean(c) }))} />
+                    <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={c => setPasswordOptions(p => ({
+                ...p,
+                includeUppercase: Boolean(c)
+              }))} />
                     <Label htmlFor="upper">Uppercase letters</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={(c) => setPasswordOptions((p) => ({ ...p, includeNumbers: Boolean(c) }))} />
+                    <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={c => setPasswordOptions(p => ({
+                ...p,
+                includeNumbers: Boolean(c)
+              }))} />
                     <Label htmlFor="numbers">Numbers</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={(c) => setPasswordOptions((p) => ({ ...p, includeSymbols: Boolean(c) }))} />
+                    <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={c => setPasswordOptions(p => ({
+                ...p,
+                includeSymbols: Boolean(c)
+              }))} />
                     <Label htmlFor="symbols">Special characters</Label>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">Passwords include at least one of each selected type.</p>
+                
               </CardContent>
-            </Card>
-          )}
+            </Card>}
 
           
         </> : <Card className="shadow-glow bg-gradient-card border-trust/30">
