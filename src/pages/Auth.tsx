@@ -265,10 +265,10 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "signin" | "signup" | "forgot")} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              <TabsTrigger value="forgot">Forgot Password</TabsTrigger>
+            <TabsList className="w-full grid grid-cols-3 gap-2">
+              <TabsTrigger value="signin" className="text-xs sm:text-sm py-2">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="text-xs sm:text-sm py-2">Sign Up</TabsTrigger>
+              <TabsTrigger value="forgot" className="text-xs sm:text-sm py-2">Forgot<span className="hidden sm:inline"> Password</span></TabsTrigger>
             </TabsList>
             
             <TabsContent value="signin">
