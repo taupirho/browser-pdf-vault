@@ -51,6 +51,9 @@ serve(async (req) => {
       case "cancellation":
         subject = "Your subscription has been canceled";
         break;
+      case "change":
+        subject = "Your plan change is scheduled";
+        break;
       default:
         subject = "Your subscription has changed";
     }
@@ -65,6 +68,9 @@ serve(async (req) => {
     } else if (type === "cancellation") {
       impactNote =
         "Note: Your account has reverted to the Free tier; Pro-only features are no longer available.";
+    } else if (type === "change") {
+      impactNote =
+        "This plan change is scheduled and will take effect at the end of your current billing period.";
     }
 
     const html = `

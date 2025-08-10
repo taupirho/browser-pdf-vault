@@ -56,12 +56,25 @@ const Pricing = () => {
       setUser(session?.user || null);
       if (session?.user) {
         try {
-          const {
-            data,
-            error
-          } = await supabase.functions.invoke('check-subscription');
+          const params = new URLSearchParams(window.location.search);
+          const portalReturn = params.get('portal_return') === '1';
+
+          const res = portalReturn
+            ? await supabase.functions.invoke('check-subscription', { body: { portalReturn: true } })
+            : await supabase.functions.invoke('check-subscription');
+
+          const { data, error } = res as any;
           if (!error && data) {
             setSubscriptionStatus(data);
+            if (portalReturn) {
+              toast({
+                title: "Subscription refreshed",
+                description: "If a plan change was scheduled, a confirmation email has been sent.",
+              });
+              params.delete('portal_return');
+              const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+              window.history.replaceState({}, '', newUrl);
+            }
           }
         } catch (error) {
           console.error('Error checking subscription:', error);

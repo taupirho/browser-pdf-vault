@@ -37,6 +37,15 @@ serve(async (req) => {
     
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // Detect if this check was triggered after returning from the Stripe portal
+    let portalReturn = false;
+    try {
+      const body = await req.json();
+      portalReturn = Boolean((body as any)?.portalReturn);
+    } catch {
+      // no body provided
+    }
+
     // Fetch existing profile to detect tier changes
     const { data: existingProfile } = await supabaseClient
       .from("profiles")
@@ -149,6 +158,58 @@ serve(async (req) => {
         tier: subscriptionTier,
         endDate: subscriptionEnd 
       });
+
+      // Detect any scheduled plan change (e.g., from Stripe Customer Portal at period end)
+      try {
+        let scheduledNextTier: string | null = null;
+        let scheduledEffective: string | null = null;
+
+        if (typeof (subscription as any).schedule === "string") {
+          const schedule = await stripe.subscriptionSchedules.retrieve((subscription as any).schedule as string);
+          const now = Math.floor(Date.now() / 1000);
+          const nextPhase = schedule.phases?.find((p: any) => p.start_date > now);
+          if (nextPhase) {
+            let nextAmount: number | null = null;
+            if (nextPhase.items?.length > 0) {
+              const nextItem = nextPhase.items[0];
+              if (typeof nextItem.price === "string") {
+                const nextPrice = await stripe.prices.retrieve(nextItem.price);
+                nextAmount = nextPrice.unit_amount || 0;
+              } else if (nextItem.price_data) {
+                nextAmount = nextItem.price_data.unit_amount || 0;
+              }
+            }
+            if (nextAmount !== null) {
+              if (nextAmount === 699) scheduledNextTier = "starter";
+              else if (nextAmount === 1599) scheduledNextTier = "pro";
+            }
+            scheduledEffective = new Date(nextPhase.start_date * 1000).toISOString();
+          }
+        }
+
+        if (portalReturn && scheduledNextTier && scheduledNextTier !== subscriptionTier) {
+          logStep("Scheduled plan change detected", { from: subscriptionTier, to: scheduledNextTier, effective: scheduledEffective || subscriptionEnd });
+          const { error: schedEmailErr } = await supabaseClient.functions.invoke(
+            "send-subscription-email",
+            {
+              body: {
+                type: "change",
+                email: user.email,
+                previous_tier: subscriptionTier,
+                new_tier: scheduledNextTier,
+                subscription_end: subscriptionEnd,
+              },
+            }
+          );
+          if (schedEmailErr) {
+            logStep("send-subscription-email error (scheduled change)", { message: schedEmailErr.message });
+          } else {
+            logStep("Scheduled change email enqueued", { previousTier: subscriptionTier, newTier: scheduledNextTier });
+          }
+        }
+      } catch (err) {
+        logStep("Failed to check/send scheduled change email", { message: err instanceof Error ? err.message : String(err) });
+      }
     } else {
       logStep("No active subscription found");
     }
