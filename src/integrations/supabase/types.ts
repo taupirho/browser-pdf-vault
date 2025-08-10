@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          changes: Json | null
+          created_at: string
+          id: number
+          row_id: string | null
+          table_name: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          changes?: Json | null
+          created_at?: string
+          id?: number
+          row_id?: string | null
+          table_name: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          changes?: Json | null
+          created_at?: string
+          id?: number
+          row_id?: string | null
+          table_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      dsar_requests: {
+        Row: {
+          created_at: string
+          details: string | null
+          email: string
+          id: string
+          name: string | null
+          request_type: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          email: string
+          id?: string
+          name?: string | null
+          request_type: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          email?: string
+          id?: string
+          name?: string | null
+          request_type?: string
+          status?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company_name: string | null
