@@ -46,7 +46,7 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    // Ensure a 100% off promo code exists for testing
+    // Ensure a 100% off promo code exists for general testing (PRO100)
     const TEST_PROMO_CODE = "PRO100";
     try {
       const existingPromo = await stripe.promotionCodes.list({ code: TEST_PROMO_CODE, active: true, limit: 1 });
@@ -68,6 +68,33 @@ serve(async (req) => {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       logStep("Failed ensuring promo code (non-fatal)", { message: msg });
+    }
+
+    // Ensure a 100% off STARTER-only promo code (STARTER100)
+    let starterPromoId: string | undefined;
+    try {
+      const STARTER_PROMO_CODE = "STARTER100";
+      const existingStarter = await stripe.promotionCodes.list({ code: STARTER_PROMO_CODE, active: true, limit: 1 });
+      if (existingStarter.data.length === 0) {
+        logStep("Creating STARTER100 100% off coupon and promo code", { code: STARTER_PROMO_CODE });
+        const couponStarter = await stripe.coupons.create({
+          percent_off: 100,
+          duration: "once", // first invoice free for Starter
+        });
+        const starterPromo = await stripe.promotionCodes.create({
+          coupon: couponStarter.id,
+          code: STARTER_PROMO_CODE,
+          active: true,
+        });
+        starterPromoId = starterPromo.id;
+        logStep("STARTER100 promo code created", { code: STARTER_PROMO_CODE, couponId: couponStarter.id, promoId: starterPromoId });
+      } else {
+        starterPromoId = existingStarter.data[0].id;
+        logStep("STARTER100 promo code already exists", { promoId: starterPromoId });
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      logStep("Failed ensuring STARTER100 promo code (non-fatal)", { message: msg });
     }
     // Check if customer exists
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
@@ -129,6 +156,7 @@ if (customers.data.length > 0) {
       success_url: `${req.headers.get("origin")}/pricing?success=true&plan=${plan}`,
       cancel_url: `${req.headers.get("origin")}/pricing?canceled=true`,
       allow_promotion_codes: true,
+      discounts: plan === "starter" && starterPromoId ? [{ promotion_code: starterPromoId }] : undefined,
       metadata: {
         user_id: user.id,
         plan: selectedPlan.tier
