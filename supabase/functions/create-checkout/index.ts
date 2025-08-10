@@ -46,6 +46,29 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
+    // Ensure a 100% off promo code exists for testing
+    const TEST_PROMO_CODE = "PRO100";
+    try {
+      const existingPromo = await stripe.promotionCodes.list({ code: TEST_PROMO_CODE, active: true, limit: 1 });
+      if (existingPromo.data.length === 0) {
+        logStep("Creating 100% off coupon and promo code", { code: TEST_PROMO_CODE });
+        const coupon = await stripe.coupons.create({
+          percent_off: 100,
+          duration: "once", // first invoice free
+        });
+        await stripe.promotionCodes.create({
+          coupon: coupon.id,
+          code: TEST_PROMO_CODE,
+          active: true,
+        });
+        logStep("Promo code created", { code: TEST_PROMO_CODE, couponId: coupon.id });
+      } else {
+        logStep("Promo code already exists", { code: TEST_PROMO_CODE, promoId: existingPromo.data[0].id });
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      logStep("Failed ensuring promo code (non-fatal)", { message: msg });
+    }
     // Check if customer exists
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
@@ -90,6 +113,7 @@ serve(async (req) => {
       mode: "subscription",
       success_url: `${req.headers.get("origin")}/pricing?success=true&plan=${plan}`,
       cancel_url: `${req.headers.get("origin")}/pricing?canceled=true`,
+      allow_promotion_codes: true,
       metadata: {
         user_id: user.id,
         plan: selectedPlan.tier
