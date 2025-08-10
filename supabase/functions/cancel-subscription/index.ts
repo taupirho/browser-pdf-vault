@@ -62,7 +62,7 @@ serve(async (req) => {
     }
 
     // Cancel at period end for all active subscriptions (clean up duplicates too)
-    const results = [] as Array<{ id: string; current_period_end: string }>();
+    const results: Array<{ id: string; current_period_end: string }> = [];
     for (const sub of subs.data) {
       const updated = await stripe.subscriptions.update(sub.id, { cancel_at_period_end: true });
       results.push({ id: updated.id, current_period_end: new Date(updated.current_period_end * 1000).toISOString() });
