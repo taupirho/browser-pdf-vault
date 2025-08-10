@@ -268,6 +268,9 @@ const Index = () => {
             <Link to="/about">
               <Button variant="ghost" size="sm">About SecurePDF</Button>
             </Link>
+            <Link to="/trust-security">
+              <Button variant="ghost" size="sm">Trust & Security</Button>
+            </Link>
           </div>
           <div className="text-sm text-muted-foreground">
             <p>© 2025 SecurePDF. All rights reserved.</p>

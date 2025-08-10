@@ -202,7 +202,7 @@ const About = () => {
                   </li>
                   <li className="flex items-start gap-2">
                     <FileCheck className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>GDPR compliant with strong data protection rights</span>
+                    <span>GDPR compliant with strong data protection rights — see our <Link to="/trust-security" className="underline underline-offset-2">Trust & Security</Link> page</span>
                   </li>
                 </ul>
               </div>

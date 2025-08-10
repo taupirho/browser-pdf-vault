@@ -71,12 +71,6 @@ const PrivacyPolicy = () => {
                         <td className="p-3 border-r border-border text-foreground">Fix bugs</td>
                         <td className="p-3 text-foreground">90 days</td>
                       </tr>
-                      <tr>
-                        <td className="p-3 border-r border-border text-foreground">Advertising cookies (Google AdSense)</td>
-                        <td className="p-3 border-r border-border text-foreground">Google may set or read cookies to personalise ads and limit frequency</td>
-                        <td className="p-3 border-r border-border text-foreground">Fund the free service</td>
-                        <td className="p-3 text-foreground">Controlled by Google; see their policy</td>
-                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -85,13 +79,13 @@ const PrivacyPolicy = () => {
 
               <div>
                 <h3 className="font-semibold text-lg mb-3 text-foreground">3. Legal basis</h3>
-                <p className="mb-2 text-foreground"><strong>Legitimate interests</strong> – operating and securing the web-site (Recital 47 UK GDPR).</p>
-                <p className="text-foreground"><strong>Consent</strong> – AdSense cookies load only after you click "Accept Cookies".</p>
+                <p className="mb-2 text-foreground"><strong>Legitimate interests</strong> – operating and securing the website (Recital 47 UK GDPR).</p>
+                <p className="text-foreground"><strong>No tracking/ads</strong> – We do not use advertising cookies or analytics that track you across sites.</p>
               </div>
 
               <div>
                 <h3 className="font-semibold text-lg mb-3 text-foreground">4. Your rights</h3>
-                <p className="text-foreground">Under UK GDPR/Scots law you can: access, correct, erase, or restrict processing of any personal data we hold about you. Contact us (see §7) with your request; we'll respond within 30 days. Because we store no document content, we cannot help recover lost passwords.</p>
+                <p className="text-foreground">Under UK GDPR/Scots law you can: access, correct, erase, or restrict processing of any personal data we hold about you. You can submit a request via our <Link to="/trust-security" className="underline underline-offset-2">Trust & Security</Link> page or email info@securepdf.io. We'll respond within 30 days. Because we store no document content, we cannot help recover lost passwords.</p>
               </div>
 
               <div>
@@ -116,7 +110,7 @@ const PrivacyPolicy = () => {
 
               <div className="p-4 bg-muted rounded-lg">
                 <p className="font-medium mb-2 text-foreground">Key takeaway:</p>
-                <p className="text-foreground">Apart from minimal server logs and optional advertising cookies, SecurePDF processes everything locally in your browser, so your PDF content and password never touch our servers.</p>
+                <p className="text-foreground">Apart from minimal server logs, SecurePDF processes everything locally in your browser, so your PDF content and password never touch our servers.</p>
               </div>
             </CardContent>
           </Card>
