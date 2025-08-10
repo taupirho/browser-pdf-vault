@@ -145,47 +145,58 @@ const Pricing = () => {
       setManagingSubscription(false);
     }
   };
-  const handlePlanSelection = async (planName: string) => {
-    if (planName === "Free") {
-      navigate("/");
-      return;
-    }
+const handlePlanSelection = async (planName: string) => {
     try {
       setLoading(planName);
-      const {
-        data: {
-          session
-        }
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        toast({
-          title: "Authentication Required",
-          description: "Please sign in to subscribe to a plan.",
-          variant: "destructive"
-        });
+        toast({ title: "Authentication Required", description: "Please sign in to manage your plan.", variant: "destructive" });
         navigate("/auth");
         return;
       }
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('create-checkout', {
-        body: {
-          plan: planName.toLowerCase()
+
+      // Handle Free plan: cancel at period end if currently subscribed
+      if (planName === "Free") {
+        if (subscriptionStatus?.subscribed) {
+          const { data, error } = await supabase.functions.invoke('cancel-subscription');
+          if (error) throw error;
+          const periodEnd = data?.subscriptions?.[0]?.current_period_end;
+          toast({
+            title: "Cancellation scheduled",
+            description: periodEnd ? `Your subscription will end on ${format(new Date(periodEnd), 'dd-MMM-yyyy')}. You'll stay on your current plan until then.` : "Your subscription will end at the end of the current billing period.",
+          });
+          // Refresh status
+          try {
+            const { data: chk } = await supabase.functions.invoke('check-subscription');
+            if (chk) setSubscriptionStatus(chk as any);
+          } catch {}
+        } else {
+          toast({ title: "Already on Free", description: "You're already on the Free tier." });
         }
-      });
+        return;
+      }
+
+      // Paid plan selected (Starter/Pro)
+      if (subscriptionStatus?.subscribed) {
+        // Redirect to Stripe Customer Portal for plan changes to avoid duplicate subscriptions
+        const { data, error } = await supabase.functions.invoke('customer-portal');
+        if (error) throw error;
+        if (data?.url) {
+          window.open(data.url, '_blank');
+          toast({ title: "Manage in Stripe", description: "Use the portal to upgrade/downgrade your plan." });
+        }
+        return;
+      }
+
+      // No active subscription -> start checkout for selected plan
+      const { data, error } = await supabase.functions.invoke('create-checkout', { body: { plan: planName.toLowerCase() } });
       if (error) throw error;
       if (data?.url) {
-        // Open Stripe checkout in a new tab
         window.open(data.url, '_blank');
       }
     } catch (error) {
-      console.error('Error creating checkout:', error);
-      toast({
-        title: "Error",
-        description: "Failed to start checkout process. Please try again.",
-        variant: "destructive"
-      });
+      console.error('Plan selection error:', error);
+      toast({ title: "Error", description: "Could not process your request. Please try again.", variant: "destructive" });
     } finally {
       setLoading(null);
     }

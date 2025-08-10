@@ -72,10 +72,25 @@ serve(async (req) => {
     // Check if customer exists
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      logStep("Found existing customer", { customerId });
-    }
+if (customers.data.length > 0) {
+  customerId = customers.data[0].id;
+  logStep("Found existing customer", { customerId });
+
+  // If customer already has an active subscription, redirect to Customer Portal instead of creating a new one
+  const activeSubs = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
+  if (activeSubs.data.length > 0) {
+    logStep("Active subscription exists - redirecting to portal", { subscriptionId: activeSubs.data[0].id });
+    const origin = req.headers.get("origin") || "http://localhost:3000";
+    const portal = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${origin}/pricing`,
+    });
+    return new Response(JSON.stringify({ url: portal.url, type: "portal" }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 200,
+    });
+  }
+}
 
     // Define pricing based on plan
     const planConfig = {
