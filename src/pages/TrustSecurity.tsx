@@ -10,16 +10,15 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { site } from "@/config/site";
-
 const TrustSecurity = () => {
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [requestType, setRequestType] = useState("access");
   const [details, setDetails] = useState("");
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     document.title = "Trust & Security | SecurePDF";
     const metaDesc = document.querySelector('meta[name="description"]');
@@ -34,48 +33,58 @@ const TrustSecurity = () => {
     }
     const canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     const href = window.location.origin + "/trust-security";
-    if (canonical) canonical.href = href; else {
+    if (canonical) canonical.href = href;else {
       const l = document.createElement("link");
       l.rel = "canonical";
       l.href = href;
       document.head.appendChild(l);
     }
   }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast({ title: "Please enter a valid email", variant: "destructive" });
+      toast({
+        title: "Please enter a valid email",
+        variant: "destructive"
+      });
       return;
     }
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("dsar_requests")
-        .insert({ name, email, request_type: requestType, details })
-        .select()
-        .maybeSingle();
-
+      const {
+        data,
+        error
+      } = await supabase.from("dsar_requests").insert({
+        name,
+        email,
+        request_type: requestType,
+        details
+      }).select().maybeSingle();
       if (error) throw error;
-
-      toast({ title: "Request submitted", description: "We've recorded your request and opened your email client." });
-
+      toast({
+        title: "Request submitted",
+        description: "We've recorded your request and opened your email client."
+      });
       const subject = `DSAR request — ${requestType}${data?.id ? ` (#${data.id})` : ""}`;
       const body = `Name: ${name || "-"}\nEmail: ${email}\nType: ${requestType}\n\nDetails:\n${details || "(none)"}`;
       const mailto = `mailto:${site.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.location.href = mailto;
-
-      setName(""); setEmail(""); setRequestType("access"); setDetails("");
+      setName("");
+      setEmail("");
+      setRequestType("access");
+      setDetails("");
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Something went wrong", description: err?.message || "Please try again later.", variant: "destructive" });
+      toast({
+        title: "Something went wrong",
+        description: err?.message || "Please try again later.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
@@ -111,7 +120,7 @@ const TrustSecurity = () => {
                 <h2 className="text-xl font-semibold">Data Flow (at a glance)</h2>
                 <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
                   <li>PDF is processed locally in your browser</li>
-                  <li>No file uploads; no password transmission</li>
+                  <li>No password transmission</li>
                   <li>Only minimal operational logs on our servers</li>
                 </ul>
               </CardContent>
@@ -140,11 +149,11 @@ const TrustSecurity = () => {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium">Name (optional)</label>
-                    <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
+                    <Input value={name} onChange={e => setName(e.target.value)} placeholder="Jane Doe" />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium">Email</label>
-                    <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+                    <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required />
                   </div>
                 </div>
                 <div className="space-y-1.5">
@@ -166,7 +175,7 @@ const TrustSecurity = () => {
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium">Details</label>
-                  <Textarea value={details} onChange={(e) => setDetails(e.target.value)} rows={5} placeholder="Describe your request…" />
+                  <Textarea value={details} onChange={e => setDetails(e.target.value)} rows={5} placeholder="Describe your request…" />
                 </div>
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <Button type="submit" disabled={loading}>
@@ -187,8 +196,6 @@ const TrustSecurity = () => {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default TrustSecurity;
