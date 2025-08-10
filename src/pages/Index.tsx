@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Link } from "react-router-dom";
 import Auth from './Auth';
 import type { User, Session } from '@supabase/supabase-js';
-
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
