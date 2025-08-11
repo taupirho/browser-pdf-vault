@@ -65,6 +65,7 @@ serve(async (req) => {
       to: [CONTACT_EMAIL],
       subject: `New contact: ${payload.subject}`,
       html: adminHtml,
+      text: `New contact message from ${payload.name} <${payload.email}>\nSubject: ${payload.subject}\n\n${payload.message}`,
       reply_to: [payload.email],
     });
 
@@ -74,6 +75,7 @@ serve(async (req) => {
       to: [payload.email],
       subject: "We received your message",
       html: userHtml,
+      text: `Hi ${payload.name},\nWe received your message about "${payload.subject}" and will reply within 48 hours.\n\nYour message:\n${payload.message}`,
       reply_to: [CONTACT_EMAIL],
     });
 

@@ -67,6 +67,7 @@ serve(async (req) => {
       to: [CONTACT_EMAIL],
       subject,
       html: adminHtml,
+      text: `New DSAR Request\nType: ${payload.requestType}\nName: ${payload.name || "-"}\nEmail: ${payload.email}\n\nDetails:\n${payload.details || "(none)"}`,
       reply_to: [payload.email],
     });
 
@@ -76,6 +77,7 @@ serve(async (req) => {
       to: [payload.email],
       subject: "We received your DSAR request",
       html: userHtml,
+      text: `We received your DSAR request (${payload.requestType}).\nSummary you sent:\n${payload.details || "(none)"}`,
       reply_to: [CONTACT_EMAIL],
     });
 
