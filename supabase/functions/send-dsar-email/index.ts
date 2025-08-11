@@ -63,7 +63,7 @@ serve(async (req) => {
 
     // Send to admin
     const adminSend = await resend.emails.send({
-      from: "SecurePDF <onboarding@resend.dev>",
+      from: "SecurePDF <no-reply@securepdf.io>",
       to: [CONTACT_EMAIL],
       subject,
       html: adminHtml,
@@ -72,7 +72,7 @@ serve(async (req) => {
 
     // Send confirmation to user
     const userSend = await resend.emails.send({
-      from: "SecurePDF <onboarding@resend.dev>",
+      from: "SecurePDF <no-reply@securepdf.io>",
       to: [payload.email],
       subject: "We received your DSAR request",
       html: userHtml,
