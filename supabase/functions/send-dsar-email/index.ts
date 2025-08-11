@@ -38,6 +38,15 @@ serve(async (req) => {
     const createdAt = new Date().toISOString();
     const subject = `DSAR request — ${payload.requestType}`;
 
+    // Sanity check for API key presence
+    if (!Deno.env.get("RESEND_API_KEY")) {
+      console.error("RESEND_API_KEY is missing in Supabase secrets");
+      return new Response(JSON.stringify({ error: "Missing RESEND_API_KEY in Supabase secrets" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     const adminHtml = `
       <h2>New DSAR Request</h2>
       <p><strong>Type:</strong> ${payload.requestType}</p>
@@ -61,6 +70,19 @@ serve(async (req) => {
       <p style="color:#666">If this wasn't you, reply to this email.</p>
     `;
 
+    const serializeError = (err: any) => {
+      try {
+        if (!err) return 'Unknown error';
+        if (typeof err === 'string') return err;
+        if (typeof err.message === 'string') return err.message;
+        if (err?.response?.error?.message) return err.response.error.message;
+        if (err?.name) return `${err.name}${err.statusCode ? ` (${err.statusCode})` : ''}`;
+        return JSON.stringify(err);
+      } catch {
+        return String(err);
+      }
+    };
+
     // Send to admin
     const { data: adminData, error: adminError } = await resend.emails.send({
       from: "SecurePDF <onboarding@resend.dev>",
@@ -72,7 +94,8 @@ serve(async (req) => {
     });
     if (adminError) {
       console.error("send-dsar-email admin send error", adminError);
-      return new Response(JSON.stringify({ error: adminError.message || String(adminError) }), {
+      const errMsg = serializeError(adminError);
+      return new Response(JSON.stringify({ error: errMsg, where: 'admin' }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
@@ -89,7 +112,8 @@ serve(async (req) => {
     });
     if (userError) {
       console.error("send-dsar-email user send error", userError);
-      return new Response(JSON.stringify({ error: userError.message || String(userError) }), {
+      const errMsg = serializeError(userError);
+      return new Response(JSON.stringify({ error: errMsg, where: 'user' }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
