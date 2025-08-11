@@ -61,7 +61,7 @@ serve(async (req) => {
 
     // Send to admin
     const adminSend = await resend.emails.send({
-      from: "SecurePDF <no-reply@securepdf.io>",
+      from: "SecurePDF <onboarding@resend.dev>",
       to: [CONTACT_EMAIL],
       subject: `New contact: ${payload.subject}`,
       html: adminHtml,
@@ -71,7 +71,7 @@ serve(async (req) => {
 
     // Send confirmation to user
     const userSend = await resend.emails.send({
-      from: "SecurePDF <no-reply@securepdf.io>",
+      from: "SecurePDF <onboarding@resend.dev>",
       to: [payload.email],
       subject: "We received your message",
       html: userHtml,
