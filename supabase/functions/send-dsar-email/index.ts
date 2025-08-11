@@ -62,7 +62,7 @@ serve(async (req) => {
     `;
 
     // Send to admin
-    const adminSend = await resend.emails.send({
+    const { data: adminData, error: adminError } = await resend.emails.send({
       from: "SecurePDF <onboarding@resend.dev>",
       to: [CONTACT_EMAIL],
       subject,
@@ -70,9 +70,16 @@ serve(async (req) => {
       text: `New DSAR Request\nType: ${payload.requestType}\nName: ${payload.name || "-"}\nEmail: ${payload.email}\n\nDetails:\n${payload.details || "(none)"}`,
       reply_to: [payload.email],
     });
-
+    if (adminError) {
+      console.error("send-dsar-email admin send error", adminError);
+      return new Response(JSON.stringify({ error: adminError.message || String(adminError) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    
     // Send confirmation to user
-    const userSend = await resend.emails.send({
+    const { data: userData, error: userError } = await resend.emails.send({
       from: "SecurePDF <onboarding@resend.dev>",
       to: [payload.email],
       subject: "We received your DSAR request",
@@ -80,16 +87,23 @@ serve(async (req) => {
       text: `We received your DSAR request (${payload.requestType}).\nSummary you sent:\n${payload.details || "(none)"}`,
       reply_to: [CONTACT_EMAIL],
     });
-
+    if (userError) {
+      console.error("send-dsar-email user send error", userError);
+      return new Response(JSON.stringify({ error: userError.message || String(userError) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    
     console.log("send-dsar-email sent", {
       adminTo: CONTACT_EMAIL,
       userTo: payload.email,
-      adminId: adminSend.id,
-      userId: userSend.id,
+      adminId: adminData?.id,
+      userId: userData?.id,
     });
-
+    
     return new Response(
-      JSON.stringify({ ok: true, adminId: adminSend.id, userId: userSend.id }),
+      JSON.stringify({ ok: true, adminId: adminData?.id, userId: userData?.id }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error: any) {

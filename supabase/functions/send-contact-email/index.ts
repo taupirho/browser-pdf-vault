@@ -60,7 +60,7 @@ serve(async (req) => {
     `;
 
     // Send to admin
-    const adminSend = await resend.emails.send({
+    const { data: adminData, error: adminError } = await resend.emails.send({
       from: "SecurePDF <onboarding@resend.dev>",
       to: [CONTACT_EMAIL],
       subject: `New contact: ${payload.subject}`,
@@ -68,9 +68,16 @@ serve(async (req) => {
       text: `New contact message from ${payload.name} <${payload.email}>\nSubject: ${payload.subject}\n\n${payload.message}`,
       reply_to: [payload.email],
     });
-
+    if (adminError) {
+      console.error("send-contact-email admin send error", adminError);
+      return new Response(JSON.stringify({ error: adminError.message || String(adminError) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    
     // Send confirmation to user
-    const userSend = await resend.emails.send({
+    const { data: userData, error: userError } = await resend.emails.send({
       from: "SecurePDF <onboarding@resend.dev>",
       to: [payload.email],
       subject: "We received your message",
@@ -78,16 +85,23 @@ serve(async (req) => {
       text: `Hi ${payload.name},\nWe received your message about "${payload.subject}" and will reply within 48 hours.\n\nYour message:\n${payload.message}`,
       reply_to: [CONTACT_EMAIL],
     });
-
+    if (userError) {
+      console.error("send-contact-email user send error", userError);
+      return new Response(JSON.stringify({ error: userError.message || String(userError) }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    
     console.log("send-contact-email sent", {
       adminTo: CONTACT_EMAIL,
       userTo: payload.email,
-      adminId: adminSend.id,
-      userId: userSend.id,
+      adminId: adminData?.id,
+      userId: userData?.id,
     });
-
+    
     return new Response(
-      JSON.stringify({ ok: true, adminId: adminSend.id, userId: userSend.id }),
+      JSON.stringify({ ok: true, adminId: adminData?.id, userId: userData?.id }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error: any) {
