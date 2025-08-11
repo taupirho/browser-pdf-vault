@@ -60,14 +60,25 @@ const TrustSecurity = () => {
           details,
         });
       if (error) throw error;
-      toast({
-        title: "Request submitted",
-        description: "We've recorded your request and opened your email client."
+      // Send emails via edge function
+      const { error: emailError } = await supabase.functions.invoke("send-dsar-email", {
+        body: { name, email, requestType, details },
       });
-      const subject = `DSAR request — ${requestType}`;
-      const body = `Name: ${name || "-"}\nEmail: ${email}\nType: ${requestType}\n\nDetails:\n${details || "(none)"}`;
-      const mailto = `mailto:${site.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.location.href = mailto;
+
+      if (emailError) {
+        console.error(emailError);
+        toast({
+          title: "Request submitted",
+          description: "We recorded your request. Email notification failed to send.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Request submitted",
+          description: "We recorded your request and sent a confirmation email.",
+        });
+      }
+
       setName("");
       setEmail("");
       setRequestType("access");
