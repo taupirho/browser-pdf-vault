@@ -51,21 +51,20 @@ const TrustSecurity = () => {
     }
     setLoading(true);
     try {
-      const {
-        data,
-        error
-      } = await supabase.from("dsar_requests").insert({
-        name,
-        email,
-        request_type: requestType,
-        details
-      }).select().maybeSingle();
+      const { error } = await supabase
+        .from("dsar_requests")
+        .insert({
+          name,
+          email,
+          request_type: requestType,
+          details,
+        });
       if (error) throw error;
       toast({
         title: "Request submitted",
         description: "We've recorded your request and opened your email client."
       });
-      const subject = `DSAR request — ${requestType}${data?.id ? ` (#${data.id})` : ""}`;
+      const subject = `DSAR request — ${requestType}`;
       const body = `Name: ${name || "-"}\nEmail: ${email}\nType: ${requestType}\n\nDetails:\n${details || "(none)"}`;
       const mailto = `mailto:${site.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       window.location.href = mailto;
