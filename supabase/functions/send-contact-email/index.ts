@@ -65,6 +65,7 @@ serve(async (req) => {
       to: [CONTACT_EMAIL],
       subject: `New contact: ${payload.subject}`,
       html: adminHtml,
+      reply_to: [payload.email],
     });
 
     // Send confirmation to user
@@ -73,6 +74,14 @@ serve(async (req) => {
       to: [payload.email],
       subject: "We received your message",
       html: userHtml,
+      reply_to: [CONTACT_EMAIL],
+    });
+
+    console.log("send-contact-email sent", {
+      adminTo: CONTACT_EMAIL,
+      userTo: payload.email,
+      adminId: adminSend.id,
+      userId: userSend.id,
     });
 
     return new Response(

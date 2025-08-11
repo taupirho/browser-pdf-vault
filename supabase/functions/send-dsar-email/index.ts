@@ -67,6 +67,7 @@ serve(async (req) => {
       to: [CONTACT_EMAIL],
       subject,
       html: adminHtml,
+      reply_to: [payload.email],
     });
 
     // Send confirmation to user
@@ -75,6 +76,14 @@ serve(async (req) => {
       to: [payload.email],
       subject: "We received your DSAR request",
       html: userHtml,
+      reply_to: [CONTACT_EMAIL],
+    });
+
+    console.log("send-dsar-email sent", {
+      adminTo: CONTACT_EMAIL,
+      userTo: payload.email,
+      adminId: adminSend.id,
+      userId: userSend.id,
     });
 
     return new Response(
