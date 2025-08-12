@@ -22,28 +22,46 @@ const Pricing = () => {
   const [managingSubscription, setManagingSubscription] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [user, setUser] = useState<any>(null);
-  const plans = [{
-    name: "Free",
-    price: "$0",
-    description: "Perfect for trying out our service",
-    features: ["2 PDFs per day", "Max file size: 250KB", "Secure encryption", "Email support"],
-    buttonText: "Get Started",
-    popular: false
-  }, {
-    name: "Starter",
-    price: "$6.99",
-    description: "Great for regular users",
-    features: ["10 PDFs per day", "Max file size: 1MB", "Secure encryption", "Priority email support"],
-    buttonText: "Choose Starter",
-    popular: true
-  }, {
-    name: "Pro",
-    price: "$15.99",
-    description: "For power users and businesses",
-    features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords"],
-    buttonText: "Choose Pro",
-    popular: false
-  }];
+  const CONTACT_SALES_PATH = "/contact";
+  const plans = [
+    {
+      name: "Free",
+      price: "$0",
+      description: "Perfect for trying out our service",
+      features: ["2 PDFs per day", "Max file size: 250KB", "Secure encryption", "Email support"],
+      buttonText: "Get Started",
+      popular: false
+    },
+    {
+      name: "Starter",
+      price: "$6.99",
+      description: "Great for regular users",
+      features: ["10 PDFs per day", "Max file size: 1MB", "Secure encryption", "Priority email support"],
+      buttonText: "Choose Starter",
+      popular: true
+    },
+    {
+      name: "Pro",
+      price: "$15.99",
+      description: "For power users and businesses",
+      features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords"],
+      buttonText: "Choose Pro",
+      popular: false
+    },
+    {
+      name: "Enterprise",
+      price: "Price on application",
+      description: "For teams with advanced security and volume needs.",
+      features: [
+        "Bulk protect up to 100 files per batch",
+        "Max file size: 100 MB",
+        "Secure encryption",
+        "Custom passwords"
+      ],
+      buttonText: "Contact Sales",
+      popular: false
+    }
+  ];
 
   // Check authentication and subscription status
   useEffect(() => {
@@ -269,10 +287,11 @@ const handlePlanSelection = async (planName: string) => {
               </Alert>}
           </div>}
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => {
           const isCurrentPlan = subscriptionStatus?.subscription_tier?.toLowerCase() === plan.name.toLowerCase() && subscriptionStatus.subscribed;
-          return <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''} ${isCurrentPlan ? 'border-primary border-2 bg-primary/5' : ''}`}>
+          const isEnterprise = plan.name === "Enterprise";
+           return <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''} ${isCurrentPlan ? 'border-primary border-2 bg-primary/5' : ''}`}>
               {plan.popular && <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
                     Most Popular
@@ -289,11 +308,13 @@ const handlePlanSelection = async (planName: string) => {
                 <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <span className="text-4xl font-bold text-primary">{plan.price}</span>
-                  {plan.price !== "$0" && <div className="text-muted-foreground">
+                  {plan.price.startsWith("$") && plan.price !== "$0" && (
+                    <div className="text-muted-foreground">
                       <span>/month per user</span>
                       {plan.price === "$6.99" && <div className="text-sm">or $70/year per user</div>}
                       {plan.price === "$15.99" && <div className="text-sm">or $150/year per user</div>}
-                    </div>}
+                    </div>
+                  )}
                 </div>
                 <p className="text-muted-foreground mt-2">{plan.description}</p>
               </CardHeader>
@@ -306,9 +327,22 @@ const handlePlanSelection = async (planName: string) => {
                     </li>)}
                 </ul>
 
-                <Button className="w-full" variant={plan.popular ? "default" : "outline"} onClick={() => isCurrentPlan ? handleManageSubscription() : handlePlanSelection(plan.name)} disabled={loading === plan.name || managingSubscription}>
-                  {loading === plan.name ? "Loading..." : isCurrentPlan ? "Manage Plan" : plan.buttonText}
-                </Button>
+                {isEnterprise ? (
+                  <Link to={CONTACT_SALES_PATH}>
+                    <Button
+                      className="w-full"
+                      variant="default"
+                      data-analytics-id="cta_pricing_enterprise_contact"
+                      aria-label="Contact Sales for Enterprise pricing"
+                    >
+                      {plan.buttonText}
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button className="w-full" variant={plan.popular ? "default" : "outline"} onClick={() => isCurrentPlan ? handleManageSubscription() : handlePlanSelection(plan.name)} disabled={loading === plan.name || managingSubscription}>
+                    {loading === plan.name ? "Loading..." : isCurrentPlan ? "Manage Plan" : plan.buttonText}
+                  </Button>
+                )}
               </CardContent>
             </Card>;
         })}
