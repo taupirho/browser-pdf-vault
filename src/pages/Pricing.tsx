@@ -307,7 +307,7 @@ const handlePlanSelection = async (planName: string) => {
               <CardHeader className="text-center pb-8">
                 <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-primary">{plan.price}</span>
+                  <span className={plan.price.startsWith("$") ? "text-4xl font-bold text-primary" : "font-bold text-primary"}>{plan.price}</span>
                   {plan.price.startsWith("$") && plan.price !== "$0" && (
                     <div className="text-muted-foreground">
                       <span>/month per user</span>
