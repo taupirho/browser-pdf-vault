@@ -40,7 +40,7 @@ const Pricing = () => {
     name: "Pro",
     price: "$15.99",
     description: "For power users and businesses",
-    features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "24/7 phone & email support", "Custom passwords"],
+    features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords"],
     buttonText: "Choose Pro",
     popular: false
   }];
