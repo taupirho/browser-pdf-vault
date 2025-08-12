@@ -67,7 +67,7 @@ serve(async (req) => {
       <pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;">${(payload.details || "(none)")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")}</pre>
-      <p style="color:#666">If this wasn't you, reply to this email.</p>
+      <p style="color:#666">If this wasn't you, contact us at info@securepdf.io.</p>
     `;
 
     const serializeError = (err: any) => {
@@ -107,7 +107,7 @@ serve(async (req) => {
       to: [payload.email],
       subject: "We received your DSAR request",
       html: userHtml,
-      text: `We received your DSAR request (${payload.requestType}).\nSummary you sent:\n${payload.details || "(none)"}`,
+      text: `We received your DSAR request (${payload.requestType}).\nSummary you sent:\n${payload.details || "(none)"}\n\nIf this wasn't you, contact us at info@securepdf.io.`,
       reply_to: [CONTACT_EMAIL],
     });
     if (userError) {
