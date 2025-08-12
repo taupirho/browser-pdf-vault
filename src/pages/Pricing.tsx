@@ -51,7 +51,7 @@ const Pricing = () => {
     {
       name: "Enterprise",
       price: "Price on application",
-      description: "For teams with advanced security and volume needs.",
+      description: "For teams with high volume needs.",
       features: [
         "Bulk protect up to 100 files per batch",
         "Max file size: 100 MB",
