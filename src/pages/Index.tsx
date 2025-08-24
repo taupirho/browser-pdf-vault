@@ -17,6 +17,19 @@ const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
+    // Clean URLs with query parameters for SEO
+    const currentUrl = new URL(window.location.href);
+    if (currentUrl.search) {
+      // Remove query parameters and update URL without reload
+      window.history.replaceState({}, document.title, currentUrl.pathname);
+    }
+    
+    // Set canonical URL dynamically
+    const canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+    if (canonicalLink) {
+      canonicalLink.href = 'https://securepdf.io/';
+    }
+
     // Set up auth state listener FIRST
     const {
       data: {
