@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
+import { Helmet } from 'react-helmet';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -59,6 +60,12 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Contact SecurePDF Support - Get Help with PDF Password Protection</title>
+        <meta name="description" content="Need help with SecurePDF? Contact our support team for technical assistance, privacy questions, or business inquiries. Response within 48 hours guaranteed." />
+        <meta name="keywords" content="SecurePDF contact, PDF support, technical help, customer service, business inquiries" />
+        <link rel="canonical" href="https://securepdf.io/contact" />
+      </Helmet>
       
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">

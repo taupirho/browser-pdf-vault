@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format } from "date-fns";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Helmet } from 'react-helmet';
 interface SubscriptionStatus {
   subscribed: boolean;
   subscription_tier?: string;
@@ -233,6 +234,12 @@ const handlePlanSelection = async (planName: string) => {
     }
   };
   return <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>SecurePDF Pricing Plans - Free PDF Password Protection & Pro Features</title>
+        <meta name="description" content="Choose from free or paid SecurePDF plans. Free tier: 2 PDFs/day. Starter: 10 PDFs/day at $6.99/month. Pro: 50 PDFs/day at $15.99/month. Cancel anytime." />
+        <meta name="keywords" content="PDF protection pricing, secure PDF plans, PDF encryption cost, free PDF password tool, subscription plans" />
+        <link rel="canonical" href="https://securepdf.io/pricing" />
+      </Helmet>
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">

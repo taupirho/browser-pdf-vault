@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Helmet } from 'react-helmet';
 
 const About = () => {
   const securityFeatures = [
@@ -58,6 +59,12 @@ const About = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>About SecurePDF - Privacy-First PDF Password Protection Service</title>
+        <meta name="description" content="Learn how SecurePDF protects your privacy with browser-based PDF encryption. Zero knowledge, AES-256 security, no file uploads. Discover our privacy-first approach." />
+        <meta name="keywords" content="about SecurePDF, browser-based encryption, privacy-first PDF protection, zero knowledge security, AES-256 encryption" />
+        <link rel="canonical" href="https://securepdf.io/about" />
+      </Helmet>
       
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">

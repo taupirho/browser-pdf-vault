@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { site } from "@/config/site";
+import { Helmet } from 'react-helmet';
 const TrustSecurity = () => {
   const {
     toast
@@ -95,6 +96,12 @@ const TrustSecurity = () => {
     }
   };
   return <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>SecurePDF Trust & Security - GDPR Rights & Data Protection</title>
+        <meta name="description" content="SecurePDF Trust & Security: GDPR data subject rights, security controls, AES-256 encryption, and data protection. Submit DSAR requests and learn about our security measures." />
+        <meta name="keywords" content="SecurePDF security, GDPR rights, data protection, DSAR requests, trust and security, AES-256 encryption" />
+        <link rel="canonical" href="https://securepdf.io/trust-security" />
+      </Helmet>
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">

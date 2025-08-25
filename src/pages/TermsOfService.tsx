@@ -3,10 +3,17 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card, CardContent } from "@/components/ui/card";
+import { Helmet } from 'react-helmet';
 
 const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>SecurePDF Terms of Service - Legal Terms & Conditions</title>
+        <meta name="description" content="SecurePDF Terms of Service: Legal terms for using our browser-based PDF password protection tool. No file storage, acceptable use policy, and user responsibilities." />
+        <meta name="keywords" content="SecurePDF terms of service, legal terms, PDF protection service terms, acceptable use policy" />
+        <link rel="canonical" href="https://securepdf.io/terms-of-service" />
+      </Helmet>
       
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">

@@ -3,10 +3,17 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card, CardContent } from "@/components/ui/card";
+import { Helmet } from 'react-helmet';
 
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>SecurePDF Privacy Policy - How We Protect Your Data</title>
+        <meta name="description" content="SecurePDF Privacy Policy: Learn how we protect your privacy with zero file storage, minimal logging, and GDPR compliance. Your PDFs never leave your browser." />
+        <meta name="keywords" content="SecurePDF privacy policy, data protection, GDPR compliance, zero file storage, browser-based encryption" />
+        <link rel="canonical" href="https://securepdf.io/privacy-policy" />
+      </Helmet>
       
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">

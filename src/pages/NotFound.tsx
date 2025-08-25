@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Shield } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Helmet } from 'react-helmet';
 
 const NotFound = () => {
   const location = useLocation();
@@ -16,6 +17,12 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>Page Not Found - SecurePDF</title>
+        <meta name="description" content="The page you are looking for does not exist. Return to SecurePDF to securely protect your PDFs with passwords using AES-256 encryption." />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://securepdf.io/" />
+      </Helmet>
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">

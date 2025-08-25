@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import type { User, Session } from '@supabase/supabase-js';
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Helmet } from 'react-helmet';
 interface AuthProps {
   isModal?: boolean;
   onSuccess?: () => void;
@@ -252,9 +253,17 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
 
   return <div className={containerClass}>
       {!isModal && (
-        <div className="absolute top-4 right-4">
-          <ThemeToggle />
-        </div>
+        <>
+          <Helmet>
+            <title>Sign In to SecurePDF - Secure PDF Password Protection</title>
+            <meta name="description" content="Sign in to your SecurePDF account to protect PDFs with passwords. Free account includes 2 PDFs per day with bank-grade AES-256 encryption. Upgrade for more features." />
+            <meta name="keywords" content="SecurePDF login, sign in, PDF password protection account, secure PDF service" />
+            <link rel="canonical" href="https://securepdf.io/auth" />
+          </Helmet>
+          <div className="absolute top-4 right-4">
+            <ThemeToggle />
+          </div>
+        </>
       )}
       <Card className={cardClass}>
         <CardHeader>
