@@ -293,22 +293,50 @@ const handlePlanSelection = async (planName: string) => {
           {plans.map((plan, index) => {
           const isCurrentPlan = subscriptionStatus?.subscription_tier?.toLowerCase() === plan.name.toLowerCase() && subscriptionStatus.subscribed;
            return <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''} ${isCurrentPlan ? 'border-primary border-2 bg-primary/5' : ''}`}>
-...
-                 <p className="text-muted-foreground mt-2">{plan.description}</p>
-               </CardHeader>
+              {plan.popular && <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
+                    Most Popular
+                  </span>
+                </div>}
+              
+              {isCurrentPlan && <div className="absolute -top-3 right-4">
+                  <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium">
+                    Current Plan
+                  </span>
+                </div>}
+              
+              <CardHeader className="text-center pb-8">
+                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+                <div className="mt-4">
+                  <span className={plan.price.startsWith("$") ? "text-4xl font-bold text-primary" : "font-bold text-primary"}>{plan.price}</span>
+                  {plan.price.startsWith("$") && plan.price !== "$0" && plan.name !== "LTD" && (
+                    <div className="text-muted-foreground">
+                      <span>/month per user</span>
+                      {plan.price === "$6.99" && <div className="text-sm">or $70/year per user</div>}
+                      {plan.price === "$15.99" && <div className="text-sm">or $150/year per user</div>}
+                    </div>
+                  )}
+                  {plan.name === "LTD" && (
+                    <div className="text-muted-foreground">
+                      <span className="text-sm font-semibold">One-time payment</span>
+                    </div>
+                  )}
+                </div>
+                <p className="text-muted-foreground mt-2">{plan.description}</p>
+              </CardHeader>
 
-               <CardContent>
-                 <ul className="space-y-3 mb-8">
-                   {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center">
-                       <Check className="h-5 w-5 text-primary mr-3 flex-shrink-0" />
-                       <span className="text-foreground">{feature}</span>
-                     </li>)}
-                 </ul>
+              <CardContent>
+                <ul className="space-y-3 mb-8">
+                  {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center">
+                      <Check className="h-5 w-5 text-primary mr-3 flex-shrink-0" />
+                      <span className="text-foreground">{feature}</span>
+                    </li>)}
+                </ul>
 
-                 <Button className="w-full" variant={plan.popular ? "default" : "outline"} onClick={() => isCurrentPlan ? handleManageSubscription() : handlePlanSelection(plan.name)} disabled={loading === plan.name || managingSubscription}>
-                   {loading === plan.name ? "Loading..." : isCurrentPlan ? "Manage Plan" : plan.buttonText}
-                 </Button>
-               </CardContent>
+                <Button className="w-full" variant={plan.popular ? "default" : "outline"} onClick={() => isCurrentPlan ? handleManageSubscription() : handlePlanSelection(plan.name)} disabled={loading === plan.name || managingSubscription}>
+                  {loading === plan.name ? "Loading..." : isCurrentPlan ? "Manage Plan" : plan.buttonText}
+                </Button>
+              </CardContent>
             </Card>;
         })}
         </div>

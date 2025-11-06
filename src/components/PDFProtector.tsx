@@ -300,7 +300,7 @@ export function PDFProtector({
       // Save the encrypted PDF
       const encryptedPdfBytes = await existingPdf.save();
       // Create download blob from the encrypted PDF
-      const blob = new Blob([encryptedPdfBytes], {
+      const blob = new Blob([encryptedPdfBytes as BlobPart], {
         type: 'application/pdf'
       });
       const url = URL.createObjectURL(blob);
