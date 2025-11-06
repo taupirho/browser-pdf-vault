@@ -50,7 +50,7 @@ const Pricing = () => {
       popular: false
     },
     {
-      name: "LTD",
+      name: "Life Time Deal",
       price: "$120",
       description: "Lifetime access with Pro features",
       features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords", "Lifetime access - pay once"],
@@ -316,7 +316,7 @@ const handlePlanSelection = async (planName: string) => {
                       {plan.price === "$15.99" && <div className="text-sm">or $150/year per user</div>}
                     </div>
                   )}
-                  {plan.name === "LTD" && (
+                  {plan.name === "Life Time Deal" && (
                     <div className="text-muted-foreground">
                       <span className="text-sm font-semibold">One-time payment</span>
                     </div>
