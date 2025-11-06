@@ -24,40 +24,35 @@ const Pricing = () => {
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [user, setUser] = useState<any>(null);
   const CONTACT_SALES_PATH = "/contact";
-  const plans = [
-    {
-      name: "Free",
-      price: "$0",
-      description: "Perfect for trying out our service",
-      features: ["2 PDFs per day", "Max file size: 250KB", "Secure encryption", "Email support"],
-      buttonText: "Get Started",
-      popular: false
-    },
-    {
-      name: "Starter",
-      price: "$6.99",
-      description: "Great for regular users",
-      features: ["10 PDFs per day", "Max file size: 1MB", "Secure encryption", "Priority email support"],
-      buttonText: "Choose Starter",
-      popular: false
-    },
-    {
-      name: "Pro",
-      price: "$15.99",
-      description: "For power users and businesses",
-      features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords"],
-      buttonText: "Choose Pro",
-      popular: false
-    },
-    {
-      name: "Life Time Deal",
-      price: "$120",
-      description: "Lifetime access with Pro features",
-      features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords", "Lifetime access - pay once"],
-      buttonText: "Choose LTD",
-      popular: true
-    }
-  ];
+  const plans = [{
+    name: "Free",
+    price: "$0",
+    description: "Perfect for trying out our service",
+    features: ["2 PDFs per day", "Max file size: 250KB", "Secure encryption", "Email support"],
+    buttonText: "Get Started",
+    popular: false
+  }, {
+    name: "Starter",
+    price: "$6.99",
+    description: "Great for regular users",
+    features: ["10 PDFs per day", "Max file size: 1MB", "Secure encryption", "Priority email support"],
+    buttonText: "Choose Starter",
+    popular: false
+  }, {
+    name: "Pro",
+    price: "$15.99",
+    description: "For power users and businesses",
+    features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords"],
+    buttonText: "Choose Pro",
+    popular: false
+  }, {
+    name: "Life Time Deal",
+    price: "$120",
+    description: "Lifetime access with Pro features",
+    features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords", "Lifetime access - pay once"],
+    buttonText: "Choose LTD",
+    popular: true
+  }];
 
   // Check authentication and subscription status
   useEffect(() => {
@@ -72,18 +67,21 @@ const Pricing = () => {
         try {
           const params = new URLSearchParams(window.location.search);
           const portalReturn = params.get('portal_return') === '1';
-
-          const res = portalReturn
-            ? await supabase.functions.invoke('check-subscription', { body: { portalReturn: true } })
-            : await supabase.functions.invoke('check-subscription');
-
-          const { data, error } = res as any;
+          const res = portalReturn ? await supabase.functions.invoke('check-subscription', {
+            body: {
+              portalReturn: true
+            }
+          }) : await supabase.functions.invoke('check-subscription');
+          const {
+            data,
+            error
+          } = res as any;
           if (!error && data) {
             setSubscriptionStatus(data);
             if (portalReturn) {
               toast({
                 title: "Subscription refreshed",
-                description: "If a plan change was scheduled, a confirmation email has been sent.",
+                description: "If a plan change was scheduled, a confirmation email has been sent."
               });
               params.delete('portal_return');
               const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
@@ -172,12 +170,20 @@ const Pricing = () => {
       setManagingSubscription(false);
     }
   };
-const handlePlanSelection = async (planName: string) => {
+  const handlePlanSelection = async (planName: string) => {
     try {
       setLoading(planName);
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       if (!session) {
-        toast({ title: "Authentication Required", description: "Please sign in to manage your plan.", variant: "destructive" });
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to manage your plan.",
+          variant: "destructive"
+        });
         navigate("/auth");
         return;
       }
@@ -185,20 +191,28 @@ const handlePlanSelection = async (planName: string) => {
       // Handle Free plan: cancel at period end if currently subscribed
       if (planName === "Free") {
         if (subscriptionStatus?.subscribed) {
-          const { data, error } = await supabase.functions.invoke('cancel-subscription');
+          const {
+            data,
+            error
+          } = await supabase.functions.invoke('cancel-subscription');
           if (error) throw error;
           const periodEnd = data?.subscriptions?.[0]?.current_period_end;
           toast({
             title: "Cancellation scheduled",
-            description: periodEnd ? `Your subscription will end on ${format(new Date(periodEnd), 'dd-MMM-yyyy')}. You'll stay on your current plan until then.` : "Your subscription will end at the end of the current billing period.",
+            description: periodEnd ? `Your subscription will end on ${format(new Date(periodEnd), 'dd-MMM-yyyy')}. You'll stay on your current plan until then.` : "Your subscription will end at the end of the current billing period."
           });
           // Refresh status
           try {
-            const { data: chk } = await supabase.functions.invoke('check-subscription');
+            const {
+              data: chk
+            } = await supabase.functions.invoke('check-subscription');
             if (chk) setSubscriptionStatus(chk as any);
           } catch {}
         } else {
-          toast({ title: "Already on Free", description: "You're already on the Free tier." });
+          toast({
+            title: "Already on Free",
+            description: "You're already on the Free tier."
+          });
         }
         return;
       }
@@ -206,24 +220,41 @@ const handlePlanSelection = async (planName: string) => {
       // Paid plan selected (Starter/Pro/LTD)
       if (subscriptionStatus?.subscribed) {
         // Redirect to Stripe Customer Portal for plan changes to avoid duplicate subscriptions
-        const { data, error } = await supabase.functions.invoke('customer-portal');
+        const {
+          data,
+          error
+        } = await supabase.functions.invoke('customer-portal');
         if (error) throw error;
         if (data?.url) {
           window.open(data.url, '_blank');
-          toast({ title: "Manage in Stripe", description: "Use the portal to upgrade/downgrade your plan." });
+          toast({
+            title: "Manage in Stripe",
+            description: "Use the portal to upgrade/downgrade your plan."
+          });
         }
         return;
       }
 
       // No active subscription -> start checkout for selected plan
-      const { data, error } = await supabase.functions.invoke('create-checkout', { body: { plan: planName.toLowerCase() } });
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          plan: planName.toLowerCase()
+        }
+      });
       if (error) throw error;
       if (data?.url) {
         window.open(data.url, '_blank');
       }
     } catch (error) {
       console.error('Plan selection error:', error);
-      toast({ title: "Error", description: "Could not process your request. Please try again.", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Could not process your request. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(null);
     }
@@ -292,7 +323,7 @@ const handlePlanSelection = async (planName: string) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => {
           const isCurrentPlan = subscriptionStatus?.subscription_tier?.toLowerCase() === plan.name.toLowerCase() && subscriptionStatus.subscribed;
-           return <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''} ${isCurrentPlan ? 'border-primary border-2 bg-primary/5' : ''}`}>
+          return <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''} ${isCurrentPlan ? 'border-primary border-2 bg-primary/5' : ''}`}>
               {plan.popular && <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
                     Most Popular
@@ -309,18 +340,14 @@ const handlePlanSelection = async (planName: string) => {
                 <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <span className={plan.price.startsWith("$") ? "text-4xl font-bold text-primary" : "font-bold text-primary"}>{plan.price}</span>
-                  {plan.price.startsWith("$") && plan.price !== "$0" && plan.name !== "LTD" && (
-                    <div className="text-muted-foreground">
-                      <span>/month per user</span>
+                  {plan.price.startsWith("$") && plan.price !== "$0" && plan.name !== "LTD" && <div className="text-muted-foreground">
+                      
                       {plan.price === "$6.99" && <div className="text-sm">or $70/year per user</div>}
                       {plan.price === "$15.99" && <div className="text-sm">or $150/year per user</div>}
-                    </div>
-                  )}
-                  {plan.name === "Life Time Deal" && (
-                    <div className="text-muted-foreground">
+                    </div>}
+                  {plan.name === "Life Time Deal" && <div className="text-muted-foreground">
                       <span className="text-sm font-semibold">One-time payment</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
                 <p className="text-muted-foreground mt-2">{plan.description}</p>
               </CardHeader>
