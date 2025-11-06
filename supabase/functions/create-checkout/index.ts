@@ -27,7 +27,7 @@ serve(async (req) => {
     logStep("Function started");
 
     const { plan } = await req.json();
-    if (!plan || !["starter", "pro"].includes(plan)) {
+    if (!plan || !["starter", "pro", "ltd"].includes(plan)) {
       throw new Error("Invalid plan specified");
     }
 
@@ -130,10 +130,16 @@ if (customers.data.length > 0) {
         price: 1599, // $15.99
         name: "Pro Plan", 
         tier: "pro"
+      },
+      ltd: {
+        price: 12000, // $120.00
+        name: "Lifetime Deal",
+        tier: "ltd"
       }
     };
 
     const selectedPlan = planConfig[plan as keyof typeof planConfig];
+    const isLTD = plan === "ltd";
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -144,15 +150,17 @@ if (customers.data.length > 0) {
             currency: "usd",
             product_data: { 
               name: selectedPlan.name,
-              description: `${selectedPlan.name} subscription for PDF protection service`
+              description: isLTD 
+                ? `${selectedPlan.name} - One-time payment for lifetime access` 
+                : `${selectedPlan.name} subscription for PDF protection service`
             },
             unit_amount: selectedPlan.price,
-            recurring: { interval: "month" },
+            ...(isLTD ? {} : { recurring: { interval: "month" } }),
           },
           quantity: 1,
         },
       ],
-      mode: "subscription",
+      mode: isLTD ? "payment" : "subscription",
       success_url: `${req.headers.get("origin")}/pricing?success=true&plan=${plan}`,
       cancel_url: `${req.headers.get("origin")}/pricing?canceled=true`,
       allow_promotion_codes: true,

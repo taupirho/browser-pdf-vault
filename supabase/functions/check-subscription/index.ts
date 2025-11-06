@@ -151,6 +151,10 @@ serve(async (req) => {
         subscriptionTier = "pro";
         maxDailyFiles = 50;
         maxFileSizeKb = 10240; // 10MB
+      } else if (amount === 12000) { // $120.00
+        subscriptionTier = "ltd";
+        maxDailyFiles = 50;
+        maxFileSizeKb = 10240; // 10MB
       }
       
       logStep("Active subscription found", { 

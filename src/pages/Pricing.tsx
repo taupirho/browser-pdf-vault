@@ -39,7 +39,7 @@ const Pricing = () => {
       description: "Great for regular users",
       features: ["10 PDFs per day", "Max file size: 1MB", "Secure encryption", "Priority email support"],
       buttonText: "Choose Starter",
-      popular: true
+      popular: false
     },
     {
       name: "Pro",
@@ -50,17 +50,12 @@ const Pricing = () => {
       popular: false
     },
     {
-      name: "Enterprise",
-      price: "Price on application",
-      description: "For teams with high volume needs.",
-      features: [
-        "Bulk protect up to 100 files per batch",
-        "Max file size: 100 MB",
-        "Secure encryption",
-        "Custom passwords"
-      ],
-      buttonText: "Contact Sales",
-      popular: false
+      name: "LTD",
+      price: "$120",
+      description: "Lifetime access with Pro features",
+      features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords", "Lifetime access - pay once"],
+      buttonText: "Choose LTD",
+      popular: true
     }
   ];
 
@@ -208,7 +203,7 @@ const handlePlanSelection = async (planName: string) => {
         return;
       }
 
-      // Paid plan selected (Starter/Pro)
+      // Paid plan selected (Starter/Pro/LTD)
       if (subscriptionStatus?.subscribed) {
         // Redirect to Stripe Customer Portal for plan changes to avoid duplicate subscriptions
         const { data, error } = await supabase.functions.invoke('customer-portal');
@@ -297,60 +292,23 @@ const handlePlanSelection = async (planName: string) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => {
           const isCurrentPlan = subscriptionStatus?.subscription_tier?.toLowerCase() === plan.name.toLowerCase() && subscriptionStatus.subscribed;
-          const isEnterprise = plan.name === "Enterprise";
            return <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''} ${isCurrentPlan ? 'border-primary border-2 bg-primary/5' : ''}`}>
-              {plan.popular && <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                    Most Popular
-                  </span>
-                </div>}
-              
-              {isCurrentPlan && <div className="absolute -top-3 right-4">
-                  <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium">
-                    Current Plan
-                  </span>
-                </div>}
-              
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                <div className="mt-4">
-                  <span className={plan.price.startsWith("$") ? "text-4xl font-bold text-primary" : "font-bold text-primary"}>{plan.price}</span>
-                  {plan.price.startsWith("$") && plan.price !== "$0" && (
-                    <div className="text-muted-foreground">
-                      <span>/month per user</span>
-                      {plan.price === "$6.99" && <div className="text-sm">or $70/year per user</div>}
-                      {plan.price === "$15.99" && <div className="text-sm">or $150/year per user</div>}
-                    </div>
-                  )}
-                </div>
-                <p className="text-muted-foreground mt-2">{plan.description}</p>
-              </CardHeader>
+...
+                 <p className="text-muted-foreground mt-2">{plan.description}</p>
+               </CardHeader>
 
-              <CardContent>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center">
-                      <Check className="h-5 w-5 text-primary mr-3 flex-shrink-0" />
-                      <span className="text-foreground">{feature}</span>
-                    </li>)}
-                </ul>
+               <CardContent>
+                 <ul className="space-y-3 mb-8">
+                   {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center">
+                       <Check className="h-5 w-5 text-primary mr-3 flex-shrink-0" />
+                       <span className="text-foreground">{feature}</span>
+                     </li>)}
+                 </ul>
 
-                {isEnterprise ? (
-                  <Link to={CONTACT_SALES_PATH}>
-                    <Button
-                      className="w-full"
-                      variant="default"
-                      data-analytics-id="cta_pricing_enterprise_contact"
-                      aria-label="Contact Sales for Enterprise pricing"
-                    >
-                      {plan.buttonText}
-                    </Button>
-                  </Link>
-                ) : (
-                  <Button className="w-full" variant={plan.popular ? "default" : "outline"} onClick={() => isCurrentPlan ? handleManageSubscription() : handlePlanSelection(plan.name)} disabled={loading === plan.name || managingSubscription}>
-                    {loading === plan.name ? "Loading..." : isCurrentPlan ? "Manage Plan" : plan.buttonText}
-                  </Button>
-                )}
-              </CardContent>
+                 <Button className="w-full" variant={plan.popular ? "default" : "outline"} onClick={() => isCurrentPlan ? handleManageSubscription() : handlePlanSelection(plan.name)} disabled={loading === plan.name || managingSubscription}>
+                   {loading === plan.name ? "Loading..." : isCurrentPlan ? "Manage Plan" : plan.buttonText}
+                 </Button>
+               </CardContent>
             </Card>;
         })}
         </div>
