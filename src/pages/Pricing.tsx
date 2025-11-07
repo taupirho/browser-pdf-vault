@@ -236,12 +236,19 @@ const Pricing = () => {
       }
 
       // No active subscription -> start checkout for selected plan
+      // Map plan names to their API identifiers
+      const planMap: Record<string, string> = {
+        "Starter": "starter",
+        "Pro": "pro",
+        "Life Time Deal": "ltd"
+      };
+      
       const {
         data,
         error
       } = await supabase.functions.invoke('create-checkout', {
         body: {
-          plan: planName.toLowerCase()
+          plan: planMap[planName] || planName.toLowerCase()
         }
       });
       if (error) throw error;
