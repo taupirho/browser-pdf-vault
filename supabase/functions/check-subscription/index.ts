@@ -122,6 +122,41 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
+    // Check if user already has LTD tier (one-time payment, not a subscription)
+    const { data: currentProfile } = await supabaseClient
+      .from("profiles")
+      .select("subscription_tier")
+      .eq("user_id", user.id)
+      .single();
+
+    const isLTDUser = currentProfile?.subscription_tier === "ltd";
+
+    // If user has LTD, preserve it (they have lifetime access)
+    if (isLTDUser) {
+      logStep("User has LTD tier - preserving lifetime access");
+      
+      await supabaseClient
+        .from("profiles")
+        .update({
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", user.id);
+
+      return new Response(
+        JSON.stringify({
+          subscribed: true,
+          subscription_tier: "ltd",
+          max_daily_files: 50,
+          max_file_size_kb: 10240,
+          subscription_end: null,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
