@@ -101,7 +101,7 @@ export function PDFProtector({
       if (!user || !userProfile || settingsLoaded) return;
 
       // Only applicable for customizable tiers
-      if (userProfile.subscription_tier !== "pro") {
+      if (userProfile.subscription_tier !== "pro" && userProfile.subscription_tier !== "ltd") {
         setSettingsLoaded(true);
         setPasswordOptions({
           length: 13,
@@ -155,7 +155,7 @@ export function PDFProtector({
     loadSettings();
   }, [user, userProfile, settingsLoaded]);
   const generateSecurePassword = useCallback((): string => {
-    const isCustomizable = userProfile && userProfile.subscription_tier === "pro";
+    const isCustomizable = userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd");
     const opts = isCustomizable ? passwordOptions : {
       length: 15,
       includeLowercase: true,
@@ -256,10 +256,10 @@ export function PDFProtector({
       const maxSizeDisplay = userProfile.max_file_size_kb >= 1024 ? `${(userProfile.max_file_size_kb / 1024).toFixed(0)}MB` : `${userProfile.max_file_size_kb}KB`;
       let upgradeMessage = "";
       if (userProfile.subscription_tier === "free") {
-        upgradeMessage = " Upgrade to Starter (1MB limit) or Pro (10MB limit) for larger files.";
+        upgradeMessage = " Upgrade to Starter (1MB limit), Pro (10MB limit), or get our Life Time Deal for larger files.";
       } else if (userProfile.subscription_tier === "starter") {
-        upgradeMessage = " Upgrade to Pro (10MB limit) for larger files.";
-      } else if (userProfile.subscription_tier === "pro") {
+        upgradeMessage = " Upgrade to Pro (10MB limit) or get our Life Time Deal for larger files.";
+      } else if (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") {
         upgradeMessage = " Please contact us for custom requests with larger file sizes.";
       }
       toast({
@@ -488,7 +488,7 @@ export function PDFProtector({
             </CardContent>
           </Card>
 
-          {user && userProfile && userProfile.subscription_tier === "pro" && <Card className="shadow-card bg-card border-border/50 mt-6">
+          {user && userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && <Card className="shadow-card bg-card border-border/50 mt-6">
               <CardHeader>
                 <CardTitle className="text-lg">Password Options</CardTitle>
                 <CardDescription>Customize your generated password. Will include at least one of each selected type.</CardDescription>

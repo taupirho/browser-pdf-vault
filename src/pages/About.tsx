@@ -197,7 +197,7 @@ const About = () => {
                   </li>
                   <li className="flex items-start gap-2">
                     <FileCheck className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>An "always FREE" tier with monthly or yearly subscription options for power users</span>
+                    <span>An "always FREE" tier with monthly or yearly subscription options, or a one-time Life Time Deal for unlimited access with Pro features</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <FileCheck className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />

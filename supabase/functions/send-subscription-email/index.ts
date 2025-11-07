@@ -63,8 +63,10 @@ serve(async (req) => {
 
     let impactNote = "";
     if (type === "downgrade") {
-      impactNote =
-        "Note: As part of downgrading from Pro, any custom password settings are reset. You can continue using the default secure password generator.";
+      if (previous_tier === "pro" || previous_tier === "ltd") {
+        impactNote =
+          "Note: As part of downgrading from Pro/Life Time Deal, any custom password settings are reset. You can continue using the default secure password generator.";
+      }
     } else if (type === "cancellation") {
       impactNote =
         "Note: Your account has reverted to the Free tier; Pro-only features are no longer available.";
