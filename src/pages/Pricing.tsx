@@ -240,20 +240,24 @@ const Pricing = () => {
 
       // Paid plan selected (Starter/Pro/LTD)
       if (subscriptionStatus?.subscribed) {
-        // Redirect to Stripe Customer Portal for plan changes to avoid duplicate subscriptions
-        const {
-          data,
-          error
-        } = await supabase.functions.invoke('customer-portal');
-        if (error) throw error;
-        if (data?.url) {
-          window.open(data.url, '_blank');
-          toast({
-            title: "Manage in Stripe",
-            description: "Use the portal to upgrade/downgrade your plan."
-          });
+        // Allow LTD purchases even with active subscription - it will auto-cancel the subscription
+        if (planName !== "Life Time Deal") {
+          // For Starter/Pro changes, redirect to Customer Portal
+          const {
+            data,
+            error
+          } = await supabase.functions.invoke('customer-portal');
+          if (error) throw error;
+          if (data?.url) {
+            window.open(data.url, '_blank');
+            toast({
+              title: "Manage in Stripe",
+              description: "Use the portal to upgrade/downgrade your plan."
+            });
+          }
+          return;
         }
-        return;
+        // For LTD, continue to checkout - webhook will handle subscription cancellation
       }
 
       // No active subscription -> start checkout for selected plan

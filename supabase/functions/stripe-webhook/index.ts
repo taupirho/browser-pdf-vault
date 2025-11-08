@@ -70,7 +70,7 @@ serve(async (req) => {
 
         const { data: profile, error: profileError } = await supabaseClient
           .from("profiles")
-          .select("email, subscription_tier")
+          .select("email, subscription_tier, stripe_customer_id")
           .eq("user_id", userId)
           .single();
 
@@ -80,6 +80,31 @@ serve(async (req) => {
         }
 
         const previousTier = profile?.subscription_tier || "free";
+
+        // If user has an active subscription, cancel it
+        if (profile?.stripe_customer_id && previousTier !== "free") {
+          try {
+            logStep("Checking for active subscriptions to cancel", { customerId: profile.stripe_customer_id });
+            
+            const subscriptions = await stripe.subscriptions.list({
+              customer: profile.stripe_customer_id as string,
+              status: 'active',
+              limit: 10,
+            });
+
+            if (subscriptions.data.length > 0) {
+              logStep("Found active subscriptions, canceling", { count: subscriptions.data.length });
+              
+              for (const subscription of subscriptions.data) {
+                await stripe.subscriptions.cancel(subscription.id);
+                logStep("Canceled subscription", { subscriptionId: subscription.id });
+              }
+            }
+          } catch (cancelError) {
+            logStep("Error canceling subscriptions (continuing anyway)", { error: cancelError });
+            // Continue with LTD upgrade even if cancellation fails
+          }
+        }
 
         // Update profile to LTD tier
         const { error: updateError } = await supabaseClient
@@ -104,16 +129,17 @@ serve(async (req) => {
         // Send confirmation email
         if (profile?.email) {
           try {
+            const emailType = previousTier === "free" ? "activated" : "upgrade";
             await supabaseClient.functions.invoke("send-subscription-email", {
               body: {
-                type: "activated",
+                type: emailType,
                 email: profile.email,
                 previous_tier: previousTier,
                 new_tier: "ltd",
                 subscription_end: null, // One-time payment, no end date
               },
             });
-            logStep("Confirmation email sent", { email: profile.email });
+            logStep("Confirmation email sent", { email: profile.email, type: emailType });
           } catch (emailError) {
             logStep("Failed to send email", { error: emailError });
           }
