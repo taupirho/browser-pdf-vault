@@ -9,6 +9,15 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format } from "date-fns";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Helmet } from 'react-helmet';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 interface SubscriptionStatus {
   subscribed: boolean;
   subscription_tier?: string;
@@ -23,6 +32,7 @@ const Pricing = () => {
   const [managingSubscription, setManagingSubscription] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [showLtdDowngradeAlert, setShowLtdDowngradeAlert] = useState(false);
   const CONTACT_SALES_PATH = "/contact";
   const plans = [{
     name: "Free",
@@ -185,6 +195,17 @@ const Pricing = () => {
           variant: "destructive"
         });
         navigate("/auth");
+        return;
+      }
+
+      // Check if user has LTD and is trying to downgrade
+      const userTier = subscriptionStatus?.subscription_tier?.toLowerCase();
+      const isLtdUser = userTier === 'ltd' || userTier === 'life time deal' || userTier === 'lifetime';
+      const isDowngrade = planName === "Free" || planName === "Starter" || planName === "Pro";
+      
+      if (isLtdUser && isDowngrade) {
+        setShowLtdDowngradeAlert(true);
+        setLoading(null);
         return;
       }
 
@@ -384,6 +405,22 @@ const Pricing = () => {
           </p>
         </div>
       </div>
+
+      {/* LTD Downgrade Alert */}
+      <AlertDialog open={showLtdDowngradeAlert} onOpenChange={setShowLtdDowngradeAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>You Already Have Lifetime Access</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have a Lifetime Deal subscription with unlimited access to all Pro features. 
+              There's no need to downgrade - you already have the best plan with lifetime access!
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>Got it</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>;
 };
 export default Pricing;
