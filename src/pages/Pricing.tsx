@@ -38,7 +38,7 @@ const Pricing = () => {
     name: "Free",
     price: "$0",
     description: "Perfect for trying out our service",
-    features: ["2 PDFs per day", "Max file size: 250KB", "Secure encryption", "Email support"],
+    features: ["1 PDF per day", "Max file size: 250KB", "Secure encryption", "Email support"],
     buttonText: "Get Started",
     popular: false
   }, {
