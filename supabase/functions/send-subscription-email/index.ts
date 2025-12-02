@@ -37,28 +37,28 @@ serve(async (req) => {
 
     const from = "SecurePDF <info@securepdf.io>";
 
-    let subject = "Your subscription has changed";
+    let subject = "SecurePDF - Your subscription has changed";
     switch (type) {
       case "activated":
-        subject = "Your subscription is active";
+        subject = "SecurePDF - Your subscription is active";
         break;
       case "upgrade":
-        subject = "You've upgraded your plan";
+        subject = "SecurePDF - You have upgraded your plan";
         break;
       case "downgrade":
-        subject = "You've downgraded your plan";
+        subject = "SecurePDF - You have downgraded your plan";
         break;
       case "cancellation":
-        subject = "Your subscription has been canceled";
+        subject = "SecurePDF - Your subscription has been canceled";
         break;
       case "change":
-        subject = "Your plan change is scheduled";
+        subject = "SecurePDF - Your plan change is scheduled";
         break;
       case "payment_failed":
-        subject = "Payment failed - Action required";
+        subject = "SecurePDF - Payment failed - Action required";
         break;
       default:
-        subject = "Your subscription has changed";
+        subject = "SecurePDF - Your subscription has changed";
     }
 
     const tierLine = `Plan: ${previous_tier ?? "unknown"} → ${new_tier ?? "unknown"}`;
@@ -72,23 +72,30 @@ serve(async (req) => {
       }
     } else if (type === "cancellation") {
       impactNote =
-        "Note: Your account has reverted to the Free tier; Pro-only features are no longer available.";
+        "Note: Your SecurePDF account has reverted to the Free tier; Pro-only features are no longer available.";
     } else if (type === "change") {
       impactNote =
         "This plan change is scheduled and will take effect at the end of your current billing period.";
     } else if (type === "payment_failed") {
       impactNote =
-        "Your recent payment was unsuccessful. Your account has been temporarily downgraded to the Free tier. Please update your payment method in your account settings to restore your subscription. If you believe this is an error, please contact your bank or reply to this email for assistance.";
+        "Your recent payment for SecurePDF was unsuccessful. Your account has been temporarily downgraded to the Free tier. Please update your payment method in your account settings to restore your subscription. If you believe this is an error, please contact your bank or reply to this email for assistance.";
     }
 
     const html = `
-      <div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, \"Apple Color Emoji\", \"Segoe UI Emoji\"; line-height:1.6;">
-        <h2 style="margin:0 0 12px;">${subject}</h2>
-        <p>${tierLine}</p>
-        ${endLine ? `<p>${endLine}</p>` : ""}
-        ${impactNote ? `<p><strong>${impactNote}</strong></p>` : ""}
-        <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
-        <p>If you didn’t expect this change, please contact support by replying to this email.</p>
+      <div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, sans-serif; line-height:1.6; max-width:600px; margin:0 auto;">
+        <div style="background:#1a1a2e; padding:20px; text-align:center; border-radius:8px 8px 0 0;">
+          <h1 style="color:#fff; margin:0; font-size:24px;">🔒 SecurePDF</h1>
+          <p style="color:#a0a0a0; margin:8px 0 0; font-size:14px;">Protect your PDFs with confidence</p>
+        </div>
+        <div style="padding:24px; background:#ffffff; border:1px solid #eee; border-top:none; border-radius:0 0 8px 8px;">
+          <h2 style="margin:0 0 16px; color:#1a1a2e;">${subject.replace("SecurePDF - ", "")}</h2>
+          <p style="color:#333;">${tierLine}</p>
+          ${endLine ? `<p style="color:#333;">${endLine}</p>` : ""}
+          ${impactNote ? `<p style="background:#f8f9fa; padding:12px; border-radius:6px; border-left:4px solid #1a1a2e;"><strong>${impactNote}</strong></p>` : ""}
+          <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
+          <p style="color:#666; font-size:14px;">If you did not expect this change or need assistance, please contact us by replying to this email or visiting <a href="https://securepdf.io" style="color:#1a1a2e;">securepdf.io</a>.</p>
+          <p style="color:#999; font-size:12px; margin-top:20px;">SecurePDF - PDF Password Protection Tool</p>
+        </div>
       </div>
     `;
 
