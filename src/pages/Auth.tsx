@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +25,9 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [activeTab, setActiveTab] = useState<"signin" | "signup" | "forgot">("signin");
+  const [isRedirectingToBilling, setIsRedirectingToBilling] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const {
     toast
   } = useToast();
@@ -58,10 +60,56 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
       if (isModal) {
         onSuccess?.();
       } else {
-        navigate('/');
+        // Check if we need to redirect to billing portal
+        const redirectParam = searchParams.get('redirect');
+        if (redirectParam === 'billing') {
+          redirectToBillingPortal();
+        } else {
+          navigate('/');
+        }
       }
     }
-  }, [user, navigate, isModal, onSuccess]);
+  }, [user, navigate, isModal, onSuccess, searchParams]);
+
+  const redirectToBillingPortal = async () => {
+    setIsRedirectingToBilling(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/');
+        return;
+      }
+
+      const response = await supabase.functions.invoke('customer-portal', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (response.error) {
+        toast({
+          title: "Error",
+          description: "Could not open billing portal. Please try again.",
+          variant: "destructive"
+        });
+        navigate('/');
+        return;
+      }
+
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      } else {
+        navigate('/');
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not open billing portal. Please try again.",
+        variant: "destructive"
+      });
+      navigate('/');
+    }
+  };
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -243,7 +291,20 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
         </Card>
       </div>;
   }
-  const containerClass = isModal 
+
+  // Show loading state when redirecting to billing portal
+  if (isRedirectingToBilling) {
+    return <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6 text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Redirecting to billing portal...</p>
+          </CardContent>
+        </Card>
+      </div>;
+  }
+
+  const containerClass = isModal
     ? "w-full" 
     : "min-h-screen relative flex items-center justify-center bg-background p-4";
   

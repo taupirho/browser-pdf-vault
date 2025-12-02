@@ -78,8 +78,15 @@ serve(async (req) => {
         "This plan change is scheduled and will take effect at the end of your current billing period.";
     } else if (type === "payment_failed") {
       impactNote =
-        "Your recent payment for SecurePDF was unsuccessful. Your account has been temporarily downgraded to the Free tier. Please update your payment method in your account settings to restore your subscription. If you believe this is an error, please contact your bank or reply to this email for assistance.";
+        "Your recent payment for SecurePDF was unsuccessful. Your account has been temporarily downgraded to the Free tier. Please update your payment method to restore your subscription. If you believe this is an error, please contact your bank or reply to this email for assistance.";
     }
+
+    // Add billing portal button for payment failed emails
+    const billingButton = type === "payment_failed" ? `
+      <div style="text-align:center; margin:24px 0;">
+        <a href="https://securepdf.io/auth?redirect=billing" style="display:inline-block; background:#1a1a2e; color:#fff; padding:14px 28px; border-radius:6px; text-decoration:none; font-weight:600;">Update Payment Method</a>
+      </div>
+    ` : "";
 
     const html = `
       <div style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, sans-serif; line-height:1.6; max-width:600px; margin:0 auto;">
@@ -92,6 +99,7 @@ serve(async (req) => {
           <p style="color:#333;">${tierLine}</p>
           ${endLine ? `<p style="color:#333;">${endLine}</p>` : ""}
           ${impactNote ? `<p style="background:#f8f9fa; padding:12px; border-radius:6px; border-left:4px solid #1a1a2e;"><strong>${impactNote}</strong></p>` : ""}
+          ${billingButton}
           <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
           <p style="color:#666; font-size:14px;">If you did not expect this change or need assistance, please contact us by replying to this email or visiting <a href="https://securepdf.io" style="color:#1a1a2e;">securepdf.io</a>.</p>
           <p style="color:#999; font-size:12px; margin-top:20px;">SecurePDF - PDF Password Protection Tool</p>
