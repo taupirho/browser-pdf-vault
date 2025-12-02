@@ -14,7 +14,7 @@ const logStep = (step: string, details?: any) => {
 };
 
 interface Payload {
-  type: "activated" | "upgrade" | "downgrade" | "cancellation" | "change";
+  type: "activated" | "upgrade" | "downgrade" | "cancellation" | "change" | "payment_failed";
   email: string;
   previous_tier?: string | null;
   new_tier?: string | null;
@@ -54,6 +54,9 @@ serve(async (req) => {
       case "change":
         subject = "Your plan change is scheduled";
         break;
+      case "payment_failed":
+        subject = "Payment failed - Action required";
+        break;
       default:
         subject = "Your subscription has changed";
     }
@@ -73,6 +76,9 @@ serve(async (req) => {
     } else if (type === "change") {
       impactNote =
         "This plan change is scheduled and will take effect at the end of your current billing period.";
+    } else if (type === "payment_failed") {
+      impactNote =
+        "Your recent payment was unsuccessful. Your account has been temporarily downgraded to the Free tier. Please update your payment method in your account settings to restore your subscription. If you believe this is an error, please contact your bank or reply to this email for assistance.";
     }
 
     const html = `
