@@ -226,6 +226,81 @@ serve(async (req) => {
       }
     }
 
+    // Handle failed payment
+    if (event.type === "invoice.payment_failed") {
+      const invoice = event.data.object as Stripe.Invoice;
+      const customerId = invoice.customer as string;
+
+      logStep("Payment failed", { customerId, invoiceId: invoice.id, attemptCount: invoice.attempt_count });
+
+      // Find user by stripe_customer_id
+      const { data: profile, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("user_id, email, subscription_tier")
+        .eq("stripe_customer_id", customerId)
+        .single();
+
+      if (profileError || !profile) {
+        logStep("Could not find profile for customer", { customerId });
+        return new Response(JSON.stringify({ error: "Profile not found" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 404,
+        });
+      }
+
+      const previousTier = profile.subscription_tier || "free";
+
+      // Don't downgrade LTD users (they have lifetime access via one-time payment)
+      if (previousTier === "ltd") {
+        logStep("Skipping downgrade for LTD user", { userId: profile.user_id });
+        return new Response(JSON.stringify({ success: true, message: "LTD user kept" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+
+      // Downgrade to free tier due to payment failure
+      const { error: updateError } = await supabaseClient
+        .from("profiles")
+        .update({
+          subscription_tier: "free",
+          max_daily_files: 1,
+          max_file_size_kb: 250,
+          subscribed: false,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", profile.user_id);
+
+      if (updateError) {
+        logStep("Error updating profile", { error: updateError });
+        throw updateError;
+      }
+
+      logStep("Profile downgraded to free due to payment failure", { userId: profile.user_id, previousTier });
+
+      // Send payment failed email
+      if (profile.email) {
+        try {
+          await supabaseClient.functions.invoke("send-subscription-email", {
+            body: {
+              type: "payment_failed",
+              email: profile.email,
+              previous_tier: previousTier,
+              new_tier: "free",
+            },
+          });
+          logStep("Payment failed email sent", { email: profile.email });
+        } catch (emailError) {
+          logStep("Failed to send email", { error: emailError });
+        }
+      }
+
+      return new Response(JSON.stringify({ success: true, downgraded: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     // Handle subscription cancellation
     if (event.type === "customer.subscription.deleted") {
       const subscription = event.data.object as Stripe.Subscription;
