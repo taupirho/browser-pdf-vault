@@ -15,6 +15,12 @@ interface ContactPayload {
   message: string;
 }
 
+// Input validation limits
+const MAX_NAME = 100;
+const MAX_EMAIL = 255;
+const MAX_SUBJECT = 200;
+const MAX_MESSAGE = 5000;
+
 function isValidEmail(email: string) {
   return /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
 }
@@ -28,8 +34,29 @@ serve(async (req) => {
 
   try {
     const payload = (await req.json()) as ContactPayload;
+    
+    // Validate email format
     if (!payload?.email || !isValidEmail(payload.email)) {
       return new Response(JSON.stringify({ error: "Invalid email" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Input length validation
+    if ((payload.name?.length ?? 0) > MAX_NAME ||
+        payload.email.length > MAX_EMAIL ||
+        (payload.subject?.length ?? 0) > MAX_SUBJECT ||
+        (payload.message?.length ?? 0) > MAX_MESSAGE) {
+      return new Response(JSON.stringify({ error: "Input exceeds maximum length" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Validate required fields
+    if (!payload.name?.trim() || !payload.subject?.trim() || !payload.message?.trim()) {
+      return new Response(JSON.stringify({ error: "Missing required fields" }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
@@ -46,26 +73,27 @@ serve(async (req) => {
       });
     }
 
+    // Escape HTML to prevent XSS
+    const escapedName = payload.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const escapedSubject = payload.subject.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const escapedMessage = payload.message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
     const adminHtml = `
       <h2>New Contact Message</h2>
-      <p><strong>Name:</strong> ${payload.name}</p>
+      <p><strong>Name:</strong> ${escapedName}</p>
       <p><strong>Email:</strong> ${payload.email}</p>
-      <p><strong>Subject:</strong> ${payload.subject}</p>
+      <p><strong>Subject:</strong> ${escapedSubject}</p>
       <p><strong>Message:</strong></p>
-      <pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;">${payload.message
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")}</pre>
+      <pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;">${escapedMessage}</pre>
       <p style="color:#666">Received: ${createdAt}</p>
     `;
 
     const userHtml = `
       <h2>Thanks for contacting SecurePDF</h2>
-      <p>Hi ${payload.name},</p>
-      <p>We've received your message about "${payload.subject}" and will reply within 48 hours.</p>
+      <p>Hi ${escapedName},</p>
+      <p>We've received your message about "${escapedSubject}" and will reply within 48 hours.</p>
       <p><strong>Your message:</strong></p>
-      <pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;">${payload.message
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")}</pre>
+      <pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;">${escapedMessage}</pre>
     `;
 
     const serializeError = (err: any) => {
@@ -86,7 +114,7 @@ serve(async (req) => {
     const { data: adminData, error: adminError } = await resend.emails.send({
       from: "SecurePDF <no-reply@notifications.securepdf.io>",
       to: [CONTACT_EMAIL],
-      subject: `New contact: ${payload.subject}`,
+      subject: `New contact: ${payload.subject.substring(0, 100)}`,
       html: adminHtml,
       text: `New contact message from ${payload.name} <${payload.email}>\nSubject: ${payload.subject}\n\n${payload.message}`,
       reply_to: [payload.email],
@@ -120,7 +148,7 @@ serve(async (req) => {
     
     console.log("send-contact-email sent", {
       adminTo: CONTACT_EMAIL,
-      userTo: payload.email,
+      userTo: payload.email.substring(0, 20) + "...",
       adminId: adminData?.id,
       userId: userData?.id,
     });

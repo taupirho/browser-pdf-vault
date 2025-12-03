@@ -15,6 +15,23 @@ interface DsarPayload {
   details?: string;
 }
 
+// Input validation limits
+const MAX_NAME = 100;
+const MAX_EMAIL = 255;
+const MAX_REQUEST_TYPE = 100;
+const MAX_DETAILS = 5000;
+
+// Valid DSAR request types
+const VALID_REQUEST_TYPES = [
+  "access",
+  "erasure", 
+  "rectification",
+  "portability",
+  "restriction",
+  "objection",
+  "other"
+];
+
 function isValidEmail(email: string) {
   return /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
 }
@@ -28,8 +45,38 @@ serve(async (req) => {
 
   try {
     const payload = (await req.json()) as DsarPayload;
+    
+    // Validate email format
     if (!payload?.email || !isValidEmail(payload.email)) {
       return new Response(JSON.stringify({ error: "Invalid email" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Input length validation
+    if ((payload.name?.length ?? 0) > MAX_NAME ||
+        payload.email.length > MAX_EMAIL ||
+        (payload.requestType?.length ?? 0) > MAX_REQUEST_TYPE ||
+        (payload.details?.length ?? 0) > MAX_DETAILS) {
+      return new Response(JSON.stringify({ error: "Input exceeds maximum length" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Validate request type
+    if (!payload.requestType?.trim()) {
+      return new Response(JSON.stringify({ error: "Missing request type" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Validate request type is one of the allowed values
+    const normalizedRequestType = payload.requestType.toLowerCase().trim();
+    if (!VALID_REQUEST_TYPES.includes(normalizedRequestType)) {
+      return new Response(JSON.stringify({ error: "Invalid request type" }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
@@ -47,26 +94,27 @@ serve(async (req) => {
       });
     }
 
+    // Escape HTML to prevent XSS
+    const escapedName = (payload.name || "-").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const escapedRequestType = payload.requestType.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const escapedDetails = (payload.details || "(none)").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
     const adminHtml = `
       <h2>New DSAR Request</h2>
-      <p><strong>Type:</strong> ${payload.requestType}</p>
-      <p><strong>Name:</strong> ${payload.name || "-"}</p>
+      <p><strong>Type:</strong> ${escapedRequestType}</p>
+      <p><strong>Name:</strong> ${escapedName}</p>
       <p><strong>Email:</strong> ${payload.email}</p>
       <p><strong>Details:</strong></p>
-      <pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;">${(payload.details || "(none)")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")}</pre>
+      <pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;">${escapedDetails}</pre>
       <p style="color:#666">Received: ${createdAt}</p>
     `;
 
     const userHtml = `
       <h2>We received your DSAR request</h2>
-      <p>Hi ${payload.name || "there"},</p>
-      <p>Thanks for contacting SecurePDF. We've received your <strong>${payload.requestType}</strong> request and will respond within 30 days.</p>
+      <p>Hi ${escapedName},</p>
+      <p>Thanks for contacting SecurePDF. We've received your <strong>${escapedRequestType}</strong> request and will respond within 30 days.</p>
       <p><strong>Summary you sent:</strong></p>
-      <pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;">${(payload.details || "(none)")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")}</pre>
+      <pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;">${escapedDetails}</pre>
       <p style="color:#666">If this wasn't you, contact us at info@securepdf.io.</p>
     `;
 
@@ -121,7 +169,7 @@ serve(async (req) => {
     
     console.log("send-dsar-email sent", {
       adminTo: CONTACT_EMAIL,
-      userTo: payload.email,
+      userTo: payload.email.substring(0, 20) + "...",
       adminId: adminData?.id,
       userId: userData?.id,
     });
