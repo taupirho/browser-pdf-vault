@@ -208,9 +208,6 @@ export function PDFProtector({
     setIsDragging(false);
   }, []);
   const handleFileSelect = useCallback(async (file: File) => {
-    console.log('File selected:', file.name, 'Size:', file.size, 'bytes', '(' + Math.round(file.size / 1024) + 'KB)');
-    console.log('User profile:', userProfile);
-    console.log('User authenticated:', !!user);
 
     // Check if user is authenticated
     if (!user) {
@@ -248,9 +245,7 @@ export function PDFProtector({
 
     // Check file size limit based on subscription tier
     const maxFileSizeBytes = userProfile.max_file_size_kb * 1024;
-    console.log('Max file size bytes:', maxFileSizeBytes, 'File size:', file.size, 'Over limit:', file.size > maxFileSizeBytes);
     if (file.size > maxFileSizeBytes) {
-      console.log('File is too large, showing toast');
       const currentSizeKB = Math.round(file.size / 1024);
       const currentSizeMB = (file.size / 1024 / 1024).toFixed(2);
       const maxSizeDisplay = userProfile.max_file_size_kb >= 1024 ? `${(userProfile.max_file_size_kb / 1024).toFixed(0)}MB` : `${userProfile.max_file_size_kb}KB`;
@@ -322,7 +317,7 @@ export function PDFProtector({
         protectedSize: encryptedPdfBytes.byteLength
       });
       // Update daily usage count
-      console.log('Updating daily usage count from', userProfile.daily_usage_count, 'to', userProfile.daily_usage_count + 1);
+      
       try {
         const {
           data,
@@ -334,7 +329,7 @@ export function PDFProtector({
         if (error) {
           console.error('Error updating usage count:', error);
         } else {
-          console.log('Usage count updated successfully:', data);
+          
           // Update local state with the actual database response
           if (data && data[0]) {
             setUserProfile(prev => prev ? {
