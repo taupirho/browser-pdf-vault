@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@4.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,6 +22,10 @@ interface Payload {
   subscription_end?: string | null;
 }
 
+// Input validation limits
+const MAX_EMAIL = 255;
+const MAX_TIER = 50;
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -34,6 +39,39 @@ serve(async (req) => {
     if (!email || !type) {
       throw new Error("Missing required fields: email, type");
     }
+
+    // Input length validation
+    if (email.length > MAX_EMAIL ||
+        (previous_tier && previous_tier.length > MAX_TIER) ||
+        (new_tier && new_tier.length > MAX_TIER)) {
+      return new Response(JSON.stringify({ error: "Input exceeds maximum length" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    // Validate email exists in profiles table to prevent abuse
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+
+    const { data: profile, error: profileError } = await supabaseClient
+      .from("profiles")
+      .select("email")
+      .eq("email", email)
+      .single();
+
+    if (profileError || !profile) {
+      logStep("Email not found in profiles, rejecting request", { email: email.substring(0, 20) + "..." });
+      return new Response(JSON.stringify({ error: "Invalid recipient" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    logStep("Email verified in profiles", { email: email.substring(0, 20) + "..." });
 
     const from = "SecurePDF <info@securepdf.io>";
 
@@ -61,7 +99,11 @@ serve(async (req) => {
         subject = "SecurePDF - Your subscription has changed";
     }
 
-    const tierLine = `Plan: ${previous_tier ?? "unknown"} → ${new_tier ?? "unknown"}`;
+    // Escape HTML in user-provided data
+    const escapeTier = (tier: string | null | undefined) => 
+      (tier ?? "unknown").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    const tierLine = `Plan: ${escapeTier(previous_tier)} → ${escapeTier(new_tier)}`;
     const endLine = subscription_end ? `Current period ends: ${new Date(subscription_end).toUTCString()}` : "";
 
     let impactNote = "";
@@ -107,7 +149,7 @@ serve(async (req) => {
       </div>
     `;
 
-    logStep("Sending email", { to: email, type, previous_tier, new_tier });
+    logStep("Sending email", { to: email.substring(0, 20) + "...", type, previous_tier, new_tier });
 
     const { error } = await resend.emails.send({
       from,
@@ -119,7 +161,7 @@ serve(async (req) => {
 
     if (error) throw error;
 
-    logStep("Email sent successfully", { to: email });
+    logStep("Email sent successfully", { to: email.substring(0, 20) + "..." });
 
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
