@@ -9,12 +9,22 @@ const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>SecurePDF Privacy Policy - How We Protect Your Data</title>
-        <meta name="description" content="SecurePDF Privacy Policy: Learn how we protect your privacy with zero file storage, minimal logging, and GDPR compliance. Your PDFs never leave your browser." />
-        <meta name="keywords" content="SecurePDF privacy policy, data protection, GDPR compliance, zero file storage, browser-based encryption" />
+        <title>SecurePDF Privacy Policy – Your Data, Protected with Zero Storage</title>
+
+        <meta
+          name="description"
+          content="Read the SecurePDF Privacy Policy to understand how we safeguard your data. We never store your files, use zero-knowledge encryption, and follow GDPR-compliant practices to ensure complete privacy."
+        />
+
+        <meta
+          name="keywords"
+          content="SecurePDF privacy policy, zero-knowledge encryption, data privacy, GDPR compliant PDF tool, no file storage, secure PDF protection"
+        />
+
         <link rel="canonical" href="https://securepdf.io/privacy-policy" />
       </Helmet>
-      
+
+
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">

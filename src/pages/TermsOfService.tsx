@@ -9,12 +9,22 @@ const TermsOfService = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>SecurePDF Terms of Service - Legal Terms & Conditions</title>
-        <meta name="description" content="SecurePDF Terms of Service: Legal terms for using our browser-based PDF password protection tool. No file storage, acceptable use policy, and user responsibilities." />
-        <meta name="keywords" content="SecurePDF terms of service, legal terms, PDF protection service terms, acceptable use policy" />
+        <title>SecurePDF Terms of Service – Legal & Usage Guidelines</title>
+
+        <meta
+          name="description"
+          content="Review the SecurePDF Terms of Service to understand your rights and responsibilities while using our browser-based PDF password protection tool. Learn about acceptable use, data privacy, and legal obligations."
+        />
+
+        <meta
+          name="keywords"
+          content="SecurePDF terms of service, legal terms, acceptable use policy, PDF protection rules, user responsibilities, browser-based PDF encryption"
+        />
+
         <link rel="canonical" href="https://securepdf.io/terms-of-service" />
       </Helmet>
-      
+
+
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">

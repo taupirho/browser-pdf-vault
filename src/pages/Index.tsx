@@ -24,7 +24,7 @@ const Index = () => {
       // Remove query parameters and update URL without reload
       window.history.replaceState({}, document.title, currentUrl.pathname);
     }
-    
+
     // Set canonical URL dynamically
     const canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
     if (canonicalLink) {
@@ -66,13 +66,13 @@ const Index = () => {
   // Show loading while checking auth status
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4">
-            <Shield className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <p>Loading...</p>
+      <div className="text-center">
+        <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-4">
+          <Shield className="h-5 w-5 text-primary-foreground" />
         </div>
-      </div>;
+        <p>Loading...</p>
+      </div>
+    </div>;
   }
 
   // Show the interface to everyone, but with login modal for unauthenticated users
@@ -95,223 +95,233 @@ const Index = () => {
     description: "No uploads, no waiting"
   }];
   return <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>Free PDF Password Protection Tool | SecurePDF - Secure Your Documents</title>
-        <meta name="description" content="Protect your PDFs with passwords instantly. Free, secure, browser-based PDF encryption using AES-256. No file uploads - complete privacy guaranteed. Start protecting PDFs now." />
-        <meta name="keywords" content="PDF password protection, secure PDF, encrypt PDF, PDF security, browser-based encryption, AES-256, free PDF tool" />
-        <link rel="canonical" href="https://securepdf.io/" />
-      </Helmet>
-      {/* Header */}
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Shield className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="font-bold text-xl">SecurePDF</span>
-            </Link>
-            
-            {/* Center text - hidden on mobile, visible on larger screens */}
-            <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
-              <span className="font-bold bg-gradient-hero bg-clip-text text-transparent whitespace-nowrap text-xl">
-                Free, Secure PDF Password Protection
-              </span>
+    <Helmet>
+      <title>SecurePDF.io – Free Online PDF Password Protection & AES-256 Encryption</title>
+
+      <meta
+        name="description"
+        content="Secure your PDF files instantly with client-side AES-256 encryption. 100% browser-based, no uploads, full privacy, and completely free. Protect sensitive documents with passwords in seconds."
+      />
+
+      <meta
+        name="keywords"
+        content="SecurePDF, PDF password protection, encrypt PDF, secure PDF online, AES-256 encryption, client-side encryption, protect PDF, password lock PDF"
+      />
+
+      <link rel="canonical" href="https://securepdf.io/" />
+    </Helmet>
+
+    {/* Header */}
+    <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <Shield className="h-5 w-5 text-primary-foreground" />
             </div>
-            
-            <div className="flex items-center gap-4">
-              <nav className="hidden md:flex items-center gap-4">
-                <Link to="/pricing">
-                  <Button variant="ghost" size="sm">Pricing</Button>
-                </Link>
-                <Link to="/about">
-                  <Button variant="ghost" size="sm">About</Button>
-                </Link>
-                <Link to="/contact">
-                  <Button variant="ghost" size="sm">Contact</Button>
-                </Link>
-              </nav>
-              {user ? <Button variant="outline" size="sm" onClick={handleSignOut}>
-                  Sign Out
-                </Button> : <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
-                  Sign In
-                </Button>}
-              <ThemeToggle />
-            </div>
-          </div>
-          
-          {/* Mobile tagline - visible only on mobile */}
-          <div className="md:hidden mt-2 text-center">
-            <span className="font-medium bg-gradient-hero bg-clip-text text-transparent text-center text-lg">
+            <span className="font-bold text-xl">SecurePDF</span>
+          </Link>
+
+          {/* Center text - hidden on mobile, visible on larger screens */}
+          <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
+            <span className="font-bold bg-gradient-hero bg-clip-text text-transparent whitespace-nowrap text-xl">
               Free, Secure PDF Password Protection
             </span>
           </div>
-        </div>
-      </header>
 
-      {/* Main Content */}
-      <div className="min-h-screen">
-
-        <div className="max-w-4xl mx-auto">
-          <main className="container mx-auto space-y-12 px-4 py-8">
-            {/* Main PDF Protector */}
-            <PDFProtector user={user} onLoginRequired={handleLoginRequired} />
-
-
-            {/* Why Use SecurePDF Section */}
-            <section className="space-y-8">
-              <h2 className="text-3xl font-bold text-center">Why Use SecurePDF?</h2>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
-                {indicators.map((item, index) => <div key={index} className="flex flex-col items-center text-center p-4 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300">
-                    <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center mb-3">
-                      <item.icon className="h-5 w-5 text-primary-foreground" />
-                    </div>
-                    <h3 className="font-semibold text-base mb-2">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                  </div>)}
-              </div>
-            </section>
-
-            {/* FAQ Section */}
-            <section className="space-y-8">
-              <h2 className="text-3xl font-bold text-center">Frequently Asked Questions</h2>
-              
-              <div className="grid gap-6 max-w-3xl mx-auto">
-                <Card className="shadow-card bg-card border-border/50">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-3 text-foreground">What is your pricing model?</h3>
-                    <p className="text-muted-foreground">The good news is that there is a FOREVER FREE tier. Once registered, you can password-protect two files per day, with each file being a maximum of 250KB in size. Try it out, and if you like what you see, you can opt to pay for higher limits. For $6.99 per month (or $70 per year), the Starter tier allows you to password-protect up to 10 files per day, with each file being up to 1MB in size. Our Pro tier allows you to password-protect up to 50 files per day, each of up to 10MB in size and you are also able to specify the length and format of any generated passwords. That costs $15.99 per month or $150 per year. We also offer a Life Time Deal for $120 one-time payment with all Pro features and no recurring billing. Contact us if your needs exceed these limits.</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="shadow-card bg-card border-border/50">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-3 text-foreground">Are my payment details secure?</h3>
-                    <p className="text-muted-foreground">Yes—your payment details are handled by Stripe, not us. We never see or store your full card number or CVC. Your card info is sent directly to Stripe over an encrypted connection and stored securely by them. Stripe is a PCI DSS Level 1–certified provider (the highest level). We only keep non-sensitive details (like the last 4 digits and card brand) and a token so we can bill you. We also use HTTPS everywhere, require 2-factor auth on our admin access, and follow Stripe’s best practices for webhooks and API keys. You can remove your payment method at any time. Once logged in, you can manage your subscription using the link on the Pricing page.</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="shadow-card bg-card border-border/50">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-3 text-foreground">What happens to my files?</h3>
-                    <p className="text-muted-foreground">Your files never leave your browser. They are read into memory and processed locally. The newly created password-protected PDF is downloaded to your local file system and then immediately discarded. Your original input PDF is unchanged and is also discarded after processing. An appropriate password is created for your new PDF which you should copy somewhere safe as we don't store that either. We never see, store, or have access to your documents.</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="shadow-card bg-card border-border/50">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-lg mb-3 text-foreground">What if I lose the password?</h3>
-                    <p className="text-muted-foreground">Unfortunately, if you lose the password, the PDF cannot be recovered. This is by design - it ensures maximum security. Always save the password in a secure location. Remember that your original PDF is unchanged and you can always re-attach it for password protection again.</p>
-                  </CardContent>
-                </Card>
-
-                 <Card className="shadow-card bg-card border-border/50">
-                   <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3 text-foreground">Are my PDF's really secure?</h3>
-                     <p className="text-muted-foreground">Yes! We use AES-256 encryption, the same standard used by banks and the military. The password is generated using cryptographically secure random values, and all processing happens in your browser. </p>
-                   </CardContent>
-                 </Card>
-
-                 <Card className="shadow-card bg-card border-border/50">
-                   <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3 text-foreground">How do I start?</h3>
-                     <p className="text-muted-foreground">Simply sign up using your email and a password. After that, you can use the FREE tier to see if you like the product. If you do, you can switch to a paid plan for higher limits. We use Stripe to process payments, which can be made using your Credit Card. You can elect to pay monthly or for a whole year and can amend or cancel your subscription at ANY time.</p>
-                   </CardContent>
-                 </Card>
-
-                 <Card className="shadow-card bg-card border-border/50">
-                   <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3 text-foreground">Can I use this for sensitive documents?</h3>
-                     <p className="text-muted-foreground">
-                       Absolutely! Since all processing happens locally in your browser and files never touch our servers, 
-                       SecurePDF is perfect for confidential business documents, legal papers, medical records, and other sensitive materials. 
-                       Your privacy is guaranteed by design.
-                     </p>
-                   </CardContent>
-                 </Card>
-
-                 <Card className="shadow-card bg-card border-border/50">
-                   <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3 text-foreground">What browsers are supported?</h3>
-                     <p className="text-muted-foreground">
-                       SecurePDF works in all modern web browsers including Chrome, Firefox, Safari, and Edge. 
-                       We use standard Web APIs for cryptography and file handling, ensuring broad compatibility across desktop and mobile devices.
-                     </p>
-                   </CardContent>
-                 </Card>
-
-                 <Card className="shadow-card bg-card border-border/50">
-                   <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3 text-foreground">What kind of passwords do you generate?</h3>
-                     <p className="text-muted-foreground">For the Free and Starter tiers, the password is a random 13 character long piece of text consisting of a mix of upper and lowercase letters, numbers and other common keyboard symbols such as the dollar sign ($), underscore character (_), the hash sign (#) etc ... Pro tier and Life Time Deal users can specify the length and format of the password, e.g. must be a minimum of 15 characters long and only contain lowercase letters.</p>
-                   </CardContent>
-                 </Card>
-
-                 <Card className="shadow-card bg-card border-border/50">
-                   <CardContent className="p-6">
-                     <h3 className="font-semibold text-lg mb-3 text-foreground">How do I remove a password from a PDF?</h3>
-                     <p className="text-muted-foreground">
-                       SecurePDF is designed for adding password protection to PDFs. To remove a password from an existing protected PDF, 
-                       you'll need to use a different tool or PDF reader that supports password removal, provided you know the current password.
-                     </p>
-                   </CardContent>
-                 </Card>
-              </div>
-            </section>
-
-          </main>
+          <div className="flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-4">
+              <Link to="/pricing">
+                <Button variant="ghost" size="sm">Pricing</Button>
+              </Link>
+              <Link to="/about">
+                <Button variant="ghost" size="sm">About</Button>
+              </Link>
+              <Link to="/contact">
+                <Button variant="ghost" size="sm">Contact</Button>
+              </Link>
+            </nav>
+            {user ? <Button variant="outline" size="sm" onClick={handleSignOut}>
+              Sign Out
+            </Button> : <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
+              Sign In
+            </Button>}
+            <ThemeToggle />
+          </div>
         </div>
 
+        {/* Mobile tagline - visible only on mobile */}
+        <div className="md:hidden mt-2 text-center">
+          <span className="font-medium bg-gradient-hero bg-clip-text text-transparent text-center text-lg">
+            Free, Secure PDF Password Protection
+          </span>
+        </div>
+      </div>
+    </header>
+
+    {/* Main Content */}
+    <div className="min-h-screen">
+
+      <div className="max-w-4xl mx-auto">
+        <main className="container mx-auto space-y-12 px-4 py-8">
+          {/* Main PDF Protector */}
+          <PDFProtector user={user} onLoginRequired={handleLoginRequired} />
+
+
+          {/* Why Use SecurePDF Section */}
+          <section className="space-y-8">
+            <h2 className="text-3xl font-bold text-center">Why Use SecurePDF?</h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+              {indicators.map((item, index) => <div key={index} className="flex flex-col items-center text-center p-4 rounded-lg bg-card border border-border/50 shadow-card hover:shadow-trust/20 transition-all duration-300">
+                <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center mb-3">
+                  <item.icon className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <h3 className="font-semibold text-base mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+              </div>)}
+            </div>
+          </section>
+
+          {/* FAQ Section */}
+          <section className="space-y-8">
+            <h2 className="text-3xl font-bold text-center">Frequently Asked Questions</h2>
+
+            <div className="grid gap-6 max-w-3xl mx-auto">
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">What is your pricing model?</h3>
+                  <p className="text-muted-foreground">The good news is that there is a FOREVER FREE tier. Once registered, you can password-protect two files per day, with each file being a maximum of 250KB in size. Try it out, and if you like what you see, you can opt to pay for higher limits. For $6.99 per month (or $70 per year), the Starter tier allows you to password-protect up to 10 files per day, with each file being up to 1MB in size. Our Pro tier allows you to password-protect up to 50 files per day, each of up to 10MB in size and you are also able to specify the length and format of any generated passwords. That costs $15.99 per month or $150 per year. We also offer a Life Time Deal for $120 one-time payment with all Pro features and no recurring billing. Contact us if your needs exceed these limits.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">Are my payment details secure?</h3>
+                  <p className="text-muted-foreground">Yes—your payment details are handled by Stripe, not us. We never see or store your full card number or CVC. Your card info is sent directly to Stripe over an encrypted connection and stored securely by them. Stripe is a PCI DSS Level 1–certified provider (the highest level). We only keep non-sensitive details (like the last 4 digits and card brand) and a token so we can bill you. We also use HTTPS everywhere, require 2-factor auth on our admin access, and follow Stripe’s best practices for webhooks and API keys. You can remove your payment method at any time. Once logged in, you can manage your subscription using the link on the Pricing page.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">What happens to my files?</h3>
+                  <p className="text-muted-foreground">Your files never leave your browser. They are read into memory and processed locally. The newly created password-protected PDF is downloaded to your local file system and then immediately discarded. Your original input PDF is unchanged and is also discarded after processing. An appropriate password is created for your new PDF which you should copy somewhere safe as we don't store that either. We never see, store, or have access to your documents.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">What if I lose the password?</h3>
+                  <p className="text-muted-foreground">Unfortunately, if you lose the password, the PDF cannot be recovered. This is by design - it ensures maximum security. Always save the password in a secure location. Remember that your original PDF is unchanged and you can always re-attach it for password protection again.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">Are my PDF's really secure?</h3>
+                  <p className="text-muted-foreground">Yes! We use AES-256 encryption, the same standard used by banks and the military. The password is generated using cryptographically secure random values, and all processing happens in your browser. </p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">How do I start?</h3>
+                  <p className="text-muted-foreground">Simply sign up using your email and a password. After that, you can use the FREE tier to see if you like the product. If you do, you can switch to a paid plan for higher limits. We use Stripe to process payments, which can be made using your Credit Card. You can elect to pay monthly or for a whole year and can amend or cancel your subscription at ANY time.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">Can I use this for sensitive documents?</h3>
+                  <p className="text-muted-foreground">
+                    Absolutely! Since all processing happens locally in your browser and files never touch our servers,
+                    SecurePDF is perfect for confidential business documents, legal papers, medical records, and other sensitive materials.
+                    Your privacy is guaranteed by design.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">What browsers are supported?</h3>
+                  <p className="text-muted-foreground">
+                    SecurePDF works in all modern web browsers including Chrome, Firefox, Safari, and Edge.
+                    We use standard Web APIs for cryptography and file handling, ensuring broad compatibility across desktop and mobile devices.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">What kind of passwords do you generate?</h3>
+                  <p className="text-muted-foreground">For the Free and Starter tiers, the password is a random 13 character long piece of text consisting of a mix of upper and lowercase letters, numbers and other common keyboard symbols such as the dollar sign ($), underscore character (_), the hash sign (#) etc ... Pro tier and Life Time Deal users can specify the length and format of the password, e.g. must be a minimum of 15 characters long and only contain lowercase letters.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">How do I remove a password from a PDF?</h3>
+                  <p className="text-muted-foreground">
+                    SecurePDF is designed for adding password protection to PDFs. To remove a password from an existing protected PDF,
+                    you'll need to use a different tool or PDF reader that supports password removal, provided you know the current password.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+        </main>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50 bg-card/50 backdrop-blur-sm mt-16">
-        <div className="container mx-auto px-4 py-8 text-center space-y-4">
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-6 h-6 bg-gradient-primary rounded flex items-center justify-center">
-              <Shield className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-semibold">SecurePDF</span>
-          </div>
-          <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <Link to="/privacy-policy">
-              <Button variant="ghost" size="sm">Privacy Policy</Button>
-            </Link>
-            <Link to="/terms-of-service">
-              <Button variant="ghost" size="sm">Terms of Service</Button>
-            </Link>
-            <Link to="/contact">
-              <Button variant="ghost" size="sm">Contact</Button>
-            </Link>
-            <Link to="/about">
-              <Button variant="ghost" size="sm">About SecurePDF</Button>
-            </Link>
-            <Link to="/trust-security">
-              <Button variant="ghost" size="sm">Trust & Security</Button>
-            </Link>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            <p>© 2025 SecurePDF. All rights reserved.</p>
-            <p>Your privacy is protected by design - all processing happens locally in your browser.</p>
-          </div>
-        </div>
-      </footer>
+    </div>
 
-      {/* Auth Modal */}
-      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              Sign in to SecurePDF
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-4">
-            <Auth isModal={true} onSuccess={() => setShowAuthModal(false)} />
+    {/* Footer */}
+    <footer className="border-t border-border/50 bg-card/50 backdrop-blur-sm mt-16">
+      <div className="container mx-auto px-4 py-8 text-center space-y-4">
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-6 h-6 bg-gradient-primary rounded flex items-center justify-center">
+            <Shield className="h-4 w-4 text-primary-foreground" />
           </div>
-        </DialogContent>
-      </Dialog>
-    </div>;
+          <span className="font-semibold">SecurePDF</span>
+        </div>
+        <div className="flex flex-wrap justify-center gap-4 text-sm">
+          <Link to="/privacy-policy">
+            <Button variant="ghost" size="sm">Privacy Policy</Button>
+          </Link>
+          <Link to="/terms-of-service">
+            <Button variant="ghost" size="sm">Terms of Service</Button>
+          </Link>
+          <Link to="/contact">
+            <Button variant="ghost" size="sm">Contact</Button>
+          </Link>
+          <Link to="/about">
+            <Button variant="ghost" size="sm">About SecurePDF</Button>
+          </Link>
+          <Link to="/trust-security">
+            <Button variant="ghost" size="sm">Trust & Security</Button>
+          </Link>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          <p>© 2025 SecurePDF. All rights reserved.</p>
+          <p>Your privacy is protected by design - all processing happens locally in your browser.</p>
+        </div>
+      </div>
+    </footer>
+
+    {/* Auth Modal */}
+    <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-primary" />
+            Sign in to SecurePDF
+          </DialogTitle>
+        </DialogHeader>
+        <div className="mt-4">
+          <Auth isModal={true} onSuccess={() => setShowAuthModal(false)} />
+        </div>
+      </DialogContent>
+    </Dialog>
+  </div>;
 };
 export default Index;
