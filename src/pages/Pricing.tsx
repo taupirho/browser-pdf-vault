@@ -202,7 +202,7 @@ const Pricing = () => {
       const userTier = subscriptionStatus?.subscription_tier?.toLowerCase();
       const isLtdUser = userTier === 'ltd' || userTier === 'life time deal' || userTier === 'lifetime';
       const isDowngrade = planName === "Free" || planName === "Starter" || planName === "Pro";
-      
+
       if (isLtdUser && isDowngrade) {
         setShowLtdDowngradeAlert(true);
         setLoading(null);
@@ -228,7 +228,7 @@ const Pricing = () => {
               data: chk
             } = await supabase.functions.invoke('check-subscription');
             if (chk) setSubscriptionStatus(chk as any);
-          } catch {}
+          } catch { }
         } else {
           toast({
             title: "Already on Free",
@@ -267,7 +267,7 @@ const Pricing = () => {
         "Pro": "pro",
         "Life Time Deal": "ltd"
       };
-      
+
       const {
         data,
         error
@@ -292,139 +292,149 @@ const Pricing = () => {
     }
   };
   return <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>SecurePDF Pricing Plans - Free PDF Password Protection & Pro Features</title>
-        <meta name="description" content="Choose from free or paid SecurePDF plans. Free tier: 2 PDFs/day. Starter: 10 PDFs/day at $6.99/month. Pro: 50 PDFs/day at $15.99/month. Cancel anytime." />
-        <meta name="keywords" content="PDF protection pricing, secure PDF plans, PDF encryption cost, free PDF password tool, subscription plans" />
-        <link rel="canonical" href="https://securepdf.io/pricing" />
-      </Helmet>
-      {/* Header */}
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <Shield className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="font-bold text-xl">SecurePDF</span>
-            </Link>
-            <div className="flex items-center gap-2">
-              <Link to="/">
-                <Button variant="ghost">Back to Home</Button>
-              </Link>
-              <ThemeToggle />
+    <Helmet>
+      <title>SecurePDF Pricing – Free & Pro Plans for PDF Password Protection</title>
+
+      <meta
+        name="description"
+        content="Find the perfect SecurePDF plan for your document protection needs. Free plan includes 2 PDFs/day. Upgrade to Starter (10/day) or Pro (50/day) for faster, unlimited, and enhanced PDF encryption features."
+      />
+
+      <meta
+        name="keywords"
+        content="SecurePDF pricing, PDF encryption plans, PDF password protection cost, SecurePDF Pro, SecurePDF subscription, upgrade PDF tools"
+      />
+
+      <link rel="canonical" href="https://securepdf.io/pricing" />
+    </Helmet>
+
+    {/* Header */}
+    <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+              <Shield className="h-5 w-5 text-primary-foreground" />
             </div>
+            <span className="font-bold text-xl">SecurePDF</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/">
+              <Button variant="ghost">Back to Home</Button>
+            </Link>
+            <ThemeToggle />
           </div>
         </div>
-      </header>
-      
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
-            Choose Your Plan
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Secure your PDFs with the plan that fits your needs
-          </p>
-        </div>
+      </div>
+    </header>
 
-        {/* Current Subscription Status */}
-        {user && subscriptionStatus && <div className="max-w-4xl mx-auto mb-12">
-            {subscriptionStatus.subscribed ? <Alert className="border-primary/20 bg-primary/5">
-                <Check className="h-4 w-4 text-primary" />
-                <AlertDescription className="flex items-center justify-between">
-                  <div>
-                    <strong>Current Plan: {subscriptionStatus.subscription_tier || 'Unknown'}</strong>
-                    {subscriptionStatus.subscription_end && <div className="text-sm text-muted-foreground mt-1">
-                        Next billing: {format(new Date(subscriptionStatus.subscription_end), "dd-MMM-yyyy")}
-                      </div>}
-                  </div>
-                  <Button variant="outline" size="sm" onClick={handleManageSubscription} disabled={managingSubscription} className="ml-4">
-                    <Settings className="h-4 w-4 mr-2" />
-                    {managingSubscription ? "Loading..." : "Manage Subscription"}
-                  </Button>
-                </AlertDescription>
-              </Alert> : <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  You're currently on the <strong>Free</strong> plan. Upgrade to unlock higher limits and premium features.
-                </AlertDescription>
-              </Alert>}
-          </div>}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan, index) => {
-          const isCurrentPlan = subscriptionStatus?.subscription_tier?.toLowerCase() === plan.name.toLowerCase() && subscriptionStatus.subscribed;
-          return <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''} ${isCurrentPlan ? 'border-primary border-2 bg-primary/5' : ''}`}>
-              {plan.popular && <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                    Most Popular
-                  </span>
-                </div>}
-              
-              {isCurrentPlan && <div className="absolute -top-3 right-4">
-                  <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium">
-                    Current Plan
-                  </span>
-                </div>}
-              
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                <div className="mt-4">
-                  <span className={plan.price.startsWith("$") ? "text-4xl font-bold text-primary" : "font-bold text-primary"}>{plan.price}</span>
-                  {plan.price.startsWith("$") && plan.price !== "$0" && plan.name !== "LTD" && <div className="text-muted-foreground">
-                      
-                      {plan.price === "$6.99" && <div className="text-sm">or $70/year per user</div>}
-                      {plan.price === "$15.99" && <div className="text-sm">or $150/year per user</div>}
-                    </div>}
-                  {plan.name === "Life Time Deal" && <div className="text-muted-foreground">
-                      <span className="text-sm font-semibold">One-time payment</span>
-                    </div>}
-                </div>
-                <p className="text-muted-foreground mt-2">{plan.description}</p>
-              </CardHeader>
-
-              <CardContent>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center">
-                      <Check className="h-5 w-5 text-primary mr-3 flex-shrink-0" />
-                      <span className="text-foreground">{feature}</span>
-                    </li>)}
-                </ul>
-
-                <Button className="w-full" variant={plan.popular ? "default" : "outline"} onClick={() => isCurrentPlan ? handleManageSubscription() : handlePlanSelection(plan.name)} disabled={loading === plan.name || managingSubscription}>
-                  {loading === plan.name ? "Loading..." : isCurrentPlan ? "Manage Plan" : plan.buttonText}
-                </Button>
-              </CardContent>
-            </Card>;
-        })}
-        </div>
-
-        <div className="text-center mt-16 space-y-4">
-          <p className="text-muted-foreground">
-            All plans include secure encryption and file deletion after processing.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Paid subscribers can cancel or modify their subscriptions anytime using the Manage Subscription link near the top of this page.
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-16">
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-bold text-foreground mb-4">
+          Choose Your Plan
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Secure your PDFs with the plan that fits your needs
+        </p>
       </div>
 
-      {/* LTD Downgrade Alert */}
-      <AlertDialog open={showLtdDowngradeAlert} onOpenChange={setShowLtdDowngradeAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>You Already Have Lifetime Access</AlertDialogTitle>
-            <AlertDialogDescription>
-              You have a Lifetime Deal subscription with unlimited access to all Pro features. 
-              There's no need to downgrade - you already have the best plan with lifetime access!
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction>Got it</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>;
+      {/* Current Subscription Status */}
+      {user && subscriptionStatus && <div className="max-w-4xl mx-auto mb-12">
+        {subscriptionStatus.subscribed ? <Alert className="border-primary/20 bg-primary/5">
+          <Check className="h-4 w-4 text-primary" />
+          <AlertDescription className="flex items-center justify-between">
+            <div>
+              <strong>Current Plan: {subscriptionStatus.subscription_tier || 'Unknown'}</strong>
+              {subscriptionStatus.subscription_end && <div className="text-sm text-muted-foreground mt-1">
+                Next billing: {format(new Date(subscriptionStatus.subscription_end), "dd-MMM-yyyy")}
+              </div>}
+            </div>
+            <Button variant="outline" size="sm" onClick={handleManageSubscription} disabled={managingSubscription} className="ml-4">
+              <Settings className="h-4 w-4 mr-2" />
+              {managingSubscription ? "Loading..." : "Manage Subscription"}
+            </Button>
+          </AlertDescription>
+        </Alert> : <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            You're currently on the <strong>Free</strong> plan. Upgrade to unlock higher limits and premium features.
+          </AlertDescription>
+        </Alert>}
+      </div>}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+        {plans.map((plan, index) => {
+          const isCurrentPlan = subscriptionStatus?.subscription_tier?.toLowerCase() === plan.name.toLowerCase() && subscriptionStatus.subscribed;
+          return <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-lg scale-105' : ''} ${isCurrentPlan ? 'border-primary border-2 bg-primary/5' : ''}`}>
+            {plan.popular && <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
+                Most Popular
+              </span>
+            </div>}
+
+            {isCurrentPlan && <div className="absolute -top-3 right-4">
+              <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium">
+                Current Plan
+              </span>
+            </div>}
+
+            <CardHeader className="text-center pb-8">
+              <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
+              <div className="mt-4">
+                <span className={plan.price.startsWith("$") ? "text-4xl font-bold text-primary" : "font-bold text-primary"}>{plan.price}</span>
+                {plan.price.startsWith("$") && plan.price !== "$0" && plan.name !== "LTD" && <div className="text-muted-foreground">
+
+                  {plan.price === "$6.99" && <div className="text-sm">or $70/year per user</div>}
+                  {plan.price === "$15.99" && <div className="text-sm">or $150/year per user</div>}
+                </div>}
+                {plan.name === "Life Time Deal" && <div className="text-muted-foreground">
+                  <span className="text-sm font-semibold">One-time payment</span>
+                </div>}
+              </div>
+              <p className="text-muted-foreground mt-2">{plan.description}</p>
+            </CardHeader>
+
+            <CardContent>
+              <ul className="space-y-3 mb-8">
+                {plan.features.map((feature, featureIndex) => <li key={featureIndex} className="flex items-center">
+                  <Check className="h-5 w-5 text-primary mr-3 flex-shrink-0" />
+                  <span className="text-foreground">{feature}</span>
+                </li>)}
+              </ul>
+
+              <Button className="w-full" variant={plan.popular ? "default" : "outline"} onClick={() => isCurrentPlan ? handleManageSubscription() : handlePlanSelection(plan.name)} disabled={loading === plan.name || managingSubscription}>
+                {loading === plan.name ? "Loading..." : isCurrentPlan ? "Manage Plan" : plan.buttonText}
+              </Button>
+            </CardContent>
+          </Card>;
+        })}
+      </div>
+
+      <div className="text-center mt-16 space-y-4">
+        <p className="text-muted-foreground">
+          All plans include secure encryption and file deletion after processing.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Paid subscribers can cancel or modify their subscriptions anytime using the Manage Subscription link near the top of this page.
+        </p>
+      </div>
+    </div>
+
+    {/* LTD Downgrade Alert */}
+    <AlertDialog open={showLtdDowngradeAlert} onOpenChange={setShowLtdDowngradeAlert}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>You Already Have Lifetime Access</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have a Lifetime Deal subscription with unlimited access to all Pro features.
+            There's no need to downgrade - you already have the best plan with lifetime access!
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction>Got it</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </div>;
 };
 export default Pricing;

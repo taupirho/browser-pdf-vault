@@ -61,12 +61,22 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Contact SecurePDF Support - Get Help with PDF Password Protection</title>
-        <meta name="description" content="Need help with SecurePDF? Contact our support team for technical assistance, privacy questions, or business inquiries. Response within 48 hours guaranteed." />
-        <meta name="keywords" content="SecurePDF contact, PDF support, technical help, customer service, business inquiries" />
+        <title>Contact SecurePDF Support – Get Expert Help with PDF Encryption & Password Protection</title>
+
+        <meta
+          name="description"
+          content="Get fast, secure support from the SecurePDF team. Whether you need help with PDF password protection, encryption issues, privacy questions, or business partnerships — our team is here to assist you."
+        />
+
+        <meta
+          name="keywords"
+          content="SecurePDF support, PDF encryption help, contact SecurePDF, PDF password protection assistance, privacy support, security inquiries, business contact"
+        />
+
         <link rel="canonical" href="https://securepdf.io/contact" />
       </Helmet>
-      
+
+
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
@@ -197,8 +207,8 @@ const Contact = () => {
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-lg mb-3 text-foreground">Privacy Note</h3>
                   <p className="text-sm text-muted-foreground">
-                    When you contact us, we collect only the information you provide in your message. 
-                    This is used solely to respond to your inquiry and is not shared with third parties. 
+                    When you contact us, we collect only the information you provide in your message.
+                    This is used solely to respond to your inquiry and is not shared with third parties.
                     See our <Link to="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link> for details.
                   </p>
                 </CardContent>
