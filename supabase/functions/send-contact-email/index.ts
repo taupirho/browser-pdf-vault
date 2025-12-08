@@ -21,6 +21,37 @@ const MAX_EMAIL = 255;
 const MAX_SUBJECT = 200;
 const MAX_MESSAGE = 5000;
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const MAX_REQUESTS_PER_WINDOW = 5; // 5 requests per hour per IP
+
+// In-memory rate limit store (resets on function cold start)
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitStore.get(ip);
+  
+  if (!record || now > record.resetAt) {
+    rateLimitStore.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+  
+  if (record.count >= MAX_REQUESTS_PER_WINDOW) {
+    return true;
+  }
+  
+  record.count++;
+  return false;
+}
+
+function getClientIP(req: Request): string {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+         req.headers.get("cf-connecting-ip") ||
+         req.headers.get("x-real-ip") ||
+         "unknown";
+}
+
 function isValidEmail(email: string) {
   return /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
 }
@@ -33,6 +64,15 @@ serve(async (req) => {
   }
 
   try {
+    // Rate limiting check
+    const clientIP = getClientIP(req);
+    if (isRateLimited(clientIP)) {
+      console.warn("Rate limit exceeded for IP:", clientIP.substring(0, 10) + "...");
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please try again later." }),
+        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
     const payload = (await req.json()) as ContactPayload;
     
     // Validate email format
