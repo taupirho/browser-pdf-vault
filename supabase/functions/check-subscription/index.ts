@@ -67,7 +67,7 @@ serve(async (req) => {
         .from("profiles")
         .update({
           subscription_tier: "free",
-          max_daily_files: 2,
+          max_daily_files: 1,
           max_file_size_kb: 250,
           updated_at: new Date().toISOString(),
         })
@@ -109,7 +109,7 @@ serve(async (req) => {
         JSON.stringify({
           subscribed: false,
           subscription_tier: "free",
-          max_daily_files: 2,
+          max_daily_files: 1,
           max_file_size_kb: 250,
         }),
         {
@@ -165,7 +165,7 @@ serve(async (req) => {
 
     const hasActiveSub = subscriptions.data.length > 0;
     let subscriptionTier = "free";
-    let maxDailyFiles = 2;
+    let maxDailyFiles = 1;
     let maxFileSizeKb = 250;
     let subscriptionEnd: string | null = null;
 
