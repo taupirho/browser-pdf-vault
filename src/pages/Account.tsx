@@ -210,18 +210,10 @@ const Account = () => {
               <span className="font-bold text-xl">SecurePDF</span>
             </Link>
 
-            <div className="flex items-center gap-4">
-              <nav className="hidden md:flex items-center gap-4">
-                <Link to="/pricing">
-                  <Button variant="ghost" size="sm">Pricing</Button>
-                </Link>
-                <Link to="/about">
-                  <Button variant="ghost" size="sm">About</Button>
-                </Link>
-                <Link to="/contact">
-                  <Button variant="ghost" size="sm">Contact</Button>
-                </Link>
-              </nav>
+            <div className="flex items-center gap-2">
+              <Link to="/">
+                <Button variant="ghost">Back to Home</Button>
+              </Link>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
                 Sign Out
               </Button>
