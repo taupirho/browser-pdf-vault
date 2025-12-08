@@ -140,6 +140,11 @@ const Index = () => {
               <Link to="/contact">
                 <Button variant="ghost" size="sm">Contact</Button>
               </Link>
+              {user && (
+                <Link to="/account">
+                  <Button variant="ghost" size="sm">My Account</Button>
+                </Link>
+              )}
             </nav>
             {user ? <Button variant="outline" size="sm" onClick={handleSignOut}>
               Sign Out
