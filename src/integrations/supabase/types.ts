@@ -80,6 +80,7 @@ export type Database = {
           file_name: string
           id: string
           original_size_bytes: number
+          password: string | null
           protected_size_bytes: number
           user_id: string
         }
@@ -88,6 +89,7 @@ export type Database = {
           file_name: string
           id?: string
           original_size_bytes: number
+          password?: string | null
           protected_size_bytes: number
           user_id: string
         }
@@ -96,6 +98,7 @@ export type Database = {
           file_name?: string
           id?: string
           original_size_bytes?: number
+          password?: string | null
           protected_size_bytes?: number
           user_id?: string
         }
