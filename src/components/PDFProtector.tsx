@@ -559,7 +559,7 @@ export function PDFProtector({
         </div>)}
 
       {/* Password Options for Pro/LTD users */}
-      {user && userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && !processedFile && <Card className="shadow-card bg-card border-border/50">
+      {user && userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && <Card className="shadow-card bg-card border-border/50">
           <CardHeader>
             <CardTitle className="text-lg">Password Options</CardTitle>
             <CardDescription>Customize your generated password. Will include at least one of each selected type.</CardDescription>
@@ -678,17 +678,9 @@ export function PDFProtector({
                 <div className="flex-1">
                   <p className="font-medium text-warning-foreground">
                     Your new PDF password is{" "}
-                    <span className="inline-flex items-center gap-1">
-                      <code className="bg-background/50 px-2 py-0.5 rounded font-mono text-sm">
-                        {showPassword ? processedFile.password : "••••••••••••"}
-                      </code>
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setShowPassword(!showPassword)}>
-                        {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={copyPassword}>
-                        {passwordCopied ? <Check className="h-3 w-3 text-trust" /> : <Copy className="h-3 w-3" />}
-                      </Button>
-                    </span>
+                    <code className="bg-background/50 px-2 py-0.5 rounded font-mono text-sm">
+                      {processedFile.password}
+                    </code>
                     {" "}and has been saved. View all your passwords in your{" "}
                     <a href="/account" className="underline hover:text-warning">My Account</a> page.
                   </p>
