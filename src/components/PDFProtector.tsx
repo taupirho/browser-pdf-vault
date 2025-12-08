@@ -676,7 +676,7 @@ export function PDFProtector({
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
                 <div>
-                  <p className="font-medium text-warning-foreground">Your password is shown at the bottom of the screen and has been saved. View all your passwords in your My Account page.</p>
+                  <p className="font-medium text-warning-foreground">Your PDF password is shown at the bottom of the screen and has been saved. View all your passwords in your My Account page.</p>
                 </div>
               </div>
             </div>
