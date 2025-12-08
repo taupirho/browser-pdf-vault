@@ -277,11 +277,6 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     }));
 
     setQueuedFiles(prev => [...prev, ...newFiles]);
-    
-    toast({
-      title: `${validPdfFiles.length} file${validPdfFiles.length > 1 ? 's' : ''} added`,
-      description: "Click 'Protect All' to start batch processing."
-    });
   }, [user, userProfile, onLoginRequired, toast]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
