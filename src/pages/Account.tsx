@@ -33,7 +33,7 @@ const tierConfig: Record<string, { label: string; color: string; icon: typeof Cr
   free: { label: "Free", color: "bg-muted text-foreground", icon: User },
   starter: { label: "Starter", color: "bg-blue-500/20 text-blue-700 dark:text-blue-300", icon: TrendingUp },
   pro: { label: "Pro", color: "bg-primary/20 text-primary-foreground dark:text-primary", icon: Crown },
-  ltd: { label: "Lifetime Deal", color: "text-green-600 dark:text-green-400 font-semibold", icon: Crown },
+  ltd: { label: "Lifetime Deal", color: "bg-transparent text-green-600 dark:text-green-400 font-semibold", icon: Crown },
 };
 
 const Account = () => {
