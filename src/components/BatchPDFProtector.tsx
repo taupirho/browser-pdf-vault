@@ -541,90 +541,136 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     URL.revokeObjectURL(url);
   };
 
+  const pendingCount = queuedFiles.filter(f => f.status === 'pending').length;
+  const hasFiles = queuedFiles.length > 0;
+
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8">
+    <div className="w-full max-w-4xl mx-auto space-y-6 pb-24">
       <PrivacyIndicator />
 
-      {/* Upload Area */}
-      <Card className="shadow-card bg-card border-border/50">
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2 text-2xl text-foreground">
-            <Shield className="h-6 w-6 text-primary" />
-            Batch PDF Protection
-          </CardTitle>
-          <CardDescription className="text-lg">
-            Select multiple PDFs to protect them all at once. Up to 10 files per batch.
-            {userProfile && (
-              <span className="block text-sm mt-1">
-                Daily usage: {userProfile.daily_usage_count} / {userProfile.max_daily_files} files
-              </span>
-            )}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
-              isDragging 
-                ? 'border-primary bg-accent/50 scale-[1.02]' 
-                : 'border-border hover:border-primary/50 hover:bg-accent/20'
-            } ${!user ? 'cursor-pointer' : ''}`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onClick={!user ? onLoginRequired : undefined}
-          >
-            <div className="space-y-4">
-              <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
+      {/* Upload Area - Compact when files are queued */}
+      {!hasFiles ? (
+        <Card className="shadow-card bg-card border-border/50">
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center gap-2 text-2xl text-foreground">
+              <Shield className="h-6 w-6 text-primary" />
+              Batch PDF Protection
+            </CardTitle>
+            <CardDescription className="text-lg">
+              Select multiple PDFs to protect them all at once. Up to 10 files per batch.
+              {userProfile && (
+                <span className="block text-sm mt-1">
+                  Daily usage: {userProfile.daily_usage_count} / {userProfile.max_daily_files} files
+                </span>
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
+                isDragging 
+                  ? 'border-primary bg-accent/50 scale-[1.02]' 
+                  : 'border-border hover:border-primary/50 hover:bg-accent/20'
+              } ${!user ? 'cursor-pointer' : ''}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={!user ? onLoginRequired : undefined}
+            >
+              <div className="space-y-4">
+                <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
+                  {user ? (
+                    <Upload className="h-8 w-8 text-primary-foreground" />
+                  ) : (
+                    <Lock className="h-8 w-8 text-primary-foreground" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-lg font-medium">
+                    {user 
+                      ? "Drag and drop multiple PDFs here" 
+                      : "Sign in to protect your PDF files"
+                    }
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {user && "or click below to browse files"}
+                  </p>
+                </div>
+                
                 {user ? (
-                  <Upload className="h-8 w-8 text-primary-foreground" />
+                  <div>
+                    <Input
+                      id="batch-pdf-upload"
+                      type="file"
+                      accept=".pdf"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files) addFiles(e.target.files);
+                        e.target.value = '';
+                      }}
+                      disabled={isProcessing}
+                    />
+                    <Label
+                      htmlFor="batch-pdf-upload"
+                      className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer"
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Choose Files
+                    </Label>
+                  </div>
                 ) : (
-                  <Lock className="h-8 w-8 text-primary-foreground" />
+                  <Button variant="outline" size="lg" onClick={onLoginRequired}>
+                    <Lock className="mr-2 h-4 w-4" />
+                    Sign In to Use
+                  </Button>
                 )}
               </div>
-              <div>
-                <p className="text-lg font-medium">
-                  {user 
-                    ? "Drag and drop multiple PDFs here" 
-                    : "Sign in to protect your PDF files"
-                  }
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {user && "or click below to browse files"}
-                </p>
-              </div>
-              
-              {user ? (
-                <div>
-                  <Input
-                    id="batch-pdf-upload"
-                    type="file"
-                    accept=".pdf"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => {
-                      if (e.target.files) addFiles(e.target.files);
-                      e.target.value = '';
-                    }}
-                    disabled={isProcessing}
-                  />
-                  <Label
-                    htmlFor="batch-pdf-upload"
-                    className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer"
-                  >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Choose Files
-                  </Label>
-                </div>
-              ) : (
-                <Button variant="outline" size="lg" onClick={onLoginRequired}>
-                  <Lock className="mr-2 h-4 w-4" />
-                  Sign In to Use
-                </Button>
-              )}
             </div>
+          </CardContent>
+        </Card>
+      ) : (
+        /* Compact add more files bar when files are queued */
+        <div
+          className={`border-2 border-dashed rounded-lg p-4 text-center transition-all duration-300 ${
+            isDragging 
+              ? 'border-primary bg-accent/50' 
+              : 'border-border hover:border-primary/50 hover:bg-accent/20'
+          }`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="flex items-center justify-center gap-4">
+            <Upload className="h-5 w-5 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Drop more PDFs here or</span>
+            <Input
+              id="batch-pdf-upload-compact"
+              type="file"
+              accept=".pdf"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files) addFiles(e.target.files);
+                e.target.value = '';
+              }}
+              disabled={isProcessing}
+            />
+            <Label
+              htmlFor="batch-pdf-upload-compact"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 cursor-pointer"
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Add More Files
+            </Label>
+            {userProfile && (
+              <span className="text-xs text-muted-foreground">
+                ({userProfile.daily_usage_count} / {userProfile.max_daily_files} today)
+              </span>
+            )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      )}
 
       {/* Password Options for Pro/LTD users */}
       {user && userProfile && (userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd') && (
@@ -745,37 +791,19 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
       {/* File Queue */}
       {queuedFiles.length > 0 && (
         <Card className="shadow-card bg-card border-border/50">
-          <CardHeader>
+          <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">
-                File Queue ({queuedFiles.length} file{queuedFiles.length > 1 ? 's' : ''})
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                File Queue
               </CardTitle>
-              <div className="flex gap-2">
-                {completedCount === queuedFiles.length && completedCount > 0 && (
-                  <>
-                    <Button size="sm" onClick={downloadAllPDFs}>
-                      <Download className="mr-2 h-4 w-4" />
-                      Download All PDFs
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={downloadPasswordsFile}>
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Passwords
-                    </Button>
-                  </>
-                )}
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={clearAll}
-                  disabled={isProcessing}
-                >
-                  Clear All
-                </Button>
-              </div>
+              <span className="text-sm text-muted-foreground">
+                {queuedFiles.length} file{queuedFiles.length > 1 ? 's' : ''}
+              </span>
             </div>
             
             {isProcessing && (
-              <div className="space-y-2 mt-4">
+              <div className="space-y-2 mt-3">
                 <div className="flex justify-between text-sm">
                   <span>Processing {currentFileIndex + 1} of {queuedFiles.length}</span>
                   <span>{Math.round(progress)}%</span>
@@ -904,31 +932,79 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
                 </div>
               ))}
             </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-center gap-4 mt-6">
-              {completedCount < queuedFiles.length && (
-                <Button 
-                  size="lg" 
-                  onClick={startBatchProcessing}
-                  disabled={isProcessing || queuedFiles.every(f => f.status === 'completed')}
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="mr-2 h-4 w-4" />
-                      Protect All ({queuedFiles.filter(f => f.status === 'pending').length})
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Sticky Footer Action Bar */}
+      {hasFiles && (
+        <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg z-50">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 text-sm">
+              <span className="font-medium">{queuedFiles.length} file{queuedFiles.length > 1 ? 's' : ''}</span>
+              {completedCount > 0 && (
+                <Badge variant="default" className="bg-trust text-trust-foreground">
+                  {completedCount} protected
+                </Badge>
+              )}
+              {pendingCount > 0 && (
+                <Badge variant="outline">
+                  {pendingCount} pending
+                </Badge>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {completedCount === queuedFiles.length && completedCount > 0 ? (
+                <>
+                  <Button size="sm" onClick={downloadAllPDFs}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download All
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={downloadPasswordsFile}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Passwords
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={clearAll}>
+                    Clear
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={clearAll}
+                    disabled={isProcessing}
+                  >
+                    Clear All
+                  </Button>
+                  <Button 
+                    size="default"
+                    onClick={startBatchProcessing}
+                    disabled={isProcessing || pendingCount === 0}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <Shield className="mr-2 h-4 w-4" />
+                        Protect All ({pendingCount})
+                      </>
+                    )}
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+          
+          {isProcessing && (
+            <Progress value={progress} className="h-1 rounded-none" />
+          )}
+        </div>
       )}
     </div>
   );
