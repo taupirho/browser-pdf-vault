@@ -397,7 +397,8 @@ export function PDFProtector({
         user_id: user.id,
         file_name: file.name,
         original_size_bytes: file.size,
-        protected_size_bytes: encryptedPdfBytes.byteLength
+        protected_size_bytes: encryptedPdfBytes.byteLength,
+        password: password
       }).then(({ error }) => {
         if (error) console.error('Failed to log PDF history:', error);
       });

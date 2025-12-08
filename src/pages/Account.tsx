@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Shield, User, CreditCard, FileText, Calendar, TrendingUp, Crown, Loader2, History, Clock } from "lucide-react";
+import { Shield, User, CreditCard, FileText, Calendar, TrendingUp, Crown, Loader2, History, Clock, Eye, EyeOff, Copy, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface PdfHistoryItem {
@@ -17,6 +18,7 @@ interface PdfHistoryItem {
   original_size_bytes: number;
   protected_size_bytes: number;
   created_at: string;
+  password: string | null;
 }
 
 interface UserProfile {
@@ -42,7 +44,10 @@ const Account = () => {
   const [pdfHistory, setPdfHistory] = useState<PdfHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isManagingSubscription, setIsManagingSubscription] = useState(false);
+  const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
+  const [copiedPasswordId, setCopiedPasswordId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -73,7 +78,7 @@ const Account = () => {
       // Fetch PDF history
       const { data: historyData } = await supabase
         .from("pdf_history")
-        .select("id, file_name, original_size_bytes, protected_size_bytes, created_at")
+        .select("id, file_name, original_size_bytes, protected_size_bytes, created_at, password")
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false })
         .limit(50);
@@ -115,6 +120,36 @@ const Account = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/");
+  };
+
+  const togglePasswordVisibility = (id: string) => {
+    setVisiblePasswords(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const copyPassword = async (id: string, password: string) => {
+    try {
+      await navigator.clipboard.writeText(password);
+      setCopiedPasswordId(id);
+      toast({
+        title: "Password Copied!",
+        description: "The password has been copied to your clipboard."
+      });
+      setTimeout(() => setCopiedPasswordId(null), 2000);
+    } catch (error) {
+      toast({
+        title: "Copy Failed",
+        description: "Unable to copy password. Please copy it manually.",
+        variant: "destructive"
+      });
+    }
   };
 
   if (isLoading) {
@@ -364,6 +399,9 @@ const Account = () => {
                         minute: "2-digit",
                       });
 
+                      const isPasswordVisible = visiblePasswords.has(item.id);
+                      const isCopied = copiedPasswordId === item.id;
+
                       return (
                         <div
                           key={item.id}
@@ -379,6 +417,35 @@ const Account = () => {
                             <p className="text-xs text-muted-foreground">
                               {originalSizeKB} KB → {protectedSizeKB} KB
                             </p>
+                            {item.password && (
+                              <div className="flex items-center gap-2 mt-1">
+                                <code className="text-xs bg-background px-2 py-0.5 rounded font-mono">
+                                  {isPasswordVisible ? item.password : "••••••••••••"}
+                                </code>
+                                <button
+                                  onClick={() => togglePasswordVisibility(item.id)}
+                                  className="text-muted-foreground hover:text-foreground transition-colors"
+                                  title={isPasswordVisible ? "Hide password" : "Show password"}
+                                >
+                                  {isPasswordVisible ? (
+                                    <EyeOff className="h-3.5 w-3.5" />
+                                  ) : (
+                                    <Eye className="h-3.5 w-3.5" />
+                                  )}
+                                </button>
+                                <button
+                                  onClick={() => copyPassword(item.id, item.password!)}
+                                  className="text-muted-foreground hover:text-foreground transition-colors"
+                                  title="Copy password"
+                                >
+                                  {isCopied ? (
+                                    <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                                  ) : (
+                                    <Copy className="h-3.5 w-3.5" />
+                                  )}
+                                </button>
+                              </div>
+                            )}
                           </div>
                           <div className="text-right flex-shrink-0">
                             <p className="text-sm text-muted-foreground">{formattedDate}</p>
