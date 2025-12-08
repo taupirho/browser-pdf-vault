@@ -123,10 +123,10 @@ const Index = () => {
     icon: Eye,
     title: "We Can't See Your Files",
     description: "Zero server-side processing"
-  }, {
+}, {
     icon: Zap,
     title: "Instant Processing",
-    description: "No uploads, no waiting"
+    description: "No hanging around"
   }];
   return <div className="min-h-screen bg-background">
     <Helmet>
