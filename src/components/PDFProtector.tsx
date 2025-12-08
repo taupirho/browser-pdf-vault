@@ -479,227 +479,298 @@ export function PDFProtector({
       setSavingSettings(false);
     }
   }, [user, passwordOptions, toast]);
-  return <div className="w-full max-w-4xl mx-auto space-y-8">
+  return <div className={`w-full max-w-4xl mx-auto space-y-6 ${processedFile ? 'pb-32' : ''}`}>
       <PrivacyIndicator />
       
-      {!processedFile ? <>
-          <Card className="shadow-card bg-card border-border/50">
-            <CardHeader className="text-center py-0 my-0 mx-0 px-[10px]">
-              <CardTitle className="flex items-center justify-center gap-2 text-2xl text-foreground">
-                <Shield className="h-6 w-6 text-primary" />
-                Upload Your PDF
-              </CardTitle>
-              <CardDescription className="text-lg font-bold text-foreground">Password protect your PDF documents with complete privacy. All processing happens locally in your browser - your files never touch our servers and we can't see their contents.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 ${isDragging ? 'border-primary bg-accent/50 scale-105' : 'border-border hover:border-primary/50 hover:bg-accent/20'} ${!user ? 'cursor-pointer' : ''}`} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} onClick={!user ? onLoginRequired : undefined}>
-                <div className="space-y-4">
-                  <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
-                    {user ? <Upload className="h-8 w-8 text-primary-foreground" /> : <Lock className="h-8 w-8 text-primary-foreground" />}
-                  </div>
-                  <div>
-                    <p className="text-lg font-medium">
-                      {user ? "Drag and drop your PDF here, or click Choose File to browse" : "Sign in to protect your PDF files"}
+      {/* Upload Area - Compact when file is processed */}
+      {!processedFile ? (
+        <Card className="shadow-card bg-card border-border/50">
+          <CardHeader className="text-center py-0 my-0 mx-0 px-[10px]">
+            <CardTitle className="flex items-center justify-center gap-2 text-2xl text-foreground">
+              <Shield className="h-6 w-6 text-primary" />
+              Upload Your PDF
+            </CardTitle>
+            <CardDescription className="text-lg font-bold text-foreground">Password protect your PDF documents with complete privacy. All processing happens locally in your browser - your files never touch our servers and we can't see their contents.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className={`border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 ${isDragging ? 'border-primary bg-accent/50 scale-105' : 'border-border hover:border-primary/50 hover:bg-accent/20'} ${!user ? 'cursor-pointer' : ''}`} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} onClick={!user ? onLoginRequired : undefined}>
+              <div className="space-y-4">
+                <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
+                  {user ? <Upload className="h-8 w-8 text-primary-foreground" /> : <Lock className="h-8 w-8 text-primary-foreground" />}
+                </div>
+                <div>
+                  <p className="text-lg font-medium">
+                    {user ? "Drag and drop your PDF here, or click Choose File to browse" : "Sign in to protect your PDF files"}
+                  </p>
+                  {user && userProfile && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Daily usage: {userProfile.daily_usage_count} / {userProfile.max_daily_files} files
                     </p>
-                    
-                  </div>
-                  {user ? <div>
-                      <Input id="pdf-upload" type="file" accept=".pdf" className="hidden" onChange={e => {
-                  const file = e.target.files?.[0];
-                  if (file) handleFileSelect(file);
-                }} disabled={isProcessing} />
-                      <Label htmlFor="pdf-upload" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer" onClick={e => {
-                  // Check daily limit before opening file dialog
-                  if (userProfile && userProfile.daily_usage_count >= userProfile.max_daily_files) {
-                    e.preventDefault();
-                    toast({
-                      title: "Daily Limit Reached",
-                      description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
-                      variant: "destructive"
-                    });
-                  }
-                }}>
-                        {isProcessing ? <>
-                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                            Processing...
-                          </> : <>
-                            <FileText className="mr-2 h-4 w-4" />
-                            Choose File
-                          </>}
-                      </Label>
-                    </div> : <Button variant="outline" size="lg" onClick={onLoginRequired}>
-                      <Lock className="mr-2 h-4 w-4" />
-                      Sign In to Use
-                    </Button>}
+                  )}
+                </div>
+                {user ? <div>
+                    <Input id="pdf-upload" type="file" accept=".pdf" className="hidden" onChange={e => {
+                const file = e.target.files?.[0];
+                if (file) handleFileSelect(file);
+              }} disabled={isProcessing} />
+                    <Label htmlFor="pdf-upload" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer" onClick={e => {
+                // Check daily limit before opening file dialog
+                if (userProfile && userProfile.daily_usage_count >= userProfile.max_daily_files) {
+                  e.preventDefault();
+                  toast({
+                    title: "Daily Limit Reached",
+                    description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
+                    variant: "destructive"
+                  });
+                }
+              }}>
+                      {isProcessing ? <>
+                          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          Processing...
+                        </> : <>
+                          <FileText className="mr-2 h-4 w-4" />
+                          Choose File
+                        </>}
+                    </Label>
+                  </div> : <Button variant="outline" size="lg" onClick={onLoginRequired}>
+                    <Lock className="mr-2 h-4 w-4" />
+                    Sign In to Use
+                  </Button>}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        /* Compact "Protect Another" bar when file is processed */
+        <div
+          className={`border-2 border-dashed rounded-lg p-4 text-center transition-all duration-300 ${
+            isDragging 
+              ? 'border-primary bg-accent/50' 
+              : 'border-border hover:border-primary/50 hover:bg-accent/20'
+          }`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="flex items-center justify-center gap-4">
+            <Upload className="h-5 w-5 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Drop another PDF here or</span>
+            <Input
+              id="pdf-upload-compact"
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  resetProcess();
+                  handleFileSelect(file);
+                }
+              }}
+              disabled={isProcessing}
+            />
+            <Label
+              htmlFor="pdf-upload-compact"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 cursor-pointer"
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Choose Another File
+            </Label>
+            {userProfile && (
+              <span className="text-xs text-muted-foreground">
+                ({userProfile.daily_usage_count} / {userProfile.max_daily_files} today)
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Password Options for Pro/LTD users */}
+      {user && userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && !processedFile && <Card className="shadow-card bg-card border-border/50">
+          <CardHeader>
+            <CardTitle className="text-lg">Password Options</CardTitle>
+            <CardDescription>Customize your generated password. Will include at least one of each selected type.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
+              <Slider value={[passwordOptions.length]} min={5} max={30} step={1} onValueChange={val => setPasswordOptions(prev => ({
+          ...prev,
+          length: val[0]
+        }))} />
+            </div>
+            <div className="md:flex md:items-start md:justify-between gap-4">
+              <div className="grid grid-cols-2 gap-4 flex-1">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={c => setPasswordOptions(p => {
+              const next = {
+                ...p,
+                includeLowercase: Boolean(c)
+              };
+              const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+              if (count === 0) {
+                toast({
+                  title: "At least one type required",
+                  description: "Keep at least one character type selected.",
+                  variant: "destructive"
+                });
+                return p;
+              }
+              return next;
+            })} />
+                  <Label htmlFor="lower">Lowercase letters</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={c => setPasswordOptions(p => {
+              const next = {
+                ...p,
+                includeUppercase: Boolean(c)
+              };
+              const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+              if (count === 0) {
+                toast({
+                  title: "At least one type required",
+                  description: "Keep at least one character type selected.",
+                  variant: "destructive"
+                });
+                return p;
+              }
+              return next;
+            })} />
+                  <Label htmlFor="upper">Uppercase letters</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={c => setPasswordOptions(p => {
+              const next = {
+                ...p,
+                includeNumbers: Boolean(c)
+              };
+              const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+              if (count === 0) {
+                toast({
+                  title: "At least one type required",
+                  description: "Keep at least one character type selected.",
+                  variant: "destructive"
+                });
+                return p;
+              }
+              return next;
+            })} />
+                  <Label htmlFor="numbers">Numbers</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={c => setPasswordOptions(p => {
+              const next = {
+                ...p,
+                includeSymbols: Boolean(c)
+              };
+              const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+              if (count === 0) {
+                toast({
+                  title: "At least one type required",
+                  description: "Keep at least one character type selected.",
+                  variant: "destructive"
+                });
+                return p;
+              }
+              return next;
+            })} />
+                  <Label htmlFor="symbols">Special characters</Label>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              <div className="mt-4 md:mt-0 md:ml-4 shrink-0">
+                <Button onClick={handleSavePasswordSettings} disabled={savingSettings}>
+                  {savingSettings ? 'Saving...' : 'Save Settings'}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>}
 
-          {user && userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && <Card className="shadow-card bg-card border-border/50 mt-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Password Options</CardTitle>
-                <CardDescription>Customize your generated password. Will include at least one of each selected type.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
-                  <Slider value={[passwordOptions.length]} min={5} max={30} step={1} onValueChange={val => setPasswordOptions(prev => ({
-              ...prev,
-              length: val[0]
-            }))} />
-                </div>
-                <div className="md:flex md:items-start md:justify-between gap-4">
-                  <div className="grid grid-cols-2 gap-4 flex-1">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={c => setPasswordOptions(p => {
-                  const next = {
-                    ...p,
-                    includeLowercase: Boolean(c)
-                  };
-                  const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                  if (count === 0) {
-                    toast({
-                      title: "At least one type required",
-                      description: "Keep at least one character type selected.",
-                      variant: "destructive"
-                    });
-                    return p;
-                  }
-                  return next;
-                })} />
-                      <Label htmlFor="lower">Lowercase letters</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={c => setPasswordOptions(p => {
-                  const next = {
-                    ...p,
-                    includeUppercase: Boolean(c)
-                  };
-                  const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                  if (count === 0) {
-                    toast({
-                      title: "At least one type required",
-                      description: "Keep at least one character type selected.",
-                      variant: "destructive"
-                    });
-                    return p;
-                  }
-                  return next;
-                })} />
-                      <Label htmlFor="upper">Uppercase letters</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={c => setPasswordOptions(p => {
-                  const next = {
-                    ...p,
-                    includeNumbers: Boolean(c)
-                  };
-                  const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                  if (count === 0) {
-                    toast({
-                      title: "At least one type required",
-                      description: "Keep at least one character type selected.",
-                      variant: "destructive"
-                    });
-                    return p;
-                  }
-                  return next;
-                })} />
-                      <Label htmlFor="numbers">Numbers</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={c => setPasswordOptions(p => {
-                  const next = {
-                    ...p,
-                    includeSymbols: Boolean(c)
-                  };
-                  const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                  if (count === 0) {
-                    toast({
-                      title: "At least one type required",
-                      description: "Keep at least one character type selected.",
-                      variant: "destructive"
-                    });
-                    return p;
-                  }
-                  return next;
-                })} />
-                      <Label htmlFor="symbols">Special characters</Label>
-                    </div>
-                  </div>
-                  <div className="mt-4 md:mt-0 md:ml-4 shrink-0">
-                    <Button onClick={handleSavePasswordSettings} disabled={savingSettings}>
-                      {savingSettings ? 'Saving...' : 'Save Settings'}
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>}
-
-          
-        </> : <Card className="shadow-glow bg-gradient-card border-trust/30">
-          <CardHeader className="text-center">
+      {/* Success Card - shows file info */}
+      {processedFile && (
+        <Card className="shadow-glow bg-gradient-card border-trust/30">
+          <CardHeader className="text-center pb-2">
             <CardTitle className="flex items-center justify-center gap-2 text-2xl text-trust">
               <Lock className="h-6 w-6" />
               PDF Protected Successfully!
             </CardTitle>
             <CardDescription>
-              Your PDF has been password-protected and downloaded. Save this password securely!
+              Your PDF has been password-protected and downloaded.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
                 <div>
-                  <p className="font-medium text-warning-foreground">Your password has been generated and saved. A list of recent PDF file names and their associated passwords can be found in your My Account page.</p>
-                  
+                  <p className="font-medium text-warning-foreground">Your password has been saved. View all your passwords in your My Account page.</p>
                 </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label className="text-base font-medium">Generated Password</Label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Input type={showPassword ? "text" : "password"} value={processedFile.password} readOnly className="pr-20 font-mono text-lg bg-background border-trust/30" />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => setShowPassword(!showPassword)} className="h-8 w-8 p-0">
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-                <Button onClick={copyPassword} variant="outline" className="px-4">
-                  {passwordCopied ? <Check className="h-4 w-4 text-trust" /> : <Copy className="h-4 w-4" />}
-                </Button>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="bg-muted/50 dark:bg-background rounded-lg p-3">
                 <p className="font-medium">Original File</p>
-                <p className="text-foreground">{processedFile.name}</p>
+                <p className="text-foreground truncate">{processedFile.name}</p>
                 <p className="text-foreground">
                   {(processedFile.originalSize / 1024 / 1024).toFixed(2)} MB
                 </p>
               </div>
               <div className="bg-muted/50 dark:bg-background rounded-lg p-3">
                 <p className="font-medium">Protected File</p>
-                <p className="text-foreground">protected-{processedFile.name}</p>
+                <p className="text-foreground truncate">protected-{processedFile.name}</p>
                 <p className="text-foreground">
                   {(processedFile.protectedSize / 1024 / 1024).toFixed(2)} MB
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      )}
 
-            <div className="flex justify-center">
-              <Button onClick={resetProcess} variant="outline" size="lg">
+      {/* Sticky Footer Action Bar */}
+      {processedFile && (
+        <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg z-50">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Lock className="h-5 w-5 text-trust" />
+              <span className="font-medium text-sm hidden sm:inline">Password:</span>
+              <div className="flex items-center gap-1">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  value={processedFile.password}
+                  readOnly
+                  className="w-32 sm:w-40 h-8 text-xs font-mono bg-background"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={copyPassword}
+                >
+                  {passwordCopied ? <Check className="h-4 w-4 text-trust" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={resetProcess}>
                 <Upload className="mr-2 h-4 w-4" />
-                Protect Another PDF
+                <span className="hidden sm:inline">Protect Another</span>
+                <span className="sm:hidden">New</span>
               </Button>
             </div>
-          </CardContent>
-        </Card>}
+          </div>
+        </div>
+      )}
     </div>;
 }
