@@ -26,6 +26,7 @@ interface UserProfile {
   max_file_size_kb: number;
   max_daily_files: number;
   daily_usage_count: number;
+  last_usage_reset: string;
 }
 export function PDFProtector({
   user,
@@ -64,9 +65,18 @@ export function PDFProtector({
       const {
         data: profile,
         error: profileError
-      } = await supabase.from('profiles').select('subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count').eq('user_id', user.id).single();
+      } = await supabase.from('profiles').select('subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count, last_usage_reset').eq('user_id', user.id).single();
       if (profileError) throw profileError;
-      setUserProfile(profile);
+      
+      // Check if daily usage should be reset (new day)
+      const today = new Date().toISOString().split('T')[0];
+      const lastReset = profile.last_usage_reset;
+      const effectiveUsageCount = lastReset < today ? 0 : profile.daily_usage_count;
+      
+      setUserProfile({
+        ...profile,
+        daily_usage_count: effectiveUsageCount
+      });
     } catch (error) {
       console.error('Error checking subscription:', error);
     }
@@ -317,30 +327,36 @@ export function PDFProtector({
         protectedSize: encryptedPdfBytes.byteLength
       });
       // Update daily usage count
-      
+      // The database trigger will reset the count if it's a new day
       try {
+        const today = new Date().toISOString().split('T')[0];
+        const isNewDay = userProfile.last_usage_reset < today;
+        const newCount = isNewDay ? 1 : userProfile.daily_usage_count + 1;
+        
         const {
           data,
           error
         } = await supabase.from('profiles').update({
-          daily_usage_count: userProfile.daily_usage_count + 1,
+          daily_usage_count: newCount,
+          last_usage_reset: today,
           updated_at: new Date().toISOString()
-        }).eq('user_id', user.id).select();
+        }).eq('user_id', user.id).select('daily_usage_count, last_usage_reset');
         if (error) {
           console.error('Error updating usage count:', error);
         } else {
-          
           // Update local state with the actual database response
           if (data && data[0]) {
             setUserProfile(prev => prev ? {
               ...prev,
-              daily_usage_count: data[0].daily_usage_count
+              daily_usage_count: data[0].daily_usage_count,
+              last_usage_reset: data[0].last_usage_reset
             } : null);
           } else {
-            // Fallback: increment local state
+            // Fallback: update local state
             setUserProfile(prev => prev ? {
               ...prev,
-              daily_usage_count: prev.daily_usage_count + 1
+              daily_usage_count: newCount,
+              last_usage_reset: today
             } : null);
           }
         }
