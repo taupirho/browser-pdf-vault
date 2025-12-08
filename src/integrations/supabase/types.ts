@@ -74,6 +74,33 @@ export type Database = {
         }
         Relationships: []
       }
+      pdf_history: {
+        Row: {
+          created_at: string
+          file_name: string
+          id: string
+          original_size_bytes: number
+          protected_size_bytes: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          id?: string
+          original_size_bytes: number
+          protected_size_bytes: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          id?: string
+          original_size_bytes?: number
+          protected_size_bytes?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company_name: string | null
