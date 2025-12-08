@@ -42,10 +42,22 @@ const Index = () => {
       data: {
         subscription
       }
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+      
+      // Fetch user tier when auth state changes
+      if (session?.user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('user_id', session.user.id)
+          .single();
+        if (data) setUserTier(data.subscription_tier);
+      } else {
+        setUserTier('free');
+      }
     });
 
     // THEN check for existing session
