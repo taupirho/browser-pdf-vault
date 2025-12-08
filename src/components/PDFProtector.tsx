@@ -681,7 +681,7 @@ export function PDFProtector({
                     <code className="font-mono text-sm font-bold bg-white px-2 py-0.5 rounded text-primary">
                       {processedFile.password}
                     </code>
-                    {" "}and has been saved. View all your passwords in your{" "}
+                    {" "}and has been saved to our database. View all your passwords in your{" "}
                     <a href="/account" className="underline hover:text-warning">My Account</a> page.
                   </p>
                 </div>
