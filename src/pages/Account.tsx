@@ -30,10 +30,10 @@ interface UserProfile {
 }
 
 const tierConfig: Record<string, { label: string; color: string; icon: typeof Crown }> = {
-  free: { label: "Free", color: "bg-muted text-muted-foreground", icon: User },
-  starter: { label: "Starter", color: "bg-blue-500/20 text-blue-600 dark:text-blue-400", icon: TrendingUp },
-  pro: { label: "Pro", color: "bg-primary/20 text-primary", icon: Crown },
-  ltd: { label: "Lifetime Deal", color: "bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-600 dark:text-amber-400", icon: Crown },
+  free: { label: "Free", color: "bg-muted text-foreground", icon: User },
+  starter: { label: "Starter", color: "bg-blue-500/20 text-blue-700 dark:text-blue-300", icon: TrendingUp },
+  pro: { label: "Pro", color: "bg-primary/20 text-primary-foreground dark:text-primary", icon: Crown },
+  ltd: { label: "Lifetime Deal", color: "bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-700 dark:text-amber-300", icon: Crown },
 };
 
 const Account = () => {
