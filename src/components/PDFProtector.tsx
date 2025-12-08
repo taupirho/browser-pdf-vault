@@ -235,15 +235,7 @@ export function PDFProtector({
       return;
     }
 
-    // Check daily usage limit FIRST - before any other processing
-    if (userProfile.daily_usage_count >= userProfile.max_daily_files) {
-      toast({
-        title: "Daily Limit Reached",
-        description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
-        variant: "destructive"
-      });
-      return;
-    }
+    // Validate file type first
     if (!file.type.includes('pdf')) {
       toast({
         title: "Invalid File Type",
@@ -274,9 +266,82 @@ export function PDFProtector({
       });
       return;
     }
+
     setIsProcessing(true);
     setProcessedFile(null);
     setPasswordCopied(false);
+
+    // CRITICAL: Check and increment usage count in the database BEFORE processing
+    // This prevents race conditions where multiple files can be processed simultaneously
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Fetch the LATEST usage count directly from the database (not from local state)
+      const { data: freshProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select('daily_usage_count, last_usage_reset, max_daily_files')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (fetchError) {
+        throw new Error('Failed to verify usage limit');
+      }
+
+      // Calculate effective usage count (reset if new day)
+      const lastReset = freshProfile.last_usage_reset;
+      const currentCount = lastReset < today ? 0 : freshProfile.daily_usage_count;
+
+      // Check if limit is already reached
+      if (currentCount >= freshProfile.max_daily_files) {
+        setIsProcessing(false);
+        // Update local state to reflect actual database state
+        setUserProfile(prev => prev ? {
+          ...prev,
+          daily_usage_count: currentCount,
+          last_usage_reset: lastReset < today ? today : lastReset
+        } : null);
+        toast({
+          title: "Daily Limit Reached",
+          description: `You've reached your daily limit of ${freshProfile.max_daily_files} file${freshProfile.max_daily_files === 1 ? '' : 's'}. Upgrade your plan or try again tomorrow.`,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Atomically increment the usage count BEFORE processing
+      const newCount = currentCount + 1;
+      const { data: updatedData, error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          daily_usage_count: newCount,
+          last_usage_reset: today,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+        .select('daily_usage_count, last_usage_reset');
+
+      if (updateError) {
+        throw new Error('Failed to reserve usage slot');
+      }
+
+      // Update local state immediately to prevent rapid re-clicks
+      if (updatedData && updatedData[0]) {
+        setUserProfile(prev => prev ? {
+          ...prev,
+          daily_usage_count: updatedData[0].daily_usage_count,
+          last_usage_reset: updatedData[0].last_usage_reset
+        } : null);
+      }
+    } catch (error) {
+      console.error('Error checking/updating usage limit:', error);
+      setIsProcessing(false);
+      toast({
+        title: "Error",
+        description: "Failed to verify usage limit. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
     try {
       // Read file as ArrayBuffer
       const arrayBuffer = await file.arrayBuffer();
@@ -326,43 +391,7 @@ export function PDFProtector({
         originalSize: file.size,
         protectedSize: encryptedPdfBytes.byteLength
       });
-      // Update daily usage count
-      // The database trigger will reset the count if it's a new day
-      try {
-        const today = new Date().toISOString().split('T')[0];
-        const isNewDay = userProfile.last_usage_reset < today;
-        const newCount = isNewDay ? 1 : userProfile.daily_usage_count + 1;
-        
-        const {
-          data,
-          error
-        } = await supabase.from('profiles').update({
-          daily_usage_count: newCount,
-          last_usage_reset: today,
-          updated_at: new Date().toISOString()
-        }).eq('user_id', user.id).select('daily_usage_count, last_usage_reset');
-        if (error) {
-          console.error('Error updating usage count:', error);
-        } else {
-          // Update local state with the actual database response
-          if (data && data[0]) {
-            setUserProfile(prev => prev ? {
-              ...prev,
-              daily_usage_count: data[0].daily_usage_count,
-              last_usage_reset: data[0].last_usage_reset
-            } : null);
-          } else {
-            // Fallback: update local state
-            setUserProfile(prev => prev ? {
-              ...prev,
-              daily_usage_count: newCount,
-              last_usage_reset: today
-            } : null);
-          }
-        }
-      } catch (error) {
-        console.error('Error updating usage count:', error);
-      }
+      // Usage count was already incremented BEFORE processing to prevent race conditions
       toast({
         title: "PDF Successfully Encrypted and Downloaded!",
         description: "Your PDF has been password-protected with original content preserved. Save the password securely!"
