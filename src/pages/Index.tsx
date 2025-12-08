@@ -42,19 +42,23 @@ const Index = () => {
       data: {
         subscription
       }
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
       
-      // Fetch user tier when auth state changes
+      // Defer Supabase calls with setTimeout to prevent deadlock
       if (session?.user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('subscription_tier')
-          .eq('user_id', session.user.id)
-          .single();
-        if (data) setUserTier(data.subscription_tier);
+        setTimeout(() => {
+          supabase
+            .from('profiles')
+            .select('subscription_tier')
+            .eq('user_id', session.user.id)
+            .single()
+            .then(({ data }) => {
+              if (data) setUserTier(data.subscription_tier);
+            });
+        }, 0);
       } else {
         setUserTier('free');
       }
