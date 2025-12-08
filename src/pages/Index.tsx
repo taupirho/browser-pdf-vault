@@ -1,7 +1,8 @@
 import { PDFProtector } from "@/components/PDFProtector";
+import { BatchPDFProtector } from "@/components/BatchPDFProtector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Helmet } from 'react-helmet';
 import { Shield, Lock, Eye, Zap, FileText, HelpCircle, Users, Globe } from "lucide-react";
@@ -16,6 +17,8 @@ const Index = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [searchParams] = useSearchParams();
+  const showBatchDemo = searchParams.get('demo') === 'batch';
   const navigate = useNavigate();
   useEffect(() => {
     // Clean URLs with query parameters for SEO
@@ -161,8 +164,23 @@ const Index = () => {
 
       <div className="max-w-4xl mx-auto">
         <main className="container mx-auto space-y-12 px-4 py-8">
+          {/* Demo Toggle */}
+          {showBatchDemo && (
+            <div className="flex justify-center">
+              <Link to="/">
+                <Button variant="outline" size="sm">
+                  ← Back to Single File Mode
+                </Button>
+              </Link>
+            </div>
+          )}
+          
           {/* Main PDF Protector */}
-          <PDFProtector user={user} onLoginRequired={handleLoginRequired} />
+          {showBatchDemo ? (
+            <BatchPDFProtector user={user} onLoginRequired={handleLoginRequired} />
+          ) : (
+            <PDFProtector user={user} onLoginRequired={handleLoginRequired} />
+          )}
 
 
           {/* Why Use SecurePDF Section */}
