@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { PDFDocument } from "pdf-lib-plus-encrypt";
 import { Shield, Lock, Upload, FileText, X, CheckCircle2, Loader2, AlertCircle, Download, Eye, EyeOff, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { PrivacyIndicator } from "./PrivacyIndicator";
+import { supabase } from "@/integrations/supabase/client";
 import type { User } from '@supabase/supabase-js';
 
 interface QueuedFile {
@@ -16,12 +18,28 @@ interface QueuedFile {
   status: 'pending' | 'processing' | 'completed' | 'error';
   password?: string;
   protectedBlob?: Blob;
+  protectedSize?: number;
   error?: string;
 }
 
 interface BatchPDFProtectorProps {
   user?: User | null;
   onLoginRequired?: () => void;
+}
+
+interface UserProfile {
+  subscription_tier: string;
+  max_file_size_kb: number;
+  max_daily_files: number;
+  daily_usage_count: number;
+  last_usage_reset: string;
+  custom_password_settings?: {
+    length?: number;
+    includeLowercase?: boolean;
+    includeUppercase?: boolean;
+    includeNumbers?: boolean;
+    includeSymbols?: boolean;
+  } | null;
 }
 
 export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorProps) {
@@ -31,7 +49,101 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
   const [copiedPasswords, setCopiedPasswords] = useState<Record<string, boolean>>({});
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { toast } = useToast();
+
+  // Fetch user profile on mount and when user changes
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) {
+        setUserProfile(null);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count, last_usage_reset, custom_password_settings')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (error) throw error;
+        
+        const today = new Date().toISOString().split('T')[0];
+        const effectiveUsageCount = data.last_usage_reset < today ? 0 : data.daily_usage_count;
+        
+        setUserProfile({
+          ...data,
+          daily_usage_count: effectiveUsageCount,
+          custom_password_settings: data.custom_password_settings as UserProfile['custom_password_settings']
+        });
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+    
+    fetchProfile();
+  }, [user]);
+
+  const generateSecurePassword = useCallback((): string => {
+    const isCustomizable = userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd");
+    const saved = isCustomizable ? userProfile.custom_password_settings : null;
+    
+    const opts = saved ? {
+      length: saved.length ?? 13,
+      includeLowercase: saved.includeLowercase ?? true,
+      includeUppercase: saved.includeUppercase ?? true,
+      includeNumbers: saved.includeNumbers ?? true,
+      includeSymbols: saved.includeSymbols ?? true
+    } : {
+      length: 15,
+      includeLowercase: true,
+      includeUppercase: true,
+      includeNumbers: true,
+      includeSymbols: true
+    };
+
+    const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+    const length = clamp(opts.length, 5, 30);
+
+    const lower = "abcdefghijklmnopqrstuvwxyz";
+    const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const nums = "0123456789";
+    const syms = "!@#$%^&*";
+
+    const sets: string[] = [];
+    if (opts.includeLowercase) sets.push(lower);
+    if (opts.includeUppercase) sets.push(upper);
+    if (opts.includeNumbers) sets.push(nums);
+    if (opts.includeSymbols) sets.push(syms);
+
+    if (sets.length === 0) {
+      sets.push(lower, nums);
+    }
+
+    const all = sets.join("");
+    const randomIndex = (max: number) => {
+      const array = new Uint32Array(1);
+      crypto.getRandomValues(array);
+      return array[0] % max;
+    };
+
+    const chars: string[] = [];
+    sets.forEach(set => {
+      chars.push(set[randomIndex(set.length)]);
+    });
+
+    while (chars.length < length) {
+      chars.push(all[randomIndex(all.length)]);
+    }
+
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = randomIndex(i + 1);
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+
+    return chars.join("");
+  }, [userProfile]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -46,6 +158,15 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
   const addFiles = useCallback((files: FileList) => {
     if (!user) {
       onLoginRequired?.();
+      return;
+    }
+
+    if (!userProfile) {
+      toast({
+        title: "Loading Profile",
+        description: "Please wait while we load your subscription details.",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -69,7 +190,29 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
       return;
     }
 
-    const newFiles: QueuedFile[] = pdfFiles.map(file => ({
+    // Check file sizes
+    const maxFileSizeBytes = userProfile.max_file_size_kb * 1024;
+    const oversizedFiles = pdfFiles.filter(f => f.size > maxFileSizeBytes);
+    
+    if (oversizedFiles.length > 0) {
+      const maxSizeDisplay = userProfile.max_file_size_kb >= 1024 
+        ? `${(userProfile.max_file_size_kb / 1024).toFixed(0)}MB` 
+        : `${userProfile.max_file_size_kb}KB`;
+      
+      toast({
+        title: "Files Too Large",
+        description: `${oversizedFiles.length} file(s) exceed your ${userProfile.subscription_tier} plan limit of ${maxSizeDisplay}. These files were not added.`,
+        variant: "destructive"
+      });
+      
+      // Only add files that are within size limit
+      const validFiles = pdfFiles.filter(f => f.size <= maxFileSizeBytes);
+      if (validFiles.length === 0) return;
+    }
+
+    const validPdfFiles = pdfFiles.filter(f => f.size <= maxFileSizeBytes);
+    
+    const newFiles: QueuedFile[] = validPdfFiles.map(file => ({
       id: `${file.name}-${Date.now()}-${Math.random()}`,
       file,
       status: 'pending'
@@ -78,10 +221,10 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     setQueuedFiles(prev => [...prev, ...newFiles]);
     
     toast({
-      title: `${pdfFiles.length} file${pdfFiles.length > 1 ? 's' : ''} added`,
+      title: `${validPdfFiles.length} file${validPdfFiles.length > 1 ? 's' : ''} added`,
       description: "Click 'Protect All' to start batch processing."
     });
-  }, [user, onLoginRequired, toast]);
+  }, [user, userProfile, onLoginRequired, toast]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -98,14 +241,138 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     setCurrentFileIndex(0);
   }, []);
 
-  // Simulated batch processing for UX demo
+  const processFile = async (qf: QueuedFile): Promise<{ password: string; blob: Blob; protectedSize: number } | null> => {
+    if (!user || !userProfile) return null;
+    
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Fetch fresh usage count from DB
+    const { data: freshProfile, error: fetchError } = await supabase
+      .from('profiles')
+      .select('daily_usage_count, last_usage_reset, max_daily_files')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (fetchError) throw new Error('Failed to verify usage limit');
+    
+    const lastReset = freshProfile.last_usage_reset;
+    const currentCount = lastReset < today ? 0 : freshProfile.daily_usage_count;
+    
+    if (currentCount >= freshProfile.max_daily_files) {
+      throw new Error(`Daily limit of ${freshProfile.max_daily_files} files reached`);
+    }
+    
+    // Atomically increment usage count BEFORE processing
+    const newCount = currentCount + 1;
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        daily_usage_count: newCount,
+        last_usage_reset: today,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', user.id);
+    
+    if (updateError) throw new Error('Failed to reserve usage slot');
+    
+    // Update local profile state
+    setUserProfile(prev => prev ? {
+      ...prev,
+      daily_usage_count: newCount,
+      last_usage_reset: today
+    } : null);
+    
+    // Read and encrypt the PDF
+    const arrayBuffer = await qf.file.arrayBuffer();
+    const password = generateSecurePassword();
+    
+    const existingPdf = await PDFDocument.load(arrayBuffer);
+    existingPdf.encrypt({
+      userPassword: password,
+      ownerPassword: password + '_owner',
+      permissions: {
+        printing: 'highResolution',
+        modifying: false,
+        copying: true,
+        annotating: false,
+        fillingForms: false,
+        contentAccessibility: true,
+        documentAssembly: false
+      }
+    });
+    
+    const encryptedPdfBytes = await existingPdf.save();
+    const blob = new Blob([encryptedPdfBytes as BlobPart], { type: 'application/pdf' });
+    
+    // Save to pdf_history (fire and forget)
+    supabase.from('pdf_history').insert({
+      user_id: user.id,
+      file_name: qf.file.name,
+      original_size_bytes: qf.file.size,
+      protected_size_bytes: encryptedPdfBytes.byteLength,
+      password: password
+    }).then(({ error }) => {
+      if (error) console.error('Failed to log PDF history:', error);
+    });
+    
+    return { password, blob, protectedSize: encryptedPdfBytes.byteLength };
+  };
+
   const startBatchProcessing = useCallback(async () => {
-    if (queuedFiles.length === 0) return;
+    if (queuedFiles.length === 0 || !user || !userProfile) return;
+
+    const pendingFiles = queuedFiles.filter(f => f.status === 'pending');
+    if (pendingFiles.length === 0) return;
+
+    // Check if there's enough daily quota
+    const today = new Date().toISOString().split('T')[0];
+    const { data: freshProfile, error: fetchError } = await supabase
+      .from('profiles')
+      .select('daily_usage_count, last_usage_reset, max_daily_files')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (fetchError) {
+      toast({
+        title: "Error",
+        description: "Failed to verify usage limit. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const currentCount = freshProfile.last_usage_reset < today ? 0 : freshProfile.daily_usage_count;
+    const remaining = freshProfile.max_daily_files - currentCount;
+    
+    if (remaining <= 0) {
+      toast({
+        title: "Daily Limit Reached",
+        description: `You've reached your daily limit of ${freshProfile.max_daily_files} files. Try again tomorrow.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (pendingFiles.length > remaining) {
+      toast({
+        title: "Not Enough Quota",
+        description: `You can only process ${remaining} more file(s) today. Remove some files or try again tomorrow.`,
+        variant: "destructive"
+      });
+      return;
+    }
 
     setIsProcessing(true);
     setCurrentFileIndex(0);
 
+    let successCount = 0;
+    let errorCount = 0;
+
     for (let i = 0; i < queuedFiles.length; i++) {
+      const qf = queuedFiles[i];
+      
+      if (qf.status !== 'pending') continue;
+      
       setCurrentFileIndex(i);
       
       // Update status to processing
@@ -113,30 +380,57 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
         idx === i ? { ...f, status: 'processing' } : f
       ));
 
-      // Simulate processing delay (in real implementation, actual PDF encryption happens here)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Generate mock password for demo
-      const mockPassword = Array.from(crypto.getRandomValues(new Uint8Array(13)))
-        .map(b => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%'[b % 66])
-        .join('');
-
-      // Create mock protected PDF blob (in real implementation, this would be the encrypted PDF)
-      const mockProtectedBlob = new Blob(['Protected PDF content'], { type: 'application/pdf' });
-
-      // Update status to completed
-      setQueuedFiles(prev => prev.map((f, idx) => 
-        idx === i ? { ...f, status: 'completed', password: mockPassword, protectedBlob: mockProtectedBlob } : f
-      ));
+      try {
+        const result = await processFile(qf);
+        
+        if (result) {
+          setQueuedFiles(prev => prev.map((f, idx) => 
+            idx === i ? { 
+              ...f, 
+              status: 'completed', 
+              password: result.password, 
+              protectedBlob: result.blob,
+              protectedSize: result.protectedSize
+            } : f
+          ));
+          successCount++;
+        } else {
+          throw new Error('Processing returned no result');
+        }
+      } catch (error: any) {
+        console.error(`Error processing ${qf.file.name}:`, error);
+        setQueuedFiles(prev => prev.map((f, idx) => 
+          idx === i ? { ...f, status: 'error', error: error.message || 'Processing failed' } : f
+        ));
+        errorCount++;
+        
+        // If daily limit reached, stop processing remaining files
+        if (error.message?.includes('Daily limit')) {
+          toast({
+            title: "Daily Limit Reached",
+            description: "Stopping batch processing. Remaining files were not processed.",
+            variant: "destructive"
+          });
+          break;
+        }
+      }
     }
 
     setIsProcessing(false);
     
-    toast({
-      title: "Batch Complete!",
-      description: `Successfully protected ${queuedFiles.length} PDF files.`
-    });
-  }, [queuedFiles, toast]);
+    if (successCount > 0) {
+      toast({
+        title: "Batch Complete!",
+        description: `Successfully protected ${successCount} PDF file${successCount > 1 ? 's' : ''}.${errorCount > 0 ? ` ${errorCount} file(s) failed.` : ''}`
+      });
+    } else if (errorCount > 0) {
+      toast({
+        title: "Batch Failed",
+        description: `All ${errorCount} file(s) failed to process.`,
+        variant: "destructive"
+      });
+    }
+  }, [queuedFiles, user, userProfile, toast, generateSecurePassword]);
 
   const togglePassword = (id: string) => {
     setShowPasswords(prev => ({ ...prev, [id]: !prev[id] }));
@@ -145,6 +439,10 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
   const copyPassword = async (id: string, password: string) => {
     await navigator.clipboard.writeText(password);
     setCopiedPasswords(prev => ({ ...prev, [id]: true }));
+    toast({
+      title: "Password Copied!",
+      description: "The password has been copied to your clipboard."
+    });
     setTimeout(() => setCopiedPasswords(prev => ({ ...prev, [id]: false })), 2000);
   };
 
@@ -164,7 +462,6 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
   const downloadAllPDFs = () => {
     const completed = queuedFiles.filter(f => f.status === 'completed' && f.protectedBlob);
     completed.forEach((qf, index) => {
-      // Stagger downloads slightly to avoid browser blocking
       setTimeout(() => downloadSinglePDF(qf), index * 100);
     });
     
@@ -190,21 +487,6 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     <div className="w-full max-w-4xl mx-auto space-y-8">
       <PrivacyIndicator />
 
-      {/* Demo Banner */}
-      <Card className="bg-primary/10 border-primary/30">
-        <CardContent className="py-4">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-primary" />
-            <div>
-              <p className="font-medium text-foreground">UX Demo Mode</p>
-              <p className="text-sm text-muted-foreground">
-                This is a preview of batch protection. Files are not actually being processed.
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Upload Area */}
       <Card className="shadow-card bg-card border-border/50">
         <CardHeader className="text-center">
@@ -213,7 +495,12 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
             Batch PDF Protection
           </CardTitle>
           <CardDescription className="text-lg">
-            Select multiple PDFs to protect them all at once. Pro & LTD users can batch up to 10 files.
+            Select multiple PDFs to protect them all at once. Up to 10 files per batch.
+            {userProfile && (
+              <span className="block text-sm mt-1">
+                Daily usage: {userProfile.daily_usage_count} / {userProfile.max_daily_files} files
+              </span>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -298,7 +585,7 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
                     </Button>
                     <Button variant="outline" size="sm" onClick={downloadPasswordsFile}>
                       <Download className="mr-2 h-4 w-4" />
-                      Save Passwords
+                      Download Passwords
                     </Button>
                   </>
                 )}
@@ -359,7 +646,11 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
                     <p className="font-medium truncate">{qf.file.name}</p>
                     <p className="text-sm text-muted-foreground">
                       {(qf.file.size / 1024).toFixed(1)} KB
+                      {qf.protectedSize && ` → ${(qf.protectedSize / 1024).toFixed(1)} KB`}
                     </p>
+                    {qf.error && (
+                      <p className="text-xs text-destructive">{qf.error}</p>
+                    )}
                   </div>
 
                   {/* Status Badge */}
@@ -459,13 +750,6 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
                       Protect All ({queuedFiles.filter(f => f.status === 'pending').length})
                     </>
                   )}
-                </Button>
-              )}
-              
-              {completedCount === queuedFiles.length && completedCount > 0 && (
-                <Button variant="outline" size="lg" onClick={clearAll}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Protect More Files
                 </Button>
               )}
             </div>
