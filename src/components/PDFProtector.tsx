@@ -46,7 +46,7 @@ export function PDFProtector({
     includeLowercase: true,
     includeUppercase: true,
     includeNumbers: true,
-    includeSymbols: true,
+    includeSymbols: true
   });
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
@@ -67,12 +67,11 @@ export function PDFProtector({
         error: profileError
       } = await supabase.from('profiles').select('subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count, last_usage_reset').eq('user_id', user.id).single();
       if (profileError) throw profileError;
-      
+
       // Check if daily usage should be reset (new day)
       const today = new Date().toISOString().split('T')[0];
       const lastReset = profile.last_usage_reset;
       const effectiveUsageCount = lastReset < today ? 0 : profile.daily_usage_count;
-      
       setUserProfile({
         ...profile,
         daily_usage_count: effectiveUsageCount
@@ -118,25 +117,21 @@ export function PDFProtector({
           includeLowercase: true,
           includeUppercase: true,
           includeNumbers: true,
-          includeSymbols: true,
+          includeSymbols: true
         });
         return;
       }
-
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('custom_password_settings')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
+        const {
+          data,
+          error
+        } = await supabase.from('profiles').select('custom_password_settings').eq('user_id', user.id).maybeSingle();
         if (error) {
           console.error('Error loading saved password settings:', error);
           setSettingsLoaded(true);
           return;
         }
-
-        const saved = (data?.custom_password_settings as any) || null;
+        const saved = data?.custom_password_settings as any || null;
         if (saved && typeof saved === 'object') {
           const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
           setPasswordOptions({
@@ -144,7 +139,7 @@ export function PDFProtector({
             includeLowercase: Boolean(saved.includeLowercase ?? true),
             includeUppercase: Boolean(saved.includeUppercase ?? true),
             includeNumbers: Boolean(saved.includeNumbers ?? true),
-            includeSymbols: Boolean(saved.includeSymbols ?? true),
+            includeSymbols: Boolean(saved.includeSymbols ?? true)
           });
         } else {
           setPasswordOptions({
@@ -152,7 +147,7 @@ export function PDFProtector({
             includeLowercase: true,
             includeUppercase: true,
             includeNumbers: true,
-            includeSymbols: true,
+            includeSymbols: true
           });
         }
       } catch (e) {
@@ -161,7 +156,6 @@ export function PDFProtector({
         setSettingsLoaded(true);
       }
     };
-
     loadSettings();
   }, [user, userProfile, settingsLoaded]);
   const generateSecurePassword = useCallback((): string => {
@@ -218,7 +212,6 @@ export function PDFProtector({
     setIsDragging(false);
   }, []);
   const handleFileSelect = useCallback(async (file: File) => {
-
     // Check if user is authenticated
     if (!user) {
       onLoginRequired?.();
@@ -266,7 +259,6 @@ export function PDFProtector({
       });
       return;
     }
-
     setIsProcessing(true);
     setProcessedFile(null);
     setPasswordCopied(false);
@@ -275,14 +267,12 @@ export function PDFProtector({
     // This prevents race conditions where multiple files can be processed simultaneously
     try {
       const today = new Date().toISOString().split('T')[0];
-      
+
       // Fetch the LATEST usage count directly from the database (not from local state)
-      const { data: freshProfile, error: fetchError } = await supabase
-        .from('profiles')
-        .select('daily_usage_count, last_usage_reset, max_daily_files')
-        .eq('user_id', user.id)
-        .single();
-      
+      const {
+        data: freshProfile,
+        error: fetchError
+      } = await supabase.from('profiles').select('daily_usage_count, last_usage_reset, max_daily_files').eq('user_id', user.id).single();
       if (fetchError) {
         throw new Error('Failed to verify usage limit');
       }
@@ -310,16 +300,14 @@ export function PDFProtector({
 
       // Atomically increment the usage count BEFORE processing
       const newCount = currentCount + 1;
-      const { data: updatedData, error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          daily_usage_count: newCount,
-          last_usage_reset: today,
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id)
-        .select('daily_usage_count, last_usage_reset');
-
+      const {
+        data: updatedData,
+        error: updateError
+      } = await supabase.from('profiles').update({
+        daily_usage_count: newCount,
+        last_usage_reset: today,
+        updated_at: new Date().toISOString()
+      }).eq('user_id', user.id).select('daily_usage_count, last_usage_reset');
       if (updateError) {
         throw new Error('Failed to reserve usage slot');
       }
@@ -399,7 +387,9 @@ export function PDFProtector({
         original_size_bytes: file.size,
         protected_size_bytes: encryptedPdfBytes.byteLength,
         password: password
-      }).then(({ error }) => {
+      }).then(({
+        error
+      }) => {
         if (error) console.error('Failed to log PDF history:', error);
       });
 
@@ -450,10 +440,13 @@ export function PDFProtector({
     setProcessedFile(null);
     setPasswordCopied(false);
   }, []);
-
   const handleSavePasswordSettings = useCallback(async () => {
     if (!user) {
-      toast({ title: 'Sign in required', description: 'Please sign in to save your preferences.', variant: 'destructive' });
+      toast({
+        title: 'Sign in required',
+        description: 'Please sign in to save your preferences.',
+        variant: 'destructive'
+      });
       return;
     }
     setSavingSettings(true);
@@ -464,21 +457,24 @@ export function PDFProtector({
           includeLowercase: Boolean(passwordOptions.includeLowercase),
           includeUppercase: Boolean(passwordOptions.includeUppercase),
           includeNumbers: Boolean(passwordOptions.includeNumbers),
-          includeSymbols: Boolean(passwordOptions.includeSymbols),
+          includeSymbols: Boolean(passwordOptions.includeSymbols)
         }
       };
-
-      const { error } = await supabase
-        .from('profiles')
-        .update(payload)
-        .eq('user_id', user.id);
-
+      const {
+        error
+      } = await supabase.from('profiles').update(payload).eq('user_id', user.id);
       if (error) throw error;
-
-      toast({ title: 'Settings saved', description: 'Your password preferences have been saved.' });
+      toast({
+        title: 'Settings saved',
+        description: 'Your password preferences have been saved.'
+      });
     } catch (e: any) {
       console.error('Error saving password settings:', e);
-      toast({ title: 'Save failed', description: e?.message || 'Could not save settings. Please try again.', variant: 'destructive' });
+      toast({
+        title: 'Save failed',
+        description: e?.message || 'Could not save settings. Please try again.',
+        variant: 'destructive'
+      });
     } finally {
       setSavingSettings(false);
     }
@@ -557,50 +553,78 @@ export function PDFProtector({
                   <div className="grid grid-cols-2 gap-4 flex-1">
                     <div className="flex items-center space-x-2">
                       <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={c => setPasswordOptions(p => {
-                const next = { ...p, includeLowercase: Boolean(c) };
-                const count = (next.includeLowercase?1:0) + (next.includeUppercase?1:0) + (next.includeNumbers?1:0) + (next.includeSymbols?1:0);
-                if (count === 0) {
-                  toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
-                  return p;
-                }
-                return next;
-              })} />
+                  const next = {
+                    ...p,
+                    includeLowercase: Boolean(c)
+                  };
+                  const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                  if (count === 0) {
+                    toast({
+                      title: "At least one type required",
+                      description: "Keep at least one character type selected.",
+                      variant: "destructive"
+                    });
+                    return p;
+                  }
+                  return next;
+                })} />
                       <Label htmlFor="lower">Lowercase letters</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={c => setPasswordOptions(p => {
-                const next = { ...p, includeUppercase: Boolean(c) };
-                const count = (next.includeLowercase?1:0) + (next.includeUppercase?1:0) + (next.includeNumbers?1:0) + (next.includeSymbols?1:0);
-                if (count === 0) {
-                  toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
-                  return p;
-                }
-                return next;
-              })} />
+                  const next = {
+                    ...p,
+                    includeUppercase: Boolean(c)
+                  };
+                  const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                  if (count === 0) {
+                    toast({
+                      title: "At least one type required",
+                      description: "Keep at least one character type selected.",
+                      variant: "destructive"
+                    });
+                    return p;
+                  }
+                  return next;
+                })} />
                       <Label htmlFor="upper">Uppercase letters</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={c => setPasswordOptions(p => {
-                const next = { ...p, includeNumbers: Boolean(c) };
-                const count = (next.includeLowercase?1:0) + (next.includeUppercase?1:0) + (next.includeNumbers?1:0) + (next.includeSymbols?1:0);
-                if (count === 0) {
-                  toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
-                  return p;
-                }
-                return next;
-              })} />
+                  const next = {
+                    ...p,
+                    includeNumbers: Boolean(c)
+                  };
+                  const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                  if (count === 0) {
+                    toast({
+                      title: "At least one type required",
+                      description: "Keep at least one character type selected.",
+                      variant: "destructive"
+                    });
+                    return p;
+                  }
+                  return next;
+                })} />
                       <Label htmlFor="numbers">Numbers</Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={c => setPasswordOptions(p => {
-                const next = { ...p, includeSymbols: Boolean(c) };
-                const count = (next.includeLowercase?1:0) + (next.includeUppercase?1:0) + (next.includeNumbers?1:0) + (next.includeSymbols?1:0);
-                if (count === 0) {
-                  toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
-                  return p;
-                }
-                return next;
-              })} />
+                  const next = {
+                    ...p,
+                    includeSymbols: Boolean(c)
+                  };
+                  const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                  if (count === 0) {
+                    toast({
+                      title: "At least one type required",
+                      description: "Keep at least one character type selected.",
+                      variant: "destructive"
+                    });
+                    return p;
+                  }
+                  return next;
+                })} />
                       <Label htmlFor="symbols">Special characters</Label>
                     </div>
                   </div>
@@ -629,12 +653,8 @@ export function PDFProtector({
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
                 <div>
-                  <p className="font-medium text-warning-foreground">
-                    Critical: Save this password!
-                  </p>
-                  <p className="text-sm text-warning-foreground/80 mt-1">
-                    If you lose this password, the PDF cannot be recovered. Your PDF is protected with AES encryption.
-                  </p>
+                  <p className="font-medium text-warning-foreground">Your password has been generated and saved. A list of recent PDF file names and their associated passwords can be found in your My Account page.</p>
+                  
                 </div>
               </div>
             </div>
