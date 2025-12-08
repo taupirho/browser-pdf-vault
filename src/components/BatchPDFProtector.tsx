@@ -1,12 +1,14 @@
 import { useState, useCallback, useEffect } from "react";
 import { PDFDocument } from "pdf-lib-plus-encrypt";
-import { Shield, Lock, Upload, FileText, X, CheckCircle2, Loader2, AlertCircle, Download, Eye, EyeOff, Copy, Check } from "lucide-react";
+import { Shield, Lock, Upload, FileText, X, CheckCircle2, Loader2, AlertCircle, Download, Eye, EyeOff, Copy, Check, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { PrivacyIndicator } from "./PrivacyIndicator";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,6 +52,14 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
   const [copiedPasswords, setCopiedPasswords] = useState<Record<string, boolean>>({});
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [passwordOptions, setPasswordOptions] = useState({
+    length: 13,
+    includeLowercase: true,
+    includeUppercase: true,
+    includeNumbers: true,
+    includeSymbols: true
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
   const { toast } = useToast();
 
   // Fetch user profile on mount and when user changes
@@ -77,6 +87,18 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
           daily_usage_count: effectiveUsageCount,
           custom_password_settings: data.custom_password_settings as UserProfile['custom_password_settings']
         });
+        
+        // Load saved password settings for Pro/LTD users
+        const saved = data.custom_password_settings as UserProfile['custom_password_settings'];
+        if (saved && (data.subscription_tier === 'pro' || data.subscription_tier === 'ltd')) {
+          setPasswordOptions({
+            length: saved.length ?? 13,
+            includeLowercase: saved.includeLowercase ?? true,
+            includeUppercase: saved.includeUppercase ?? true,
+            includeNumbers: saved.includeNumbers ?? true,
+            includeSymbols: saved.includeSymbols ?? true
+          });
+        }
       } catch (error) {
         console.error('Error fetching profile:', error);
       }
@@ -87,15 +109,8 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
 
   const generateSecurePassword = useCallback((): string => {
     const isCustomizable = userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd");
-    const saved = isCustomizable ? userProfile.custom_password_settings : null;
     
-    const opts = saved ? {
-      length: saved.length ?? 13,
-      includeLowercase: saved.includeLowercase ?? true,
-      includeUppercase: saved.includeUppercase ?? true,
-      includeNumbers: saved.includeNumbers ?? true,
-      includeSymbols: saved.includeSymbols ?? true
-    } : {
+    const opts = isCustomizable ? passwordOptions : {
       length: 15,
       includeLowercase: true,
       includeUppercase: true,
@@ -143,7 +158,50 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     }
 
     return chars.join("");
-  }, [userProfile]);
+  }, [userProfile, passwordOptions]);
+
+  const handleSavePasswordSettings = useCallback(async () => {
+    if (!user) {
+      toast({
+        title: 'Sign in required',
+        description: 'Please sign in to save your preferences.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    setSavingSettings(true);
+    try {
+      const payload = {
+        custom_password_settings: {
+          length: Math.max(5, Math.min(30, Number(passwordOptions.length || 13))),
+          includeLowercase: Boolean(passwordOptions.includeLowercase),
+          includeUppercase: Boolean(passwordOptions.includeUppercase),
+          includeNumbers: Boolean(passwordOptions.includeNumbers),
+          includeSymbols: Boolean(passwordOptions.includeSymbols)
+        }
+      };
+      const { error } = await supabase
+        .from('profiles')
+        .update(payload)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: 'Settings saved',
+        description: 'Your password preferences have been saved.'
+      });
+    } catch (e: any) {
+      console.error('Error saving password settings:', e);
+      toast({
+        title: 'Save failed',
+        description: e?.message || 'Could not save settings. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setSavingSettings(false);
+    }
+  }, [user, passwordOptions, toast]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -567,6 +625,122 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
           </div>
         </CardContent>
       </Card>
+
+      {/* Password Options for Pro/LTD users */}
+      {user && userProfile && (userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd') && (
+        <Card className="shadow-card bg-card border-border/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg text-foreground">
+              <Settings className="h-5 w-5 text-primary" />
+              Password Options
+            </CardTitle>
+            <CardDescription>
+              Customize password generation for all files in this batch
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <Label className="mb-2 block">Password Length: {passwordOptions.length}</Label>
+              <Slider
+                min={5}
+                max={30}
+                step={1}
+                value={[passwordOptions.length]}
+                onValueChange={([v]) => setPasswordOptions(p => ({ ...p, length: v }))}
+              />
+            </div>
+            <div className="md:flex md:items-start md:justify-between gap-4">
+              <div className="grid grid-cols-2 gap-4 flex-1">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="batch-lower"
+                    checked={passwordOptions.includeLowercase}
+                    onCheckedChange={c => setPasswordOptions(p => {
+                      const next = { ...p, includeLowercase: Boolean(c) };
+                      const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                      if (count === 0) {
+                        toast({
+                          title: "At least one type required",
+                          description: "Keep at least one character type selected.",
+                          variant: "destructive"
+                        });
+                        return p;
+                      }
+                      return next;
+                    })}
+                  />
+                  <Label htmlFor="batch-lower">Lowercase letters</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="batch-upper"
+                    checked={passwordOptions.includeUppercase}
+                    onCheckedChange={c => setPasswordOptions(p => {
+                      const next = { ...p, includeUppercase: Boolean(c) };
+                      const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                      if (count === 0) {
+                        toast({
+                          title: "At least one type required",
+                          description: "Keep at least one character type selected.",
+                          variant: "destructive"
+                        });
+                        return p;
+                      }
+                      return next;
+                    })}
+                  />
+                  <Label htmlFor="batch-upper">Uppercase letters</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="batch-numbers"
+                    checked={passwordOptions.includeNumbers}
+                    onCheckedChange={c => setPasswordOptions(p => {
+                      const next = { ...p, includeNumbers: Boolean(c) };
+                      const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                      if (count === 0) {
+                        toast({
+                          title: "At least one type required",
+                          description: "Keep at least one character type selected.",
+                          variant: "destructive"
+                        });
+                        return p;
+                      }
+                      return next;
+                    })}
+                  />
+                  <Label htmlFor="batch-numbers">Numbers</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="batch-symbols"
+                    checked={passwordOptions.includeSymbols}
+                    onCheckedChange={c => setPasswordOptions(p => {
+                      const next = { ...p, includeSymbols: Boolean(c) };
+                      const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                      if (count === 0) {
+                        toast({
+                          title: "At least one type required",
+                          description: "Keep at least one character type selected.",
+                          variant: "destructive"
+                        });
+                        return p;
+                      }
+                      return next;
+                    })}
+                  />
+                  <Label htmlFor="batch-symbols">Special characters</Label>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-0 md:ml-4 shrink-0">
+                <Button onClick={handleSavePasswordSettings} disabled={savingSettings}>
+                  {savingSettings ? 'Saving...' : 'Save Settings'}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* File Queue */}
       {queuedFiles.length > 0 && (
