@@ -479,7 +479,7 @@ export function PDFProtector({
       setSavingSettings(false);
     }
   }, [user, passwordOptions, toast]);
-  return <div className={`w-full max-w-4xl mx-auto space-y-6 ${processedFile ? 'pb-32' : ''}`}>
+  return <div className="w-full max-w-4xl mx-auto space-y-6">
       <PrivacyIndicator />
       
       {/* Upload Area - Compact when file is processed */}
@@ -675,8 +675,23 @@ export function PDFProtector({
             <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
               <div className="flex items-start gap-3">
                 <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
-                <div>
-                  <p className="font-medium text-warning-foreground">Your PDF password is shown at the bottom of the screen and has been saved. View all your passwords in your My Account page.</p>
+                <div className="flex-1">
+                  <p className="font-medium text-warning-foreground">
+                    Your new PDF password is{" "}
+                    <span className="inline-flex items-center gap-1">
+                      <code className="bg-background/50 px-2 py-0.5 rounded font-mono text-sm">
+                        {showPassword ? processedFile.password : "••••••••••••"}
+                      </code>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setShowPassword(!showPassword)}>
+                        {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={copyPassword}>
+                        {passwordCopied ? <Check className="h-3 w-3 text-trust" /> : <Copy className="h-3 w-3" />}
+                      </Button>
+                    </span>
+                    {" "}and has been saved. View all your passwords in your{" "}
+                    <a href="/account" className="underline hover:text-warning">My Account</a> page.
+                  </p>
                 </div>
               </div>
             </div>
@@ -699,32 +714,5 @@ export function PDFProtector({
             </div>
           </CardContent>
         </Card>}
-
-      {/* Sticky Footer Action Bar */}
-      {processedFile && <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg z-50">
-          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <Lock className="h-5 w-5 text-trust" />
-              <span className="font-medium text-sm hidden sm:inline">Password:</span>
-              <div className="flex items-center gap-1">
-                <Input type={showPassword ? "text" : "password"} value={processedFile.password} readOnly className="w-32 sm:w-40 h-8 text-xs font-mono bg-background" />
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={copyPassword}>
-                  {passwordCopied ? <Check className="h-4 w-4 text-trust" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={resetProcess}>
-                <Upload className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Protect Another</span>
-                <span className="sm:hidden">New</span>
-              </Button>
-            </div>
-          </div>
-        </div>}
     </div>;
 }
