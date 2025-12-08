@@ -202,14 +202,14 @@ const Index = () => {
               <Card className="shadow-card bg-card border-border/50">
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-lg mb-3 text-foreground">What happens to my files?</h3>
-                  <p className="text-muted-foreground">Your files never leave your browser. They are read into memory and processed locally. The newly created password-protected PDF is downloaded to your local file system and then immediately discarded from our system memory. Your original input PDF is unchanged and is also discarded after processing. An appropriate password is created for your new PDF, which IS stored on our system and is accessible in your My Account page.. We never see, store, or have access to your documents contents.</p>
+                  <p className="text-muted-foreground">Your files never leave your browser. They are read into memory and processed locally. The newly created password-protected PDF is downloaded to your local file system and then immediately discarded from our system memory. Your original input PDF is unchanged and is also discarded after processing. An appropriate password is created for your new PDF, which IS stored on our system and is accessible in your My Account page. We never see, store, or have direct access to your document contents.</p>
                 </CardContent>
               </Card>
 
               <Card className="shadow-card bg-card border-border/50">
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-lg mb-3 text-foreground">What if I lose the password?</h3>
-                  <p className="text-muted-foreground">Unfortunately, if you lose the password, the PDF cannot be recovered. This is by design - it ensures maximum security. Always save the password in a secure location. Remember that your original PDF is unchanged and you can always re-attach it for password protection again.</p>
+                  <p className="text-muted-foreground">If you forget or lose your PDF document password. We maintain a list of the last 50 document file names and the passwords that were generated for them. This information is viewable from your My Account page. Remember, if you still have your original PDF document, you can always password- protect it again if required.</p>
                 </CardContent>
               </Card>
 
