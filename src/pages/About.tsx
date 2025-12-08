@@ -4,75 +4,52 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Helmet } from 'react-helmet';
-
 const About = () => {
-
-
-  const securityFeatures = [
-    {
-      icon: Lock,
-      title: "AES-256 Encryption",
-      description: "Military-grade encryption standard used by governments and banks worldwide"
-    },
-    {
-      icon: Eye,
-      title: "Zero Knowledge",
-      description: "We never see your files - all processing happens locally in your browser"
-    },
-    {
-      icon: Server,
-      title: "No Upload Required",
-      description: "Files never leave your device, eliminating data breach risks"
-    },
-    {
-      icon: Key,
-      title: "Cryptographically Secure",
-      description: "Passwords generated using browser's crypto.getRandomValues() API"
-    }
-  ];
-
-  const howItWorks = [
-    {
-      step: 1,
-      title: "File Selection",
-      description: "You select a PDF file from your device using the browser's file picker"
-    },
-    {
-      step: 2,
-      title: "Local Processing",
-      description: "The PDF is loaded into your browser's memory using the pdf-lib library"
-    },
-    {
-      step: 3,
-      title: "Secure Password Generation",
-      description: "A cryptographically secure password is generated using Web Crypto API"
-    },
-    {
-      step: 4,
-      title: "AES-256 Encryption",
-      description: "The PDF is encrypted using AES-256 standard with your generated password"
-    },
-    {
-      step: 5,
-      title: "Secure Download",
-      description: "The encrypted PDF is offered for download, original file is cleared from memory"
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-background">
+  const securityFeatures = [{
+    icon: Lock,
+    title: "AES-256 Encryption",
+    description: "Military-grade encryption standard used by governments and banks worldwide"
+  }, {
+    icon: Eye,
+    title: "Zero Knowledge",
+    description: "We never see your files - all processing happens locally in your browser"
+  }, {
+    icon: Server,
+    title: "No Upload Required",
+    description: "Files never leave your device, eliminating data breach risks"
+  }, {
+    icon: Key,
+    title: "Cryptographically Secure",
+    description: "Passwords generated using browser's crypto.getRandomValues() API"
+  }];
+  const howItWorks = [{
+    step: 1,
+    title: "File Selection",
+    description: "You select a PDF file from your device using the browser's file picker"
+  }, {
+    step: 2,
+    title: "Local Processing",
+    description: "The PDF is loaded into your browser's memory using the pdf-lib library"
+  }, {
+    step: 3,
+    title: "Secure Password Generation",
+    description: "A cryptographically secure password is generated using Web Crypto API"
+  }, {
+    step: 4,
+    title: "AES-256 Encryption",
+    description: "The PDF is encrypted using AES-256 standard with your generated password"
+  }, {
+    step: 5,
+    title: "Secure Download",
+    description: "The encrypted PDF is offered for download, original file is cleared from memory"
+  }];
+  return <div className="min-h-screen bg-background">
       <Helmet>
         <title>About SecurePDF - Privacy-First PDF Password Protection Service</title>
 
-        <meta
-          name="description"
-          content="Learn how SecurePDF keeps your documents safe with zero-knowledge encryption, AES-256 security, no file uploads, and complete browser-based privacy protection."
-        />
+        <meta name="description" content="Learn how SecurePDF keeps your documents safe with zero-knowledge encryption, AES-256 security, no file uploads, and complete browser-based privacy protection." />
 
-        <meta
-          name="keywords"
-          content="SecurePDF, PDF encryption, browser-based security, zero knowledge, AES-256, secure PDF tool, PDF protector, password protect PDF"
-        />
+        <meta name="keywords" content="SecurePDF, PDF encryption, browser-based security, zero knowledge, AES-256, secure PDF tool, PDF protector, password protect PDF" />
 
         <link rel="canonical" href="https://securepdf.io/about" />
       </Helmet>
@@ -120,8 +97,7 @@ const About = () => {
           <section className="space-y-6">
             <h2 className="text-3xl font-bold text-center">Why Browser-Based Security Matters</h2>
             <div className="grid gap-6 md:grid-cols-2">
-              {securityFeatures.map((feature, index) => (
-                <Card key={index} className="shadow-card bg-card border-border/50">
+              {securityFeatures.map((feature, index) => <Card key={index} className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center flex-shrink-0">
@@ -133,8 +109,7 @@ const About = () => {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              ))}
+                </Card>)}
             </div>
           </section>
 
@@ -142,8 +117,7 @@ const About = () => {
           <section className="space-y-6">
             <h2 className="text-3xl font-bold text-center">How SecurePDF Works</h2>
             <div className="space-y-4">
-              {howItWorks.map((step, index) => (
-                <Card key={index} className="shadow-card bg-card border-border/50">
+              {howItWorks.map((step, index) => <Card key={index} className="shadow-card bg-card border-border/50">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center flex-shrink-0 text-primary-foreground font-bold">
@@ -155,8 +129,7 @@ const About = () => {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              ))}
+                </Card>)}
             </div>
           </section>
 
@@ -204,7 +177,7 @@ const About = () => {
                 <ul className="space-y-2 text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <FileCheck className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span>Your PDF files and passwords never touch our servers</span>
+                    <span>Your PDF file content never touches our servers</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <FileCheck className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
@@ -241,8 +214,6 @@ const About = () => {
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default About;
