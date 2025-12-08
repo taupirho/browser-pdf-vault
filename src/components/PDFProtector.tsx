@@ -54,12 +54,29 @@ export function PDFProtector({
   // Check subscription and get user profile
   const checkSubscription = useCallback(async () => {
     if (!user) return;
+    
+    // Check if we still have a valid session before making the call
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      // User has logged out, don't make the API call
+      return;
+    }
+    
     try {
       const {
         data,
         error
       } = await supabase.functions.invoke('check-subscription');
-      if (error) throw error;
+      
+      // Gracefully handle auth errors (e.g., session expired/invalidated)
+      if (error) {
+        const errorMessage = error.message || '';
+        if (errorMessage.includes('Session') || errorMessage.includes('JWT') || errorMessage.includes('Auth')) {
+          // Auth-related error, session may have been invalidated - silently ignore
+          return;
+        }
+        throw error;
+      }
 
       // Get user profile with updated limits
       const {
