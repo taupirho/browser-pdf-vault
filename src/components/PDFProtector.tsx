@@ -678,7 +678,7 @@ export function PDFProtector({
                 <div className="flex-1">
                   <p className="font-medium text-warning-foreground">
                     Your new PDF password is{" "}
-                    <code className="font-mono text-sm text-trust">
+                    <code className="font-mono text-sm text-trust font-bold">
                       {processedFile.password}
                     </code>
                     {" "}and has been saved. View all your passwords in your{" "}
