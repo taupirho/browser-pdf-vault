@@ -211,7 +211,7 @@ const Index = () => {
                   <Layers className="h-4 w-4" />
                   Batch Mode
                   {(!user || !['pro', 'ltd'].includes(userTier)) && (
-                    <Badge variant="secondary" className="ml-1 text-xs">Pro</Badge>
+                    <Badge variant="secondary" className="ml-1 text-xs">Pro/LTD</Badge>
                   )}
                 </TabsTrigger>
               </TabsList>
