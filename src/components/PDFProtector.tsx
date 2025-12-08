@@ -667,7 +667,7 @@ export function PDFProtector({
               <Lock className="h-6 w-6" />
               PDF Protected Successfully!
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="font-bold">
               Your PDF has been password-protected and downloaded.
             </CardDescription>
           </CardHeader>
