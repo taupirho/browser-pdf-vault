@@ -2,23 +2,26 @@ import { PDFProtector } from "@/components/PDFProtector";
 import { BatchPDFProtector } from "@/components/BatchPDFProtector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Helmet } from 'react-helmet';
-import { Shield, Lock, Eye, Zap, FileText, HelpCircle, Users, Globe } from "lucide-react";
+import { Shield, Lock, Eye, Zap, FileText, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import Auth from './Auth';
 import type { User, Session } from '@supabase/supabase-js';
+
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [searchParams] = useSearchParams();
-  const showBatchDemo = searchParams.get('demo') === 'batch';
+  const [mode, setMode] = useState<'single' | 'batch'>('single');
+  const [userTier, setUserTier] = useState<string>('free');
   const navigate = useNavigate();
   useEffect(() => {
     // Clean URLs with query parameters for SEO
@@ -54,6 +57,18 @@ const Index = () => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
+      
+      // Fetch user tier if logged in
+      if (session?.user) {
+        supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('user_id', session.user.id)
+          .single()
+          .then(({ data }) => {
+            if (data) setUserTier(data.subscription_tier);
+          });
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -164,19 +179,31 @@ const Index = () => {
 
       <div className="max-w-4xl mx-auto">
         <main className="container mx-auto space-y-12 px-4 py-8">
-          {/* Demo Toggle */}
-          {showBatchDemo && (
-            <div className="flex justify-center">
-              <Link to="/">
-                <Button variant="outline" size="sm">
-                  ← Back to Single File Mode
-                </Button>
-              </Link>
-            </div>
-          )}
+          {/* Mode Toggle */}
+          <div className="flex justify-center">
+            <Tabs value={mode} onValueChange={(v) => setMode(v as 'single' | 'batch')}>
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="single" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Single File
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="batch" 
+                  className="flex items-center gap-2"
+                  disabled={!user || !['pro', 'ltd'].includes(userTier)}
+                >
+                  <Layers className="h-4 w-4" />
+                  Batch Mode
+                  {(!user || !['pro', 'ltd'].includes(userTier)) && (
+                    <Badge variant="secondary" className="ml-1 text-xs">Pro</Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
           
           {/* Main PDF Protector */}
-          {showBatchDemo ? (
+          {mode === 'batch' ? (
             <BatchPDFProtector user={user} onLoginRequired={handleLoginRequired} />
           ) : (
             <PDFProtector user={user} onLoginRequired={handleLoginRequired} />
