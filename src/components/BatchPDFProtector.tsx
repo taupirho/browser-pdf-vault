@@ -15,6 +15,7 @@ interface QueuedFile {
   file: File;
   status: 'pending' | 'processing' | 'completed' | 'error';
   password?: string;
+  protectedBlob?: Blob;
   error?: string;
 }
 
@@ -120,9 +121,12 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
         .map(b => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%'[b % 66])
         .join('');
 
+      // Create mock protected PDF blob (in real implementation, this would be the encrypted PDF)
+      const mockProtectedBlob = new Blob(['Protected PDF content'], { type: 'application/pdf' });
+
       // Update status to completed
       setQueuedFiles(prev => prev.map((f, idx) => 
-        idx === i ? { ...f, status: 'completed', password: mockPassword } : f
+        idx === i ? { ...f, status: 'completed', password: mockPassword, protectedBlob: mockProtectedBlob } : f
       ));
     }
 
@@ -147,9 +151,32 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
   const completedCount = queuedFiles.filter(f => f.status === 'completed').length;
   const progress = queuedFiles.length > 0 ? (completedCount / queuedFiles.length) * 100 : 0;
 
-  const downloadAllPasswords = () => {
+  const downloadSinglePDF = (qf: QueuedFile) => {
+    if (!qf.protectedBlob) return;
+    const url = URL.createObjectURL(qf.protectedBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = qf.file.name.replace('.pdf', '_protected.pdf');
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadAllPDFs = () => {
+    const completed = queuedFiles.filter(f => f.status === 'completed' && f.protectedBlob);
+    completed.forEach((qf, index) => {
+      // Stagger downloads slightly to avoid browser blocking
+      setTimeout(() => downloadSinglePDF(qf), index * 100);
+    });
+    
+    toast({
+      title: "Downloads started",
+      description: `Downloading ${completed.length} protected PDF${completed.length > 1 ? 's' : ''}.`
+    });
+  };
+
+  const downloadPasswordsFile = () => {
     const completed = queuedFiles.filter(f => f.status === 'completed' && f.password);
-    const content = completed.map(f => `${f.file.name}: ${f.password}`).join('\n');
+    const content = completed.map(f => `${f.file.name.replace('.pdf', '_protected.pdf')}: ${f.password}`).join('\n');
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -264,10 +291,16 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
               </CardTitle>
               <div className="flex gap-2">
                 {completedCount === queuedFiles.length && completedCount > 0 && (
-                  <Button variant="outline" size="sm" onClick={downloadAllPasswords}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download All Passwords
-                  </Button>
+                  <>
+                    <Button size="sm" onClick={downloadAllPDFs}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download All PDFs
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={downloadPasswordsFile}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Save Passwords
+                    </Button>
+                  </>
                 )}
                 <Button 
                   variant="ghost" 
@@ -345,14 +378,25 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
                     {qf.status === 'error' && 'Failed'}
                   </Badge>
 
-                  {/* Password (if completed) */}
+                  {/* Actions (if completed) */}
                   {qf.status === 'completed' && qf.password && (
                     <div className="flex items-center gap-1 shrink-0">
+                      {/* Download PDF button */}
+                      <Button 
+                        variant="default" 
+                        size="sm" 
+                        className="h-8 px-2"
+                        onClick={() => downloadSinglePDF(qf)}
+                      >
+                        <Download className="h-3 w-3 mr-1" />
+                        PDF
+                      </Button>
+                      {/* Password display */}
                       <Input
                         type={showPasswords[qf.id] ? 'text' : 'password'}
                         value={qf.password}
                         readOnly
-                        className="w-32 h-8 text-xs font-mono"
+                        className="w-28 h-8 text-xs font-mono"
                       />
                       <Button 
                         variant="ghost" 
