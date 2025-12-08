@@ -11,15 +11,30 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { site } from "@/config/site";
 import { Helmet } from 'react-helmet';
+import { z } from "zod";
+
+// Valid request types matching server-side validation
+const VALID_REQUEST_TYPES = ["access", "erasure", "rectification", "portability", "objection", "restriction", "other"] as const;
+
+// Validation schema matching server-side limits
+const dsarSchema = z.object({
+  name: z.string().trim().max(100, "Name must be less than 100 characters").optional().default(""),
+  email: z.string().trim().min(1, "Email is required").email("Please enter a valid email").max(255, "Email must be less than 255 characters"),
+  requestType: z.enum(VALID_REQUEST_TYPES, { errorMap: () => ({ message: "Please select a valid request type" }) }),
+  details: z.string().trim().max(5000, "Details must be less than 5000 characters").optional().default(""),
+});
+
+type DsarFormData = z.infer<typeof dsarSchema>;
+
 const TrustSecurity = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [requestType, setRequestType] = useState("access");
+  const [requestType, setRequestType] = useState<typeof VALID_REQUEST_TYPES[number]>("access");
   const [details, setDetails] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<keyof DsarFormData, string>>>({});
+
   useEffect(() => {
     document.title = "Trust & Security | SecurePDF";
     const metaDesc = document.querySelector('meta[name="description"]');
@@ -41,29 +56,39 @@ const TrustSecurity = () => {
       document.head.appendChild(l);
     }
   }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast({
-        title: "Please enter a valid email",
-        variant: "destructive"
+    setErrors({});
+
+    // Validate with zod
+    const result = dsarSchema.safeParse({ name, email, requestType, details });
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof DsarFormData, string>> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as keyof DsarFormData] = err.message;
+        }
       });
+      setErrors(fieldErrors);
       return;
     }
+
     setLoading(true);
     try {
       const { error } = await supabase
         .from("dsar_requests")
         .insert({
-          name,
-          email,
-          request_type: requestType,
-          details,
+          name: result.data.name,
+          email: result.data.email,
+          request_type: result.data.requestType,
+          details: result.data.details,
         });
       if (error) throw error;
+
       // Send emails via edge function
       const { error: emailError } = await supabase.functions.invoke("send-dsar-email", {
-        body: { name, email, requestType, details },
+        body: result.data,
       });
 
       if (emailError) {
@@ -93,6 +118,12 @@ const TrustSecurity = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const clearError = (field: keyof DsarFormData) => {
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
     }
   };
   return <div className="min-h-screen bg-background">
@@ -176,17 +207,32 @@ const TrustSecurity = () => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium">Name (optional)</label>
-                  <Input value={name} onChange={e => setName(e.target.value)} placeholder="Jane Doe" />
+                  <Input 
+                    value={name} 
+                    onChange={e => { setName(e.target.value); clearError("name"); }} 
+                    placeholder="Jane Doe"
+                    maxLength={100}
+                    className={errors.name ? "border-destructive" : ""}
+                  />
+                  {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium">Email</label>
-                  <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required />
+                  <Input 
+                    type="email" 
+                    value={email} 
+                    onChange={e => { setEmail(e.target.value); clearError("email"); }} 
+                    placeholder="you@example.com"
+                    maxLength={255}
+                    className={errors.email ? "border-destructive" : ""}
+                  />
+                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">Request type</label>
-                <Select value={requestType} onValueChange={setRequestType}>
-                  <SelectTrigger>
+                <Select value={requestType} onValueChange={(val) => { setRequestType(val as typeof VALID_REQUEST_TYPES[number]); clearError("requestType"); }}>
+                  <SelectTrigger className={errors.requestType ? "border-destructive" : ""}>
                     <SelectValue placeholder="Select request type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -199,10 +245,19 @@ const TrustSecurity = () => {
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
+                {errors.requestType && <p className="text-sm text-destructive">{errors.requestType}</p>}
               </div>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">Details</label>
-                <Textarea value={details} onChange={e => setDetails(e.target.value)} rows={5} placeholder="Describe your request…" />
+                <Textarea 
+                  value={details} 
+                  onChange={e => { setDetails(e.target.value); clearError("details"); }} 
+                  rows={5} 
+                  placeholder="Describe your request…"
+                  maxLength={5000}
+                  className={errors.details ? "border-destructive" : ""}
+                />
+                {errors.details && <p className="text-sm text-destructive">{errors.details}</p>}
               </div>
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <Button type="submit" disabled={loading}>
