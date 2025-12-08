@@ -545,7 +545,7 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
   const hasFiles = queuedFiles.length > 0;
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 pb-24">
+    <div className={`w-full max-w-4xl mx-auto space-y-6 ${hasFiles ? 'pb-32' : ''}`}>
       <PrivacyIndicator />
 
       {/* Upload Area - Compact when files are queued */}
