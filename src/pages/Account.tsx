@@ -7,8 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Shield, User, CreditCard, FileText, Calendar, TrendingUp, Crown, Loader2 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Shield, User, CreditCard, FileText, Calendar, TrendingUp, Crown, Loader2, History, Clock } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+
+interface PdfHistoryItem {
+  id: string;
+  file_name: string;
+  original_size_bytes: number;
+  protected_size_bytes: number;
+  created_at: string;
+}
 
 interface UserProfile {
   subscription_tier: string;
@@ -30,6 +39,7 @@ const tierConfig: Record<string, { label: string; color: string; icon: typeof Cr
 const Account = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [pdfHistory, setPdfHistory] = useState<PdfHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isManagingSubscription, setIsManagingSubscription] = useState(false);
   const navigate = useNavigate();
@@ -59,6 +69,19 @@ const Account = () => {
           daily_usage_count: effectiveUsageCount,
         });
       }
+
+      // Fetch PDF history
+      const { data: historyData } = await supabase
+        .from("pdf_history")
+        .select("id, file_name, original_size_bytes, protected_size_bytes, created_at")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+
+      if (historyData) {
+        setPdfHistory(historyData);
+      }
+
       setIsLoading(false);
     };
 
@@ -305,6 +328,71 @@ const Account = () => {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* PDF History Card */}
+          <Card className="shadow-card bg-card border-border/50 md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5 text-primary" />
+                Protected PDF History
+              </CardTitle>
+              <CardDescription>Your recently protected PDF documents</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {pdfHistory.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>No PDFs protected yet</p>
+                  <p className="text-sm mt-1">Protected PDFs will appear here</p>
+                </div>
+              ) : (
+                <ScrollArea className="h-[300px] pr-4">
+                  <div className="space-y-3">
+                    {pdfHistory.map((item) => {
+                      const originalSizeKB = (item.original_size_bytes / 1024).toFixed(1);
+                      const protectedSizeKB = (item.protected_size_bytes / 1024).toFixed(1);
+                      const date = new Date(item.created_at);
+                      const formattedDate = date.toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      });
+                      const formattedTime = date.toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      });
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <FileText className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium truncate" title={item.file_name}>
+                              {item.file_name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {originalSizeKB} KB → {protectedSizeKB} KB
+                            </p>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-sm text-muted-foreground">{formattedDate}</p>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1 justify-end">
+                              <Clock className="h-3 w-3" />
+                              {formattedTime}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </ScrollArea>
+              )}
             </CardContent>
           </Card>
         </div>

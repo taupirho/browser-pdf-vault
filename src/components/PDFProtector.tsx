@@ -391,6 +391,17 @@ export function PDFProtector({
         originalSize: file.size,
         protectedSize: encryptedPdfBytes.byteLength
       });
+
+      // Log to PDF history (don't await - fire and forget, non-blocking)
+      supabase.from('pdf_history').insert({
+        user_id: user.id,
+        file_name: file.name,
+        original_size_bytes: file.size,
+        protected_size_bytes: encryptedPdfBytes.byteLength
+      }).then(({ error }) => {
+        if (error) console.error('Failed to log PDF history:', error);
+      });
+
       // Usage count was already incremented BEFORE processing to prevent race conditions
       toast({
         title: "PDF Successfully Encrypted and Downloaded!",
