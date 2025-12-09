@@ -74,6 +74,27 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_emails: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          is_subscribed: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          is_subscribed?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          is_subscribed?: boolean | null
+        }
+        Relationships: []
+      }
       pdf_history: {
         Row: {
           created_at: string
