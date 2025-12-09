@@ -113,50 +113,68 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
       const redirectUrl = `${window.location.origin}/`;
-      const {
-        error
-      } = await supabase.auth.signUp({
+
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            company_name: companyName || null
-          }
-        }
+            company_name: companyName || null,
+          },
+        },
       });
+
+      // Handle signup errors
       if (error) {
-        if (error.message.includes('already registered')) {
+        if (error.message.toLowerCase().includes("already registered")) {
           toast({
-            title: "Account exists",
+            title: "Account Exists",
             description: "This email is already registered. Please sign in instead.",
-            variant: "destructive"
+            variant: "destructive",
           });
         } else {
           toast({
             title: "Sign up failed",
             description: error.message,
-            variant: "destructive"
+            variant: "destructive",
           });
         }
-      } else {
-        toast({
-          title: "Check your email",
-          description: "We've sent you a confirmation link to complete your registration."
-        });
+        return; // stop here if auth failed
       }
-    } catch (error: any) {
+
+      // Signup successful → Ask user to verify email
+      toast({
+        title: "Check your email",
+        description: "We've sent you a confirmation link to complete registration.",
+      });
+
+      // Insert marketing email (ignore duplicates)
+      const { error: insertErr } = await supabase
+        .from("marketing_emails")
+        .insert({ email })
+        .select()
+        .single()
+        .catch(() => null); // avoid UI break if supabase returns conflict/duplicate
+
+      if (insertErr) {
+        console.error("Marketing email insert failed:", insertErr);
+      }
+
+    } catch (err: any) {
       toast({
         title: "Sign up failed",
-        description: error.message || "An unexpected error occurred",
-        variant: "destructive"
+        description: err.message || "An unexpected error occurred",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -270,147 +288,147 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
   const isPasswordReset = window.location.hash.includes('type=recovery');
   if (isPasswordReset) {
     return <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Update Your Password</CardTitle>
-            <CardDescription>
-              Enter your new password below
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handlePasswordUpdate} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="new-password">New Password</Label>
-                <Input id="new-password" type="password" placeholder="Enter your new password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required />
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Updating..." : "Update Password"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>;
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Update Your Password</CardTitle>
+          <CardDescription>
+            Enter your new password below
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePasswordUpdate} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input id="new-password" type="password" placeholder="Enter your new password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required />
+            </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Updating..." : "Update Password"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>;
   }
 
   // Show loading state when redirecting to billing portal
   if (isRedirectingToBilling) {
     return <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="pt-6 text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Redirecting to billing portal...</p>
-          </CardContent>
-        </Card>
-      </div>;
-  }
-
-  const containerClass = isModal
-    ? "w-full" 
-    : "min-h-screen relative flex items-center justify-center bg-background p-4";
-  
-  const cardClass = isModal 
-    ? "w-full border-0 shadow-none" 
-    : "w-full max-w-md";
-
-  return <div className={containerClass}>
-      {!isModal && (
-        <>
-          <Helmet>
-            <title>Sign In to SecurePDF - Secure PDF Password Protection</title>
-            <meta name="description" content="Sign in to your SecurePDF account to protect PDFs with passwords. Free account includes 2 PDFs per day with bank-grade AES-256 encryption. Upgrade for more features." />
-            <meta name="keywords" content="SecurePDF login, sign in, PDF password protection account, secure PDF service" />
-            <link rel="canonical" href="https://securepdf.io/auth" />
-          </Helmet>
-          <div className="absolute top-4 right-4">
-            <ThemeToggle />
-          </div>
-        </>
-      )}
-      <Card className={cardClass}>
-        <CardHeader>
-          <CardTitle>Welcome to SecurePDF</CardTitle>
-          <CardDescription>
-            Sign in to your account or create a new one to get started
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "signin" | "signup" | "forgot")} className="w-full">
-            <TabsList className="w-full grid grid-cols-3 gap-2">
-              <TabsTrigger value="signin" className="text-xs sm:text-sm py-2">Sign In</TabsTrigger>
-              <TabsTrigger value="signup" className="text-xs sm:text-sm py-2">Sign Up</TabsTrigger>
-              <TabsTrigger value="forgot" className="text-xs sm:text-sm py-2">Forgot<span className="hidden sm:inline"> Password</span></TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input id="signin-email" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">Password</Label>
-                  <Input id="signin-password" type="password" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required />
-                </div>
-                <div className="flex sm:justify-end">
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="px-0 h-auto"
-                    onClick={() => setActiveTab("forgot")}
-                  >
-                    Forgot password?
-                  </Button>
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign In"}
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input id="signup-email" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input id="signup-password" type="password" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="company-name">Company Name (Optional)</Label>
-                  <Input id="company-name" type="text" placeholder="Enter your company name" value={companyName} onChange={e => setCompanyName(e.target.value)} />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Creating account..." : "Create Account"}
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="forgot">
-              {resetEmailSent ? <div className="text-center space-y-4">
-                  <div className="text-sm text-muted-foreground">
-                    <p>Password reset email sent!</p>
-                    <p>Check your email for a reset link.</p>
-                  </div>
-                  <Button variant="outline" onClick={() => setResetEmailSent(false)} className="w-full">
-                    Send Another Reset Email
-                  </Button>
-                </div> : <form onSubmit={handleForgotPassword} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="reset-email">Email</Label>
-                    <Input id="reset-email" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} required />
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Enter your email address and we'll send you a link to reset your password.
-                  </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Sending..." : "Send Reset Email"}
-                  </Button>
-                </form>}
-            </TabsContent>
-          </Tabs>
+      <Card className="w-full max-w-md">
+        <CardContent className="pt-6 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Redirecting to billing portal...</p>
         </CardContent>
       </Card>
     </div>;
+  }
+
+  const containerClass = isModal
+    ? "w-full"
+    : "min-h-screen relative flex items-center justify-center bg-background p-4";
+
+  const cardClass = isModal
+    ? "w-full border-0 shadow-none"
+    : "w-full max-w-md";
+
+  return <div className={containerClass}>
+    {!isModal && (
+      <>
+        <Helmet>
+          <title>Sign In to SecurePDF - Secure PDF Password Protection</title>
+          <meta name="description" content="Sign in to your SecurePDF account to protect PDFs with passwords. Free account includes 2 PDFs per day with bank-grade AES-256 encryption. Upgrade for more features." />
+          <meta name="keywords" content="SecurePDF login, sign in, PDF password protection account, secure PDF service" />
+          <link rel="canonical" href="https://securepdf.io/auth" />
+        </Helmet>
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
+      </>
+    )}
+    <Card className={cardClass}>
+      <CardHeader>
+        <CardTitle>Welcome to SecurePDF</CardTitle>
+        <CardDescription>
+          Sign in to your account or create a new one to get started
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "signin" | "signup" | "forgot")} className="w-full">
+          <TabsList className="w-full grid grid-cols-3 gap-2">
+            <TabsTrigger value="signin" className="text-xs sm:text-sm py-2">Sign In</TabsTrigger>
+            <TabsTrigger value="signup" className="text-xs sm:text-sm py-2">Sign Up</TabsTrigger>
+            <TabsTrigger value="forgot" className="text-xs sm:text-sm py-2">Forgot<span className="hidden sm:inline"> Password</span></TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="signin">
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="signin-email">Email</Label>
+                <Input id="signin-email" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signin-password">Password</Label>
+                <Input id="signin-password" type="password" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required />
+              </div>
+              <div className="flex sm:justify-end">
+                <Button
+                  type="button"
+                  variant="link"
+                  className="px-0 h-auto"
+                  onClick={() => setActiveTab("forgot")}
+                >
+                  Forgot password?
+                </Button>
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="signup">
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="signup-email">Email</Label>
+                <Input id="signup-email" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-password">Password</Label>
+                <Input id="signup-password" type="password" placeholder="Enter your password" value={password} onChange={e => setPassword(e.target.value)} required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="company-name">Company Name (Optional)</Label>
+                <Input id="company-name" type="text" placeholder="Enter your company name" value={companyName} onChange={e => setCompanyName(e.target.value)} />
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Creating account..." : "Create Account"}
+              </Button>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="forgot">
+            {resetEmailSent ? <div className="text-center space-y-4">
+              <div className="text-sm text-muted-foreground">
+                <p>Password reset email sent!</p>
+                <p>Check your email for a reset link.</p>
+              </div>
+              <Button variant="outline" onClick={() => setResetEmailSent(false)} className="w-full">
+                Send Another Reset Email
+              </Button>
+            </div> : <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <Input id="reset-email" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} required />
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Enter your email address and we'll send you a link to reset your password.
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Sending..." : "Send Reset Email"}
+              </Button>
+            </form>}
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  </div>;
 }
