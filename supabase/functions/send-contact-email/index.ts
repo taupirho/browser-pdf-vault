@@ -74,7 +74,7 @@ serve(async (req) => {
       );
     }
     const payload = (await req.json()) as ContactPayload;
-    
+
     // Validate email format
     if (!payload?.email || !isValidEmail(payload.email)) {
       return new Response(JSON.stringify({ error: "Invalid email" }), {
@@ -85,9 +85,9 @@ serve(async (req) => {
 
     // Input length validation
     if ((payload.name?.length ?? 0) > MAX_NAME ||
-        payload.email.length > MAX_EMAIL ||
-        (payload.subject?.length ?? 0) > MAX_SUBJECT ||
-        (payload.message?.length ?? 0) > MAX_MESSAGE) {
+      payload.email.length > MAX_EMAIL ||
+      (payload.subject?.length ?? 0) > MAX_SUBJECT ||
+      (payload.message?.length ?? 0) > MAX_MESSAGE) {
       return new Response(JSON.stringify({ error: "Input exceeds maximum length" }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -157,7 +157,7 @@ serve(async (req) => {
       subject: `New contact: ${payload.subject.substring(0, 100)}`,
       html: adminHtml,
       text: `New contact message from ${payload.name} <${payload.email}>\nSubject: ${payload.subject}\n\n${payload.message}`,
-      reply_to: [payload.email],
+      replyTo: [payload.email],
     });
     if (adminError) {
       console.error("send-contact-email admin send error", adminError);
@@ -167,7 +167,7 @@ serve(async (req) => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
-    
+
     // Send confirmation to user
     const { data: userData, error: userError } = await resend.emails.send({
       from: "SecurePDF <no-reply@notifications.securepdf.io>",
@@ -175,7 +175,7 @@ serve(async (req) => {
       subject: "We received your message",
       html: userHtml,
       text: `Hi ${payload.name},\nWe received your message about "${payload.subject}" and will reply within 48 hours.\n\nYour message:\n${payload.message}`,
-      reply_to: [CONTACT_EMAIL],
+      replyTo: [CONTACT_EMAIL],
     });
     if (userError) {
       console.error("send-contact-email user send error", userError);
@@ -185,14 +185,14 @@ serve(async (req) => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
-    
+
     console.log("send-contact-email sent", {
       adminTo: CONTACT_EMAIL,
       userTo: payload.email.substring(0, 20) + "...",
       adminId: adminData?.id,
       userId: userData?.id,
     });
-    
+
     return new Response(
       JSON.stringify({ ok: true, adminId: adminData?.id, userId: userData?.id }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
