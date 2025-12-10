@@ -26,10 +26,45 @@ interface Payload {
 const MAX_EMAIL = 255;
 const MAX_TIER = 50;
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 10;
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
+    return true;
+  }
+
+  entry.count++;
+  return false;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Rate limiting by IP
+  const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown";
+
+  if (isRateLimited(clientIP)) {
+    logStep("Rate limited", { ip: clientIP.substring(0, 10) + "..." });
+    return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 429,
+    });
   }
 
   try {
@@ -156,7 +191,7 @@ serve(async (req) => {
       to: [email],
       subject,
       html,
-      reply_to: ["info@securepdf.io"],
+      replyTo: ["info@securepdf.io"],
     });
 
     if (error) throw error;

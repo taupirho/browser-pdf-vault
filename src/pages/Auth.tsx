@@ -145,16 +145,7 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
         return;
       }
 
-      // 🎯 INSERT INTO marketing_emails (SAFE, NO ERROR)
-      const insertResult = await supabase
-        .from("marketing_emails")
-        .insert({ email }) // ← Your table must have a column `email`
-        .select()
-        .single();
-
-      if (insertResult.error) {
-        console.error("Marketing email insert failed:", insertResult.error);
-      }
+      // Marketing email signup removed - table no longer exists
 
       toast({
         title: "Check your email",
