@@ -156,7 +156,7 @@ serve(async (req) => {
       to: [email],
       subject,
       html,
-      replyTo: ["info@securepdf.io"],
+      reply_to: ["info@securepdf.io"],
     });
 
     if (error) throw error;

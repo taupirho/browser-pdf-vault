@@ -117,7 +117,7 @@ serve(async (req) => {
       subject: `New contact: ${payload.subject.substring(0, 100)}`,
       html: adminHtml,
       text: `New contact message from ${payload.name} <${payload.email}>\nSubject: ${payload.subject}\n\n${payload.message}`,
-      replyTo: [payload.email],
+      reply_to: [payload.email],
     });
     if (adminError) {
       console.error("send-contact-email admin send error", adminError);
@@ -135,7 +135,7 @@ serve(async (req) => {
       subject: "We received your message",
       html: userHtml,
       text: `Hi ${payload.name},\nWe received your message about "${payload.subject}" and will reply within 48 hours.\n\nYour message:\n${payload.message}`,
-      replyTo: [CONTACT_EMAIL],
+      reply_to: [CONTACT_EMAIL],
     });
     if (userError) {
       console.error("send-contact-email user send error", userError);

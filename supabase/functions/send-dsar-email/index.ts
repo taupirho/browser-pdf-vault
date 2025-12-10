@@ -138,7 +138,7 @@ serve(async (req) => {
       subject,
       html: adminHtml,
       text: `New DSAR Request\nType: ${payload.requestType}\nName: ${payload.name || "-"}\nEmail: ${payload.email}\n\nDetails:\n${payload.details || "(none)"}`,
-      replyTo: [payload.email],
+      reply_to: [payload.email],
     });
     if (adminError) {
       console.error("send-dsar-email admin send error", adminError);
@@ -156,7 +156,7 @@ serve(async (req) => {
       subject: "We received your DSAR request",
       html: userHtml,
       text: `We received your DSAR request (${payload.requestType}).\nSummary you sent:\n${payload.details || "(none)"}\n\nIf this wasn't you, contact us at info@securepdf.io.`,
-      replyTo: [CONTACT_EMAIL],
+      reply_to: [CONTACT_EMAIL],
     });
     if (userError) {
       console.error("send-dsar-email user send error", userError);
