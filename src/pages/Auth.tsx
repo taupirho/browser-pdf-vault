@@ -123,16 +123,15 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            company_name: companyName || null,
-          },
-        },
+            company_name: companyName || null
+          }
+        }
       });
 
-      // Handle signup errors
       if (error) {
-        if (error.message.toLowerCase().includes("already registered")) {
+        if (error.message.includes("already registered")) {
           toast({
-            title: "Account Exists",
+            title: "Account exists",
             description: "This email is already registered. Please sign in instead.",
             variant: "destructive",
           });
@@ -143,37 +142,36 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
             variant: "destructive",
           });
         }
-        return; // stop here if auth failed
+        return;
       }
 
-      // Signup successful → Ask user to verify email
+      // 🎯 INSERT INTO marketing_emails (SAFE, NO ERROR)
+      const insertResult = await supabase
+        .from("marketing_emails")
+        .insert({ email }) // ← Your table must have a column `email`
+        .select()
+        .single();
+
+      if (insertResult.error) {
+        console.error("Marketing email insert failed:", insertResult.error);
+      }
+
       toast({
         title: "Check your email",
-        description: "We've sent you a confirmation link to complete registration.",
+        description: "We've sent you a confirmation link to complete your registration.",
       });
 
-      // Insert marketing email (ignore duplicates)
-      const { error: insertErr } = await supabase
-        .from("marketing_emails")
-        .insert({ email })
-        .select()
-        .single()
-        .catch(() => null); // avoid UI break if supabase returns conflict/duplicate
-
-      if (insertErr) {
-        console.error("Marketing email insert failed:", insertErr);
-      }
-
-    } catch (err: any) {
+    } catch (error: any) {
       toast({
         title: "Sign up failed",
-        description: err.message || "An unexpected error occurred",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
