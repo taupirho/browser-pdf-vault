@@ -42,8 +42,8 @@ serve(async (req) => {
 
     // Input length validation
     if (email.length > MAX_EMAIL ||
-        (previous_tier && previous_tier.length > MAX_TIER) ||
-        (new_tier && new_tier.length > MAX_TIER)) {
+      (previous_tier && previous_tier.length > MAX_TIER) ||
+      (new_tier && new_tier.length > MAX_TIER)) {
       return new Response(JSON.stringify({ error: "Input exceeds maximum length" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
@@ -100,7 +100,7 @@ serve(async (req) => {
     }
 
     // Escape HTML in user-provided data
-    const escapeTier = (tier: string | null | undefined) => 
+    const escapeTier = (tier: string | null | undefined) =>
       (tier ?? "unknown").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
     const tierLine = `Plan: ${escapeTier(previous_tier)} → ${escapeTier(new_tier)}`;
@@ -156,7 +156,7 @@ serve(async (req) => {
       to: [email],
       subject,
       html,
-      reply_to: ["info@securepdf.io"],
+      replyTo: ["info@securepdf.io"],
     });
 
     if (error) throw error;
