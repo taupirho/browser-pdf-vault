@@ -80,6 +80,15 @@ verify_jwt = false
 [functions.stripe-webhook]
 verify_jwt = false
 
+[functions.process-referral-reward]
+verify_jwt = false
+
+[functions.send-referral-email]
+verify_jwt = false
+
+[functions.send-upgrade-emails]
+verify_jwt = false
+
 [edge_runtime]
 enabled = true
 inspector_port = 8083
