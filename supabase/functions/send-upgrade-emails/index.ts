@@ -162,72 +162,59 @@ serve(async (req) => {
     let emailsSent = 0;
 
     for (const user of freeUsers || []) {
-      const createdAt = new Date(user.created_at);
-      const daysSinceSignup = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24));
-
-      let emailType: "upgrade_day_3" | "upgrade_day_7" | "upgrade_day_14" | null = null;
-
-      // Determine which email to send based on days since signup
-      if (daysSinceSignup >= 14) {
-        emailType = "upgrade_day_14";
-      } else if (daysSinceSignup >= 7) {
-        emailType = "upgrade_day_7";
-      } else if (daysSinceSignup >= 3) {
-        emailType = "upgrade_day_3";
-      }
-
-      if (!emailType) continue;
-
-      // Check if this email was already sent
-      const { data: existingEmail } = await supabaseClient
+      // Get the most recent email sent to this user
+      const { data: lastEmail } = await supabaseClient
         .from("email_automations")
-        .select("id")
+        .select("email_type, sent_at")
         .eq("user_id", user.user_id)
-        .eq("email_type", emailType)
+        .like("email_type", "upgrade_%")
+        .order("sent_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
-      if (existingEmail) {
-        // Already sent this email, try the previous one if applicable
-        if (emailType === "upgrade_day_14") {
-          const { data: day7Email } = await supabaseClient
-            .from("email_automations")
-            .select("id")
-            .eq("user_id", user.user_id)
-            .eq("email_type", "upgrade_day_7")
-            .maybeSingle();
-          
-          if (!day7Email && daysSinceSignup >= 7) {
-            emailType = "upgrade_day_7";
-          } else {
-            continue;
-          }
-        } else if (emailType === "upgrade_day_7") {
-          const { data: day3Email } = await supabaseClient
-            .from("email_automations")
-            .select("id")
-            .eq("user_id", user.user_id)
-            .eq("email_type", "upgrade_day_3")
-            .maybeSingle();
-          
-          if (!day3Email && daysSinceSignup >= 3) {
-            emailType = "upgrade_day_3";
-          } else {
-            continue;
-          }
+      let emailType: "upgrade_day_3" | "upgrade_day_7" | "upgrade_day_14" | null = null;
+      let baseDate: Date;
+
+      if (lastEmail) {
+        const lastSentAt = new Date(lastEmail.sent_at);
+        const daysSinceLastEmail = Math.floor((now.getTime() - lastSentAt.getTime()) / (1000 * 60 * 60 * 24));
+
+        // If 30+ days since last email and it was the day_14 email, restart cycle
+        if (lastEmail.email_type === "upgrade_day_14" && daysSinceLastEmail >= 30) {
+          baseDate = lastSentAt; // Use last email date as new base
+          emailType = "upgrade_day_3"; // Restart with day 3
+          logStep("Restarting cycle for user", { user_id: user.user_id, daysSinceLastEmail });
         } else {
-          continue;
+          // Continue current cycle
+          baseDate = new Date(user.created_at);
+          const daysSinceSignup = Math.floor((now.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
+
+          if (daysSinceSignup >= 14 && lastEmail.email_type !== "upgrade_day_14") {
+            emailType = "upgrade_day_14";
+          } else if (daysSinceSignup >= 7 && !["upgrade_day_7", "upgrade_day_14"].includes(lastEmail.email_type)) {
+            emailType = "upgrade_day_7";
+          } else if (daysSinceSignup >= 3 && lastEmail.email_type !== "upgrade_day_3") {
+            // Only send day_3 if they haven't received any upgrade email yet
+            continue;
+          } else {
+            continue; // Already received appropriate email for current cycle
+          }
+        }
+      } else {
+        // No emails sent yet, use signup date
+        baseDate = new Date(user.created_at);
+        const daysSinceSignup = Math.floor((now.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (daysSinceSignup >= 14) {
+          emailType = "upgrade_day_14";
+        } else if (daysSinceSignup >= 7) {
+          emailType = "upgrade_day_7";
+        } else if (daysSinceSignup >= 3) {
+          emailType = "upgrade_day_3";
         }
       }
 
-      // Re-check after potential emailType change
-      const { data: checkAgain } = await supabaseClient
-        .from("email_automations")
-        .select("id")
-        .eq("user_id", user.user_id)
-        .eq("email_type", emailType)
-        .maybeSingle();
-
-      if (checkAgain) continue;
+      if (!emailType) continue;
 
       const template = emailTemplates[emailType];
 
