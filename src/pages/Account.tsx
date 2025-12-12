@@ -234,7 +234,10 @@ const Account = () => {
           <p className="text-muted-foreground mt-1">Manage your subscription and view usage</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        {/* Referral Program - Prominent placement */}
+        <ReferralCard />
+
+        <div className="grid gap-6 md:grid-cols-2 mt-6">
           {/* Subscription Card */}
           <Card className="shadow-card bg-card border-border/50">
             <CardHeader>
@@ -415,8 +418,6 @@ const Account = () => {
             </CardContent>
           </Card>
 
-          {/* Referral Card */}
-          <ReferralCard />
         </div>
 
         {/* Quick Actions */}
