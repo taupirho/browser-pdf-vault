@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Shield, User, CreditCard, FileText, Calendar, TrendingUp, Crown, Loader2, History, Clock, Eye, EyeOff, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ReferralCard } from "@/components/ReferralCard";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 interface PdfHistoryItem {
   id: string;
@@ -413,6 +414,9 @@ const Account = () => {
                 </ScrollArea>}
             </CardContent>
           </Card>
+
+          {/* Referral Card */}
+          <ReferralCard />
         </div>
 
         {/* Quick Actions */}

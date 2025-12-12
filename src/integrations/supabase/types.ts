@@ -74,6 +74,27 @@ export type Database = {
         }
         Relationships: []
       }
+      email_automations: {
+        Row: {
+          email_type: string
+          id: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          email_type: string
+          id?: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          email_type?: string
+          id?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pdf_history: {
         Row: {
           created_at: string
@@ -106,6 +127,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bonus_daily_files: number
+          bonus_expires_at: string | null
           company_name: string | null
           created_at: string
           custom_password_settings: Json | null
@@ -115,11 +138,14 @@ export type Database = {
           last_usage_reset: string
           max_daily_files: number
           max_file_size_kb: number
+          referral_code: string | null
           subscription_tier: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          bonus_daily_files?: number
+          bonus_expires_at?: string | null
           company_name?: string | null
           created_at?: string
           custom_password_settings?: Json | null
@@ -129,11 +155,14 @@ export type Database = {
           last_usage_reset?: string
           max_daily_files?: number
           max_file_size_kb?: number
+          referral_code?: string | null
           subscription_tier?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          bonus_daily_files?: number
+          bonus_expires_at?: string | null
           company_name?: string | null
           created_at?: string
           custom_password_settings?: Json | null
@@ -143,9 +172,43 @@ export type Database = {
           last_usage_reset?: string
           max_daily_files?: number
           max_file_size_kb?: number
+          referral_code?: string | null
           subscription_tier?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          converted_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          reward_granted: boolean
+          status: string
+        }
+        Insert: {
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          reward_granted?: boolean
+          status?: string
+        }
+        Update: {
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string
+          referrer_id?: string
+          reward_granted?: boolean
+          status?: string
         }
         Relationships: []
       }
