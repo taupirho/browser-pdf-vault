@@ -92,7 +92,7 @@ export const ReferralCard = () => {
           <Gift className="h-5 w-5 text-primary" />
           Referral Program
         </CardTitle>
-        <CardDescription>Invite friends and earn +10 bonus file protections per day for 30 days  if  they take out or  upgrade to a paid plan!</CardDescription>
+        <CardDescription>Invite friends and earn +10 bonus file protections per day for 30 days if they take out or upgrade to a paid plan!</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Referral Link */}
