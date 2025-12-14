@@ -1,6 +1,7 @@
 import { PDFProtector } from "@/components/PDFProtector";
 import { BatchPDFProtector } from "@/components/BatchPDFProtector";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { MobileMenu } from "@/components/MobileMenu";
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -164,7 +165,7 @@ const Index = () => {
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <nav className="hidden md:flex items-center gap-1">
               <Link to="/pricing">
                 <Button variant="ghost" size="sm">Pricing</Button>
@@ -185,6 +186,7 @@ const Index = () => {
               Sign In
             </Button>}
             <ThemeToggle />
+            <MobileMenu user={user} />
           </div>
         </div>
 
