@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { PrivacyIndicator } from "./PrivacyIndicator";
 import { WatermarkSettings, defaultWatermarkOptions, type WatermarkOptions } from "./WatermarkSettings";
@@ -43,6 +45,7 @@ export function PDFProtector({
   const {
     toast
   } = useToast();
+  const [passwordProtectionEnabled, setPasswordProtectionEnabled] = useState(true);
   const [passwordOptions, setPasswordOptions] = useState({
     length: 13,
     includeLowercase: true,
@@ -53,7 +56,6 @@ export function PDFProtector({
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
   const [watermarkOptions, setWatermarkOptions] = useState<WatermarkOptions>(defaultWatermarkOptions);
-
   // Check subscription and get user profile
   const checkSubscription = useCallback(async () => {
     if (!user) return;
@@ -351,48 +353,64 @@ export function PDFProtector({
       return;
     }
     try {
+      // Validate that at least one protection option is enabled
+      const isPremiumUser = userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd");
+      const hasWatermark = isPremiumUser && watermarkOptions.enabled;
+      
+      if (!passwordProtectionEnabled && !hasWatermark) {
+        setIsProcessing(false);
+        toast({
+          title: "No Protection Selected",
+          description: "Please enable at least password protection or watermark.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Read file as ArrayBuffer
       const arrayBuffer = await file.arrayBuffer();
 
-      // Generate secure password
-      const password = generateSecurePassword();
+      // Generate secure password only if password protection is enabled
+      const password = passwordProtectionEnabled ? generateSecurePassword() : null;
 
       // Load the existing PDF with pdf-lib-plus-encrypt
       const existingPdf = await PDFDocument.load(arrayBuffer);
 
       // Apply watermark if enabled (Pro/LTD users only)
-      const isPremiumUser = userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd");
-      if (isPremiumUser && watermarkOptions.enabled) {
+      if (hasWatermark) {
         await applyWatermark(existingPdf, watermarkOptions);
       }
 
-      // Encrypt the PDF using pdf-lib-plus-encrypt's encrypt method
-      existingPdf.encrypt({
-        userPassword: password,
-        ownerPassword: password + '_owner',
-        permissions: {
-          printing: 'highResolution',
-          modifying: false,
-          copying: true,
-          annotating: false,
-          fillingForms: false,
-          contentAccessibility: true,
-          documentAssembly: false
-        }
-      });
+      // Encrypt the PDF only if password protection is enabled
+      if (passwordProtectionEnabled && password) {
+        existingPdf.encrypt({
+          userPassword: password,
+          ownerPassword: password + '_owner',
+          permissions: {
+            printing: 'highResolution',
+            modifying: false,
+            copying: true,
+            annotating: false,
+            fillingForms: false,
+            contentAccessibility: true,
+            documentAssembly: false
+          }
+        });
+      }
 
-      // Save the encrypted PDF
-      const encryptedPdfBytes = await existingPdf.save();
-      // Create download blob from the encrypted PDF
-      const blob = new Blob([encryptedPdfBytes as BlobPart], {
+      // Save the PDF
+      const pdfBytes = await existingPdf.save();
+      // Create download blob from the PDF
+      const blob = new Blob([pdfBytes as BlobPart], {
         type: 'application/pdf'
       });
       const url = URL.createObjectURL(blob);
 
-      // Create download link
+      // Create download link with appropriate filename
       const link = document.createElement('a');
       link.href = url;
-      link.download = `protected-${file.name}`;
+      const prefix = passwordProtectionEnabled ? 'protected' : 'watermarked';
+      link.download = `${prefix}-${file.name}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -401,9 +419,9 @@ export function PDFProtector({
       URL.revokeObjectURL(url);
       setProcessedFile({
         name: file.name,
-        password,
+        password: password || '',
         originalSize: file.size,
-        protectedSize: encryptedPdfBytes.byteLength
+        protectedSize: pdfBytes.byteLength
       });
 
       // Log to PDF history (don't await - fire and forget, non-blocking)
@@ -411,8 +429,8 @@ export function PDFProtector({
         user_id: user.id,
         file_name: file.name,
         original_size_bytes: file.size,
-        protected_size_bytes: encryptedPdfBytes.byteLength,
-        password: password
+        protected_size_bytes: pdfBytes.byteLength,
+        password: password || null
       }).then(({
         error
       }) => {
@@ -420,9 +438,15 @@ export function PDFProtector({
       });
 
       // Usage count was already incremented BEFORE processing to prevent race conditions
+      const toastTitle = passwordProtectionEnabled 
+        ? "PDF Successfully Encrypted and Downloaded!" 
+        : "PDF Successfully Watermarked and Downloaded!";
+      const toastDesc = passwordProtectionEnabled 
+        ? "Your PDF has been password-protected with original content preserved. Save the password securely!"
+        : "Your PDF has been watermarked and downloaded.";
       toast({
-        title: "PDF Successfully Encrypted and Downloaded!",
-        description: "Your PDF has been password-protected with original content preserved. Save the password securely!"
+        title: toastTitle,
+        description: toastDesc
       });
     } catch (error) {
       console.error('PDF processing error:', error);
@@ -434,7 +458,7 @@ export function PDFProtector({
     } finally {
       setIsProcessing(false);
     }
-  }, [generateSecurePassword, toast, user, userProfile]);
+  }, [generateSecurePassword, toast, user, userProfile, passwordProtectionEnabled, watermarkOptions]);
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
@@ -521,72 +545,93 @@ export function PDFProtector({
             <CardDescription>Configure password and watermark settings for your PDFs.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Password Options */}
-            <div className="space-y-4">
-              <h4 className="font-medium text-sm flex items-center gap-2">
-                <Lock className="h-4 w-4" />
-                Password Settings
-              </h4>
-              <div>
-                <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
-                <Slider value={[passwordOptions.length]} min={5} max={30} step={1} onValueChange={val => setPasswordOptions(prev => ({
-                  ...prev,
-                  length: val[0]
-                }))} />
+            {/* Password Protection Toggle */}
+            <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-primary" />
+                  <Label htmlFor="password-enabled" className="font-medium cursor-pointer">
+                    Password Protection
+                  </Label>
+                </div>
+                <Switch
+                  id="password-enabled"
+                  checked={passwordProtectionEnabled}
+                  onCheckedChange={setPasswordProtectionEnabled}
+                />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={c => setPasswordOptions(p => {
-                    const next = { ...p, includeLowercase: Boolean(c) };
-                    const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                    if (count === 0) {
-                      toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
-                      return p;
-                    }
-                    return next;
-                  })} />
-                  <Label htmlFor="lower">Lowercase letters</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={c => setPasswordOptions(p => {
-                    const next = { ...p, includeUppercase: Boolean(c) };
-                    const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                    if (count === 0) {
-                      toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
-                      return p;
-                    }
-                    return next;
-                  })} />
-                  <Label htmlFor="upper">Uppercase letters</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={c => setPasswordOptions(p => {
-                    const next = { ...p, includeNumbers: Boolean(c) };
-                    const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                    if (count === 0) {
-                      toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
-                      return p;
-                    }
-                    return next;
-                  })} />
-                  <Label htmlFor="numbers">Numbers</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={c => setPasswordOptions(p => {
-                    const next = { ...p, includeSymbols: Boolean(c) };
-                    const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                    if (count === 0) {
-                      toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
-                      return p;
-                    }
-                    return next;
-                  })} />
-                  <Label htmlFor="symbols">Special characters</Label>
-                </div>
-              </div>
-              <Button onClick={handleSavePasswordSettings} disabled={savingSettings} size="sm" variant="outline">
-                {savingSettings ? 'Saving...' : 'Save Password Settings'}
-              </Button>
+
+              {passwordProtectionEnabled && (
+                <Collapsible defaultOpen={true}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="w-full justify-between text-muted-foreground">
+                      Password settings
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-4 pt-4">
+                    <div>
+                      <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
+                      <Slider value={[passwordOptions.length]} min={5} max={30} step={1} onValueChange={val => setPasswordOptions(prev => ({
+                        ...prev,
+                        length: val[0]
+                      }))} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={c => setPasswordOptions(p => {
+                          const next = { ...p, includeLowercase: Boolean(c) };
+                          const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                          if (count === 0) {
+                            toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
+                            return p;
+                          }
+                          return next;
+                        })} />
+                        <Label htmlFor="lower">Lowercase letters</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={c => setPasswordOptions(p => {
+                          const next = { ...p, includeUppercase: Boolean(c) };
+                          const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                          if (count === 0) {
+                            toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
+                            return p;
+                          }
+                          return next;
+                        })} />
+                        <Label htmlFor="upper">Uppercase letters</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={c => setPasswordOptions(p => {
+                          const next = { ...p, includeNumbers: Boolean(c) };
+                          const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                          if (count === 0) {
+                            toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
+                            return p;
+                          }
+                          return next;
+                        })} />
+                        <Label htmlFor="numbers">Numbers</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={c => setPasswordOptions(p => {
+                          const next = { ...p, includeSymbols: Boolean(c) };
+                          const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                          if (count === 0) {
+                            toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
+                            return p;
+                          }
+                          return next;
+                        })} />
+                        <Label htmlFor="symbols">Special characters</Label>
+                      </div>
+                    </div>
+                    <Button onClick={handleSavePasswordSettings} disabled={savingSettings} size="sm" variant="outline">
+                      {savingSettings ? 'Saving...' : 'Save Password Settings'}
+                    </Button>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
             </div>
 
             {/* Watermark Options */}
@@ -680,28 +725,30 @@ export function PDFProtector({
           <CardHeader className="text-center pb-2">
             <CardTitle className="flex items-center justify-center gap-2 text-2xl text-trust">
               <Lock className="h-6 w-6" />
-              PDF Protected Successfully!
+              PDF Processed Successfully!
             </CardTitle>
             <CardDescription className="font-bold">
-              Your PDF has been password-protected and downloaded.
+              Your PDF has been {processedFile.password ? 'password-protected' : 'watermarked'} and downloaded.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-warning-foreground">
-                    Your new PDF password is{" "}
-                    <code className="font-mono text-sm font-bold bg-white px-2 py-0.5 rounded text-primary">
-                      {processedFile.password}
-                    </code>
-                    {" "}and has been saved to our database. View all your passwords in your{" "}
-                    <a href="/account" className="underline hover:text-warning">My Account</a> page.
-                  </p>
+            {processedFile.password && (
+              <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-warning-foreground">
+                      Your new PDF password is{" "}
+                      <code className="font-mono text-sm font-bold bg-white px-2 py-0.5 rounded text-primary">
+                        {processedFile.password}
+                      </code>
+                      {" "}and has been saved to our database. View all your passwords in your{" "}
+                      <a href="/account" className="underline hover:text-warning">My Account</a> page.
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="bg-muted/50 dark:bg-background rounded-lg p-3">
@@ -712,8 +759,8 @@ export function PDFProtector({
                 </p>
               </div>
               <div className="bg-muted/50 dark:bg-background rounded-lg p-3">
-                <p className="font-medium">Protected File</p>
-                <p className="text-foreground truncate">protected-{processedFile.name}</p>
+                <p className="font-medium">Processed File</p>
+                <p className="text-foreground truncate">{processedFile.password ? 'protected' : 'watermarked'}-{processedFile.name}</p>
                 <p className="text-foreground">
                   {(processedFile.protectedSize / 1024 / 1024).toFixed(2)} MB
                 </p>
