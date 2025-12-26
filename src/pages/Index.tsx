@@ -293,6 +293,13 @@ const Index = () => {
 
               <Card className="shadow-card bg-card border-border/50">
                 <CardContent className="p-6">
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">What is PDF watermarking?</h3>
+                  <p className="text-muted-foreground">Pro and Lifetime Deal subscribers have access to PDF watermarking, allowing you to add custom text overlays to your documents. You can customize the watermark text (e.g., "CONFIDENTIAL", your company name, or recipient info), choose from multiple positions (diagonal, center, or corners), and adjust opacity, font size, rotation, and color. Watermarks can be used alongside password protection or on their own. Like all our features, watermarking happens entirely in your browser—your files never leave your device.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-card bg-card border-border/50">
+                <CardContent className="p-6">
                   <h3 className="font-semibold text-lg mb-3 text-foreground">What browsers are supported?</h3>
                   <p className="text-muted-foreground">
                     SecurePDF works in all modern web browsers including Chrome, Firefox, Safari, and Edge.
