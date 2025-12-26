@@ -668,9 +668,11 @@ export function PDFProtector({
                 </div>
                 {user ? <div>
                     <Input id="pdf-upload" type="file" accept=".pdf" className="hidden" onChange={e => {
-                const file = e.target.files?.[0];
-                if (file) handleFileSelect(file);
-              }} disabled={isProcessing} />
+                      const file = e.target.files?.[0];
+                      if (file) handleFileSelect(file);
+                      // Allow selecting the same file again to re-trigger validation/toasts
+                      e.currentTarget.value = "";
+                    }} disabled={isProcessing} />
                     <Label htmlFor="pdf-upload" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer" onClick={e => {
                 // Check daily limit before opening file dialog
                 if (userProfile && userProfile.daily_usage_count >= userProfile.max_daily_files) {
@@ -703,12 +705,14 @@ export function PDFProtector({
             <Upload className="h-5 w-5 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Drop another PDF here or</span>
             <Input id="pdf-upload-compact" type="file" accept=".pdf" className="hidden" onChange={e => {
-          const file = e.target.files?.[0];
-          if (file) {
-            resetProcess();
-            handleFileSelect(file);
-          }
-        }} disabled={isProcessing} />
+              const file = e.target.files?.[0];
+              if (file) {
+                resetProcess();
+                handleFileSelect(file);
+              }
+              // Allow selecting the same file again to re-trigger validation/toasts
+              e.currentTarget.value = "";
+            }} disabled={isProcessing} />
             <Label htmlFor="pdf-upload-compact" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 cursor-pointer">
               <FileText className="mr-2 h-4 w-4" />
               Choose Another File
