@@ -9,6 +9,8 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { PrivacyIndicator } from "./PrivacyIndicator";
 import { WatermarkSettings, defaultWatermarkOptions, type WatermarkOptions } from "./WatermarkSettings";
@@ -54,6 +56,7 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
   const [copiedPasswords, setCopiedPasswords] = useState<Record<string, boolean>>({});
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [passwordProtectionEnabled, setPasswordProtectionEnabled] = useState(true);
   const [passwordOptions, setPasswordOptions] = useState({
     length: 13,
     includeLowercase: true,
@@ -231,6 +234,18 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
       return;
     }
 
+    // Validate that at least one protection option is enabled
+    const isPremiumUser = userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd';
+    const hasWatermark = isPremiumUser && watermarkOptions.enabled;
+    if (!passwordProtectionEnabled && !hasWatermark) {
+      toast({
+        title: "No Protection Selected",
+        description: "Please enable at least password protection or watermark.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const pdfFiles = Array.from(files).filter(f => f.type.includes('pdf'));
     
     if (pdfFiles.length === 0) {
@@ -280,7 +295,7 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     }));
 
     setQueuedFiles(prev => [...prev, ...newFiles]);
-  }, [user, userProfile, onLoginRequired, toast]);
+  }, [user, userProfile, onLoginRequired, toast, passwordProtectionEnabled, watermarkOptions]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -338,9 +353,9 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
       last_usage_reset: today
     } : null);
     
-    // Read and encrypt the PDF
+    // Read the PDF
     const arrayBuffer = await qf.file.arrayBuffer();
-    const password = generateSecurePassword();
+    const password = passwordProtectionEnabled ? generateSecurePassword() : null;
     
     const existingPdf = await PDFDocument.load(arrayBuffer);
     
@@ -350,35 +365,38 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
       await applyWatermark(existingPdf, watermarkOptions);
     }
     
-    existingPdf.encrypt({
-      userPassword: password,
-      ownerPassword: password + '_owner',
-      permissions: {
-        printing: 'highResolution',
-        modifying: false,
-        copying: true,
-        annotating: false,
-        fillingForms: false,
-        contentAccessibility: true,
-        documentAssembly: false
-      }
-    });
+    // Encrypt only if password protection is enabled
+    if (passwordProtectionEnabled && password) {
+      existingPdf.encrypt({
+        userPassword: password,
+        ownerPassword: password + '_owner',
+        permissions: {
+          printing: 'highResolution',
+          modifying: false,
+          copying: true,
+          annotating: false,
+          fillingForms: false,
+          contentAccessibility: true,
+          documentAssembly: false
+        }
+      });
+    }
     
-    const encryptedPdfBytes = await existingPdf.save();
-    const blob = new Blob([encryptedPdfBytes as BlobPart], { type: 'application/pdf' });
+    const pdfBytes = await existingPdf.save();
+    const blob = new Blob([pdfBytes as BlobPart], { type: 'application/pdf' });
     
     // Save to pdf_history (fire and forget)
     supabase.from('pdf_history').insert({
       user_id: user.id,
       file_name: qf.file.name,
       original_size_bytes: qf.file.size,
-      protected_size_bytes: encryptedPdfBytes.byteLength,
-      password: password
+      protected_size_bytes: pdfBytes.byteLength,
+      password: password || null
     }).then(({ error }) => {
       if (error) console.error('Failed to log PDF history:', error);
     });
     
-    return { password, blob, protectedSize: encryptedPdfBytes.byteLength };
+    return { password: password || '', blob, protectedSize: pdfBytes.byteLength };
   };
 
   const startBatchProcessing = useCallback(async () => {
@@ -482,9 +500,10 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     setIsProcessing(false);
     
     if (successCount > 0) {
+      const action = passwordProtectionEnabled ? "protected" : "watermarked";
       toast({
         title: "Batch Complete!",
-        description: `Successfully protected ${successCount} PDF file${successCount > 1 ? 's' : ''}.${errorCount > 0 ? ` ${errorCount} file(s) failed.` : ''}`
+        description: `Successfully ${action} ${successCount} PDF file${successCount > 1 ? 's' : ''}.${errorCount > 0 ? ` ${errorCount} file(s) failed.` : ''}`
       });
     } else if (errorCount > 0) {
       toast({
@@ -493,7 +512,7 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
         variant: "destructive"
       });
     }
-  }, [queuedFiles, user, userProfile, toast, generateSecurePassword]);
+  }, [queuedFiles, user, userProfile, toast, generateSecurePassword, passwordProtectionEnabled, watermarkOptions]);
 
   const togglePassword = (id: string) => {
     setShowPasswords(prev => ({ ...prev, [id]: !prev[id] }));
@@ -619,6 +638,30 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
                     <Label
                       htmlFor="batch-pdf-upload"
                       className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer"
+                      onClick={(e) => {
+                        // Validate selection BEFORE opening file picker
+                        const isPremium = Boolean(userProfile && (userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd'));
+                        const hasWatermark = isPremium && watermarkOptions.enabled;
+                        if (!passwordProtectionEnabled && !hasWatermark) {
+                          e.preventDefault();
+                          toast({
+                            title: "No Protection Selected",
+                            description: "Please enable at least password protection or watermark.",
+                            variant: "destructive"
+                          });
+                          return;
+                        }
+
+                        // Check daily limit before opening file dialog
+                        if (userProfile && userProfile.daily_usage_count >= userProfile.max_daily_files) {
+                          e.preventDefault();
+                          toast({
+                            title: "Daily Limit Reached",
+                            description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
+                            variant: "destructive"
+                          });
+                        }
+                      }}
                     >
                       <FileText className="mr-2 h-4 w-4" />
                       Choose Files
@@ -664,6 +707,30 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
             <Label
               htmlFor="batch-pdf-upload-compact"
               className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 cursor-pointer"
+              onClick={(e) => {
+                // Validate selection BEFORE opening file picker
+                const isPremium = Boolean(userProfile && (userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd'));
+                const hasWatermark = isPremium && watermarkOptions.enabled;
+                if (!passwordProtectionEnabled && !hasWatermark) {
+                  e.preventDefault();
+                  toast({
+                    title: "No Protection Selected",
+                    description: "Please enable at least password protection or watermark.",
+                    variant: "destructive"
+                  });
+                  return;
+                }
+
+                // Check daily limit before opening file dialog
+                if (userProfile && userProfile.daily_usage_count >= userProfile.max_daily_files) {
+                  e.preventDefault();
+                  toast({
+                    title: "Daily Limit Reached",
+                    description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
+                    variant: "destructive"
+                  });
+                }
+              }}
             >
               <FileText className="mr-2 h-4 w-4" />
               Add More Files
@@ -677,128 +744,151 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
         </div>
       )}
 
-      {/* Password Options for Pro/LTD users */}
-      {user && userProfile && (userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd') && (
+      {/* Protection Options - shown for all logged in users */}
+      {user && userProfile && (
         <Card className="shadow-card bg-card border-border/50">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-              <Settings className="h-5 w-5 text-primary" />
-              Password Options
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Protection Options
             </CardTitle>
-            <CardDescription>
-              Customize password generation for all files in this batch
-            </CardDescription>
+            <CardDescription>Configure password and watermark settings for your batch.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div>
-              <Label className="mb-2 block">Password Length: {passwordOptions.length}</Label>
-              <Slider
-                min={5}
-                max={30}
-                step={1}
-                value={[passwordOptions.length]}
-                onValueChange={([v]) => setPasswordOptions(p => ({ ...p, length: v }))}
+            {/* Password Protection Toggle */}
+            <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-primary" />
+                  <Label htmlFor="batch-password-enabled" className="font-medium cursor-pointer">
+                    Password Protection
+                  </Label>
+                </div>
+                <Switch
+                  id="batch-password-enabled"
+                  checked={passwordProtectionEnabled}
+                  onCheckedChange={setPasswordProtectionEnabled}
+                />
+              </div>
+
+              {/* Password settings for Pro/LTD when password protection is enabled */}
+              {passwordProtectionEnabled && (userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd') && (
+                <Collapsible defaultOpen={true}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="w-full justify-between text-muted-foreground">
+                      Password settings
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-4 pt-4">
+                    <div>
+                      <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
+                      <Slider
+                        min={5}
+                        max={30}
+                        step={1}
+                        value={[passwordOptions.length]}
+                        onValueChange={([v]) => setPasswordOptions(p => ({ ...p, length: v }))}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="batch-lower"
+                          checked={passwordOptions.includeLowercase}
+                          onCheckedChange={c => setPasswordOptions(p => {
+                            const next = { ...p, includeLowercase: Boolean(c) };
+                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                            if (count === 0) {
+                              toast({
+                                title: "At least one type required",
+                                description: "Keep at least one character type selected.",
+                                variant: "destructive"
+                              });
+                              return p;
+                            }
+                            return next;
+                          })}
+                        />
+                        <Label htmlFor="batch-lower">Lowercase letters</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="batch-upper"
+                          checked={passwordOptions.includeUppercase}
+                          onCheckedChange={c => setPasswordOptions(p => {
+                            const next = { ...p, includeUppercase: Boolean(c) };
+                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                            if (count === 0) {
+                              toast({
+                                title: "At least one type required",
+                                description: "Keep at least one character type selected.",
+                                variant: "destructive"
+                              });
+                              return p;
+                            }
+                            return next;
+                          })}
+                        />
+                        <Label htmlFor="batch-upper">Uppercase letters</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="batch-numbers"
+                          checked={passwordOptions.includeNumbers}
+                          onCheckedChange={c => setPasswordOptions(p => {
+                            const next = { ...p, includeNumbers: Boolean(c) };
+                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                            if (count === 0) {
+                              toast({
+                                title: "At least one type required",
+                                description: "Keep at least one character type selected.",
+                                variant: "destructive"
+                              });
+                              return p;
+                            }
+                            return next;
+                          })}
+                        />
+                        <Label htmlFor="batch-numbers">Numbers</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="batch-symbols"
+                          checked={passwordOptions.includeSymbols}
+                          onCheckedChange={c => setPasswordOptions(p => {
+                            const next = { ...p, includeSymbols: Boolean(c) };
+                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                            if (count === 0) {
+                              toast({
+                                title: "At least one type required",
+                                description: "Keep at least one character type selected.",
+                                variant: "destructive"
+                              });
+                              return p;
+                            }
+                            return next;
+                          })}
+                        />
+                        <Label htmlFor="batch-symbols">Special characters</Label>
+                      </div>
+                    </div>
+                    <Button onClick={handleSavePasswordSettings} disabled={savingSettings} size="sm" variant="outline">
+                      {savingSettings ? 'Saving...' : 'Save Password Settings'}
+                    </Button>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+            </div>
+
+            {/* Watermark Options for Pro/LTD users */}
+            {(userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && (
+              <WatermarkSettings
+                options={watermarkOptions}
+                onChange={setWatermarkOptions}
               />
-            </div>
-            <div className="md:flex md:items-start md:justify-between gap-4">
-              <div className="grid grid-cols-2 gap-4 flex-1">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="batch-lower"
-                    checked={passwordOptions.includeLowercase}
-                    onCheckedChange={c => setPasswordOptions(p => {
-                      const next = { ...p, includeLowercase: Boolean(c) };
-                      const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                      if (count === 0) {
-                        toast({
-                          title: "At least one type required",
-                          description: "Keep at least one character type selected.",
-                          variant: "destructive"
-                        });
-                        return p;
-                      }
-                      return next;
-                    })}
-                  />
-                  <Label htmlFor="batch-lower">Lowercase letters</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="batch-upper"
-                    checked={passwordOptions.includeUppercase}
-                    onCheckedChange={c => setPasswordOptions(p => {
-                      const next = { ...p, includeUppercase: Boolean(c) };
-                      const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                      if (count === 0) {
-                        toast({
-                          title: "At least one type required",
-                          description: "Keep at least one character type selected.",
-                          variant: "destructive"
-                        });
-                        return p;
-                      }
-                      return next;
-                    })}
-                  />
-                  <Label htmlFor="batch-upper">Uppercase letters</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="batch-numbers"
-                    checked={passwordOptions.includeNumbers}
-                    onCheckedChange={c => setPasswordOptions(p => {
-                      const next = { ...p, includeNumbers: Boolean(c) };
-                      const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                      if (count === 0) {
-                        toast({
-                          title: "At least one type required",
-                          description: "Keep at least one character type selected.",
-                          variant: "destructive"
-                        });
-                        return p;
-                      }
-                      return next;
-                    })}
-                  />
-                  <Label htmlFor="batch-numbers">Numbers</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="batch-symbols"
-                    checked={passwordOptions.includeSymbols}
-                    onCheckedChange={c => setPasswordOptions(p => {
-                      const next = { ...p, includeSymbols: Boolean(c) };
-                      const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                      if (count === 0) {
-                        toast({
-                          title: "At least one type required",
-                          description: "Keep at least one character type selected.",
-                          variant: "destructive"
-                        });
-                        return p;
-                      }
-                      return next;
-                    })}
-                  />
-                  <Label htmlFor="batch-symbols">Special characters</Label>
-                </div>
-              </div>
-              <div className="mt-4 md:mt-0 md:ml-4 shrink-0">
-                <Button onClick={handleSavePasswordSettings} disabled={savingSettings}>
-                  {savingSettings ? 'Saving...' : 'Save Settings'}
-                </Button>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
-      )}
-
-      {/* Watermark Options for Pro/LTD users */}
-      {user && userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && (
-        <WatermarkSettings
-          options={watermarkOptions}
-          onChange={setWatermarkOptions}
-        />
       )}
 
       {/* File Queue */}
@@ -885,7 +975,7 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
                   </Badge>
 
                   {/* Actions (if completed) */}
-                  {qf.status === 'completed' && qf.password && (
+                  {qf.status === 'completed' && (
                     <div className="flex items-center gap-1 shrink-0">
                       {/* Download PDF button */}
                       <Button 
@@ -897,37 +987,41 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
                         <Download className="h-3 w-3 mr-1" />
                         PDF
                       </Button>
-                      {/* Password display */}
-                      <Input
-                        type={showPasswords[qf.id] ? 'text' : 'password'}
-                        value={qf.password}
-                        readOnly
-                        className="w-28 h-8 text-xs font-mono"
-                      />
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 w-8 p-0"
-                        onClick={() => togglePassword(qf.id)}
-                      >
-                        {showPasswords[qf.id] ? (
-                          <EyeOff className="h-3 w-3" />
-                        ) : (
-                          <Eye className="h-3 w-3" />
-                        )}
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 w-8 p-0"
-                        onClick={() => copyPassword(qf.id, qf.password!)}
-                      >
-                        {copiedPasswords[qf.id] ? (
-                          <Check className="h-3 w-3 text-trust" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
-                        )}
-                      </Button>
+                      {/* Password display - only show if there's a password */}
+                      {qf.password && (
+                        <>
+                          <Input
+                            type={showPasswords[qf.id] ? 'text' : 'password'}
+                            value={qf.password}
+                            readOnly
+                            className="w-28 h-8 text-xs font-mono"
+                          />
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            onClick={() => togglePassword(qf.id)}
+                          >
+                            {showPasswords[qf.id] ? (
+                              <EyeOff className="h-3 w-3" />
+                            ) : (
+                              <Eye className="h-3 w-3" />
+                            )}
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            onClick={() => copyPassword(qf.id, qf.password!)}
+                          >
+                            {copiedPasswords[qf.id] ? (
+                              <Check className="h-3 w-3 text-trust" />
+                            ) : (
+                              <Copy className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </>
+                      )}
                     </div>
                   )}
 
