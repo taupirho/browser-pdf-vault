@@ -510,15 +510,15 @@ export function PDFProtector({
   return <div className="w-full max-w-4xl mx-auto space-y-6">
       <PrivacyIndicator />
 
-      {/* Protection Options for Pro/LTD users - Show BEFORE upload */}
-      {user && isPremiumUser && !processedFile && (
+      {/* Protection Options for Pro/LTD users - Always visible */}
+      {user && isPremiumUser && (
         <Card className="shadow-card bg-card border-border/50">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
               Protection Options
             </CardTitle>
-            <CardDescription>Configure password and watermark settings before uploading your PDF.</CardDescription>
+            <CardDescription>Configure password and watermark settings for your PDFs.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Password Options */}
