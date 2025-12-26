@@ -281,6 +281,19 @@ export function PDFProtector({
       });
       return;
     }
+    // Validate that at least one protection option is enabled BEFORE incrementing usage
+    const isPremiumUser = userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd");
+    const hasWatermark = isPremiumUser && watermarkOptions.enabled;
+    
+    if (!passwordProtectionEnabled && !hasWatermark) {
+      toast({
+        title: "No Protection Selected",
+        description: "Please enable at least password protection or watermark.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsProcessing(true);
     setProcessedFile(null);
     setPasswordCopied(false);
@@ -353,19 +366,6 @@ export function PDFProtector({
       return;
     }
     try {
-      // Validate that at least one protection option is enabled
-      const isPremiumUser = userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd");
-      const hasWatermark = isPremiumUser && watermarkOptions.enabled;
-      
-      if (!passwordProtectionEnabled && !hasWatermark) {
-        setIsProcessing(false);
-        toast({
-          title: "No Protection Selected",
-          description: "Please enable at least password protection or watermark.",
-          variant: "destructive"
-        });
-        return;
-      }
 
       // Read file as ArrayBuffer
       const arrayBuffer = await file.arrayBuffer();
