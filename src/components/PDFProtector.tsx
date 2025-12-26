@@ -505,8 +505,98 @@ export function PDFProtector({
       setSavingSettings(false);
     }
   }, [user, passwordOptions, toast]);
+  const isPremiumUser = userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd");
+
   return <div className="w-full max-w-4xl mx-auto space-y-6">
       <PrivacyIndicator />
+
+      {/* Protection Options for Pro/LTD users - Show BEFORE upload */}
+      {user && isPremiumUser && !processedFile && (
+        <Card className="shadow-card bg-card border-border/50">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Protection Options
+            </CardTitle>
+            <CardDescription>Configure password and watermark settings before uploading your PDF.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Password Options */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm flex items-center gap-2">
+                <Lock className="h-4 w-4" />
+                Password Settings
+              </h4>
+              <div>
+                <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
+                <Slider value={[passwordOptions.length]} min={5} max={30} step={1} onValueChange={val => setPasswordOptions(prev => ({
+                  ...prev,
+                  length: val[0]
+                }))} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={c => setPasswordOptions(p => {
+                    const next = { ...p, includeLowercase: Boolean(c) };
+                    const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                    if (count === 0) {
+                      toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
+                      return p;
+                    }
+                    return next;
+                  })} />
+                  <Label htmlFor="lower">Lowercase letters</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={c => setPasswordOptions(p => {
+                    const next = { ...p, includeUppercase: Boolean(c) };
+                    const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                    if (count === 0) {
+                      toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
+                      return p;
+                    }
+                    return next;
+                  })} />
+                  <Label htmlFor="upper">Uppercase letters</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={c => setPasswordOptions(p => {
+                    const next = { ...p, includeNumbers: Boolean(c) };
+                    const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                    if (count === 0) {
+                      toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
+                      return p;
+                    }
+                    return next;
+                  })} />
+                  <Label htmlFor="numbers">Numbers</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={c => setPasswordOptions(p => {
+                    const next = { ...p, includeSymbols: Boolean(c) };
+                    const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                    if (count === 0) {
+                      toast({ title: "At least one type required", description: "Keep at least one character type selected.", variant: "destructive" });
+                      return p;
+                    }
+                    return next;
+                  })} />
+                  <Label htmlFor="symbols">Special characters</Label>
+                </div>
+              </div>
+              <Button onClick={handleSavePasswordSettings} disabled={savingSettings} size="sm" variant="outline">
+                {savingSettings ? 'Saving...' : 'Save Password Settings'}
+              </Button>
+            </div>
+
+            {/* Watermark Options */}
+            <WatermarkSettings
+              options={watermarkOptions}
+              onChange={setWatermarkOptions}
+            />
+          </CardContent>
+        </Card>
+      )}
       
       {/* Upload Area - Compact when file is processed */}
       {!processedFile ? <Card className="shadow-card bg-card border-border/50">
@@ -584,115 +674,6 @@ export function PDFProtector({
           </div>
         </div>)}
 
-      {/* Password Options for Pro/LTD users */}
-      {user && userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && <Card className="shadow-card bg-card border-border/50">
-          <CardHeader>
-            <CardTitle className="text-lg">Password Options</CardTitle>
-            <CardDescription>Customize your generated password. Will include at least one of each selected type.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
-              <Slider value={[passwordOptions.length]} min={5} max={30} step={1} onValueChange={val => setPasswordOptions(prev => ({
-            ...prev,
-            length: val[0]
-          }))} />
-            </div>
-            <div className="md:flex md:items-start md:justify-between gap-4">
-              <div className="grid grid-cols-2 gap-4 flex-1">
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="lower" checked={passwordOptions.includeLowercase} onCheckedChange={c => setPasswordOptions(p => {
-                const next = {
-                  ...p,
-                  includeLowercase: Boolean(c)
-                };
-                const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                if (count === 0) {
-                  toast({
-                    title: "At least one type required",
-                    description: "Keep at least one character type selected.",
-                    variant: "destructive"
-                  });
-                  return p;
-                }
-                return next;
-              })} />
-                  <Label htmlFor="lower">Lowercase letters</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="upper" checked={passwordOptions.includeUppercase} onCheckedChange={c => setPasswordOptions(p => {
-                const next = {
-                  ...p,
-                  includeUppercase: Boolean(c)
-                };
-                const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                if (count === 0) {
-                  toast({
-                    title: "At least one type required",
-                    description: "Keep at least one character type selected.",
-                    variant: "destructive"
-                  });
-                  return p;
-                }
-                return next;
-              })} />
-                  <Label htmlFor="upper">Uppercase letters</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="numbers" checked={passwordOptions.includeNumbers} onCheckedChange={c => setPasswordOptions(p => {
-                const next = {
-                  ...p,
-                  includeNumbers: Boolean(c)
-                };
-                const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                if (count === 0) {
-                  toast({
-                    title: "At least one type required",
-                    description: "Keep at least one character type selected.",
-                    variant: "destructive"
-                  });
-                  return p;
-                }
-                return next;
-              })} />
-                  <Label htmlFor="numbers">Numbers</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="symbols" checked={passwordOptions.includeSymbols} onCheckedChange={c => setPasswordOptions(p => {
-                const next = {
-                  ...p,
-                  includeSymbols: Boolean(c)
-                };
-                const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                if (count === 0) {
-                  toast({
-                    title: "At least one type required",
-                    description: "Keep at least one character type selected.",
-                    variant: "destructive"
-                  });
-                  return p;
-                }
-                return next;
-              })} />
-                  <Label htmlFor="symbols">Special characters</Label>
-                </div>
-              </div>
-              <div className="mt-4 md:mt-0 md:ml-4 shrink-0">
-                <Button onClick={handleSavePasswordSettings} disabled={savingSettings}>
-                  {savingSettings ? 'Saving...' : 'Save Settings'}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>}
-
-      {/* Watermark Options for Pro/LTD users */}
-      {user && userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && (
-        <WatermarkSettings
-          options={watermarkOptions}
-          onChange={setWatermarkOptions}
-        />
-      )}
 
       {/* Success Card - shows file info */}
       {processedFile && <Card className="shadow-glow bg-gradient-card border-trust/30">
