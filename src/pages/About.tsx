@@ -1,4 +1,4 @@
-import { Shield, Lock, Eye, Zap, Server, Globe, Key, FileCheck, Droplet } from "lucide-react";
+import { Shield, Lock, Eye, Zap, Server, Globe, Key, FileCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,6 +42,10 @@ const About = () => {
     step: 5,
     title: "Secure Download",
     description: "The encrypted PDF is offered for download, original file is cleared from memory"
+  }, {
+    step: 6,
+    title: "Optional Watermarking (Pro/LTD)",
+    description: "Pro and Lifetime Deal subscribers can add customizable text watermarks with adjustable position, opacity, and color"
   }];
   return <div className="min-h-screen bg-background">
       <Helmet>
@@ -131,48 +135,6 @@ const About = () => {
                   </CardContent>
                 </Card>)}
             </div>
-
-            {/* Watermarking Feature for Pro/LTD */}
-            <Card className="shadow-card bg-card border-primary/20 border-2">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Droplet className="h-5 w-5 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg text-foreground">PDF Watermarking</h3>
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">Pro & LTD</span>
-                    </div>
-                    <p className="text-muted-foreground mb-3">
-                      Pro and Lifetime Deal subscribers have access to advanced PDF watermarking capabilities. Add custom text watermarks to your documents for additional security and branding.
-                    </p>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                      <li className="flex items-start gap-2">
-                        <FileCheck className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                        <span><strong>Custom Text:</strong> Add your own watermark text (e.g., "CONFIDENTIAL", company name, recipient info)</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <FileCheck className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                        <span><strong>Flexible Positioning:</strong> Choose from diagonal, center, or corner placements</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <FileCheck className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                        <span><strong>Full Customization:</strong> Adjust opacity, font size, rotation, and color to match your needs</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <FileCheck className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                        <span><strong>Combined Protection:</strong> Use watermarking alongside password protection, or on its own</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <FileCheck className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                        <span><strong>Same Privacy Guarantee:</strong> Watermarks are applied locally in your browser—your files never leave your device</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </section>
 
           {/* Technical Details */}
