@@ -572,6 +572,153 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     <div className={`w-full max-w-4xl mx-auto space-y-6 ${hasFiles ? 'pb-32' : ''}`}>
       <PrivacyIndicator />
 
+      {/* Protection Options - shown BEFORE upload for all logged in users */}
+      {user && userProfile && (
+        <Card className="shadow-card bg-card border-border/50">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Protection Options
+            </CardTitle>
+            <CardDescription>Configure password and watermark settings for your batch.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Password Protection Toggle */}
+            <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-primary" />
+                  <Label htmlFor="batch-password-enabled" className="font-medium cursor-pointer">
+                    Password Protection
+                  </Label>
+                </div>
+                <Switch
+                  id="batch-password-enabled"
+                  checked={passwordProtectionEnabled}
+                  onCheckedChange={setPasswordProtectionEnabled}
+                />
+              </div>
+
+              {/* Password settings for Pro/LTD when password protection is enabled */}
+              {passwordProtectionEnabled && (userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd') && (
+                <Collapsible defaultOpen={true}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="w-full justify-between text-muted-foreground">
+                      Password settings
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-4 pt-4">
+                    <div>
+                      <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
+                      <Slider
+                        min={5}
+                        max={30}
+                        step={1}
+                        value={[passwordOptions.length]}
+                        onValueChange={([v]) => setPasswordOptions(p => ({ ...p, length: v }))}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="batch-lower"
+                          checked={passwordOptions.includeLowercase}
+                          onCheckedChange={c => setPasswordOptions(p => {
+                            const next = { ...p, includeLowercase: Boolean(c) };
+                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                            if (count === 0) {
+                              toast({
+                                title: "At least one type required",
+                                description: "Keep at least one character type selected.",
+                                variant: "destructive"
+                              });
+                              return p;
+                            }
+                            return next;
+                          })}
+                        />
+                        <Label htmlFor="batch-lower">Lowercase letters</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="batch-upper"
+                          checked={passwordOptions.includeUppercase}
+                          onCheckedChange={c => setPasswordOptions(p => {
+                            const next = { ...p, includeUppercase: Boolean(c) };
+                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                            if (count === 0) {
+                              toast({
+                                title: "At least one type required",
+                                description: "Keep at least one character type selected.",
+                                variant: "destructive"
+                              });
+                              return p;
+                            }
+                            return next;
+                          })}
+                        />
+                        <Label htmlFor="batch-upper">Uppercase letters</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="batch-numbers"
+                          checked={passwordOptions.includeNumbers}
+                          onCheckedChange={c => setPasswordOptions(p => {
+                            const next = { ...p, includeNumbers: Boolean(c) };
+                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                            if (count === 0) {
+                              toast({
+                                title: "At least one type required",
+                                description: "Keep at least one character type selected.",
+                                variant: "destructive"
+                              });
+                              return p;
+                            }
+                            return next;
+                          })}
+                        />
+                        <Label htmlFor="batch-numbers">Numbers</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="batch-symbols"
+                          checked={passwordOptions.includeSymbols}
+                          onCheckedChange={c => setPasswordOptions(p => {
+                            const next = { ...p, includeSymbols: Boolean(c) };
+                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
+                            if (count === 0) {
+                              toast({
+                                title: "At least one type required",
+                                description: "Keep at least one character type selected.",
+                                variant: "destructive"
+                              });
+                              return p;
+                            }
+                            return next;
+                          })}
+                        />
+                        <Label htmlFor="batch-symbols">Special characters</Label>
+                      </div>
+                    </div>
+                    <Button onClick={handleSavePasswordSettings} disabled={savingSettings} size="sm" variant="outline">
+                      {savingSettings ? 'Saving...' : 'Save Password Settings'}
+                    </Button>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+            </div>
+
+            {/* Watermark Options for Pro/LTD users */}
+            {(userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && (
+              <WatermarkSettings
+                options={watermarkOptions}
+                onChange={setWatermarkOptions}
+              />
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Upload Area - Compact when files are queued */}
       {!hasFiles ? (
         <Card className="shadow-card bg-card border-border/50">
@@ -742,153 +889,6 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
             )}
           </div>
         </div>
-      )}
-
-      {/* Protection Options - shown for all logged in users */}
-      {user && userProfile && (
-        <Card className="shadow-card bg-card border-border/50">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
-              Protection Options
-            </CardTitle>
-            <CardDescription>Configure password and watermark settings for your batch.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Password Protection Toggle */}
-            <div className="space-y-4 p-4 border border-border rounded-lg bg-muted/30">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Lock className="h-4 w-4 text-primary" />
-                  <Label htmlFor="batch-password-enabled" className="font-medium cursor-pointer">
-                    Password Protection
-                  </Label>
-                </div>
-                <Switch
-                  id="batch-password-enabled"
-                  checked={passwordProtectionEnabled}
-                  onCheckedChange={setPasswordProtectionEnabled}
-                />
-              </div>
-
-              {/* Password settings for Pro/LTD when password protection is enabled */}
-              {passwordProtectionEnabled && (userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd') && (
-                <Collapsible defaultOpen={true}>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="w-full justify-between text-muted-foreground">
-                      Password settings
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-4 pt-4">
-                    <div>
-                      <Label className="mb-2 block">Length: {passwordOptions.length}</Label>
-                      <Slider
-                        min={5}
-                        max={30}
-                        step={1}
-                        value={[passwordOptions.length]}
-                        onValueChange={([v]) => setPasswordOptions(p => ({ ...p, length: v }))}
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="batch-lower"
-                          checked={passwordOptions.includeLowercase}
-                          onCheckedChange={c => setPasswordOptions(p => {
-                            const next = { ...p, includeLowercase: Boolean(c) };
-                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                            if (count === 0) {
-                              toast({
-                                title: "At least one type required",
-                                description: "Keep at least one character type selected.",
-                                variant: "destructive"
-                              });
-                              return p;
-                            }
-                            return next;
-                          })}
-                        />
-                        <Label htmlFor="batch-lower">Lowercase letters</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="batch-upper"
-                          checked={passwordOptions.includeUppercase}
-                          onCheckedChange={c => setPasswordOptions(p => {
-                            const next = { ...p, includeUppercase: Boolean(c) };
-                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                            if (count === 0) {
-                              toast({
-                                title: "At least one type required",
-                                description: "Keep at least one character type selected.",
-                                variant: "destructive"
-                              });
-                              return p;
-                            }
-                            return next;
-                          })}
-                        />
-                        <Label htmlFor="batch-upper">Uppercase letters</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="batch-numbers"
-                          checked={passwordOptions.includeNumbers}
-                          onCheckedChange={c => setPasswordOptions(p => {
-                            const next = { ...p, includeNumbers: Boolean(c) };
-                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                            if (count === 0) {
-                              toast({
-                                title: "At least one type required",
-                                description: "Keep at least one character type selected.",
-                                variant: "destructive"
-                              });
-                              return p;
-                            }
-                            return next;
-                          })}
-                        />
-                        <Label htmlFor="batch-numbers">Numbers</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="batch-symbols"
-                          checked={passwordOptions.includeSymbols}
-                          onCheckedChange={c => setPasswordOptions(p => {
-                            const next = { ...p, includeSymbols: Boolean(c) };
-                            const count = (next.includeLowercase ? 1 : 0) + (next.includeUppercase ? 1 : 0) + (next.includeNumbers ? 1 : 0) + (next.includeSymbols ? 1 : 0);
-                            if (count === 0) {
-                              toast({
-                                title: "At least one type required",
-                                description: "Keep at least one character type selected.",
-                                variant: "destructive"
-                              });
-                              return p;
-                            }
-                            return next;
-                          })}
-                        />
-                        <Label htmlFor="batch-symbols">Special characters</Label>
-                      </div>
-                    </div>
-                    <Button onClick={handleSavePasswordSettings} disabled={savingSettings} size="sm" variant="outline">
-                      {savingSettings ? 'Saving...' : 'Save Password Settings'}
-                    </Button>
-                  </CollapsibleContent>
-                </Collapsible>
-              )}
-            </div>
-
-            {/* Watermark Options for Pro/LTD users */}
-            {(userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && (
-              <WatermarkSettings
-                options={watermarkOptions}
-                onChange={setWatermarkOptions}
-              />
-            )}
-          </CardContent>
-        </Card>
       )}
 
       {/* File Queue */}
