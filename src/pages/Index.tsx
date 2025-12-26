@@ -15,7 +15,6 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import Auth from './Auth';
 import type { User, Session } from '@supabase/supabase-js';
-
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -32,7 +31,7 @@ const Index = () => {
       // Store referral code in sessionStorage for later use during signup
       sessionStorage.setItem('referral_code', refCode);
     }
-    
+
     // Clean URLs with query parameters for SEO
     if (currentUrl.search) {
       // Remove query parameters and update URL without reload
@@ -54,18 +53,15 @@ const Index = () => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
-      
+
       // Defer Supabase calls with setTimeout to prevent deadlock
       if (session?.user) {
         setTimeout(() => {
-          supabase
-            .from('profiles')
-            .select('subscription_tier')
-            .eq('user_id', session.user.id)
-            .single()
-            .then(({ data }) => {
-              if (data) setUserTier(data.subscription_tier);
-            });
+          supabase.from('profiles').select('subscription_tier').eq('user_id', session.user.id).single().then(({
+            data
+          }) => {
+            if (data) setUserTier(data.subscription_tier);
+          });
         }, 0);
       } else {
         setUserTier('free');
@@ -81,17 +77,14 @@ const Index = () => {
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
-      
+
       // Fetch user tier if logged in
       if (session?.user) {
-        supabase
-          .from('profiles')
-          .select('subscription_tier')
-          .eq('user_id', session.user.id)
-          .single()
-          .then(({ data }) => {
-            if (data) setUserTier(data.subscription_tier);
-          });
+        supabase.from('profiles').select('subscription_tier').eq('user_id', session.user.id).single().then(({
+          data
+        }) => {
+          if (data) setUserTier(data.subscription_tier);
+        });
       }
     });
     return () => subscription.unsubscribe();
@@ -131,7 +124,7 @@ const Index = () => {
     icon: Eye,
     title: "We Can't See Your Files",
     description: "Zero server-side processing"
-}, {
+  }, {
     icon: Zap,
     title: "Instant Processing",
     description: "No hanging around"
@@ -206,33 +199,23 @@ const Index = () => {
         <main className="container mx-auto space-y-12 px-4 py-8">
           {/* Mode Toggle */}
           <div className="flex justify-center">
-            <Tabs value={mode} onValueChange={(v) => setMode(v as 'single' | 'batch')}>
+            <Tabs value={mode} onValueChange={v => setMode(v as 'single' | 'batch')}>
               <TabsList className="grid w-full max-w-md grid-cols-2">
                 <TabsTrigger value="single" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Single File
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="batch" 
-                  className="flex items-center gap-2"
-                  disabled={!user || !['pro', 'ltd'].includes(userTier)}
-                >
+                <TabsTrigger value="batch" className="flex items-center gap-2" disabled={!user || !['pro', 'ltd'].includes(userTier)}>
                   <Layers className="h-4 w-4" />
                   Batch Mode
-                  {(!user || !['pro', 'ltd'].includes(userTier)) && (
-                    <Badge variant="secondary" className="ml-1 text-xs">Pro/LTD</Badge>
-                  )}
+                  {(!user || !['pro', 'ltd'].includes(userTier)) && <Badge variant="secondary" className="ml-1 text-xs">Pro/LTD</Badge>}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
           
           {/* Main PDF Protector */}
-          {mode === 'batch' ? (
-            <BatchPDFProtector user={user} onLoginRequired={handleLoginRequired} />
-          ) : (
-            <PDFProtector user={user} onLoginRequired={handleLoginRequired} />
-          )}
+          {mode === 'batch' ? <BatchPDFProtector user={user} onLoginRequired={handleLoginRequired} /> : <PDFProtector user={user} onLoginRequired={handleLoginRequired} />}
 
 
           {/* Why Use SecurePDF Section */}
@@ -258,7 +241,7 @@ const Index = () => {
               <Card className="shadow-card bg-card border-border/50">
                 <CardContent className="p-6">
                   <h3 className="font-semibold text-lg mb-3 text-foreground">What is your pricing model?</h3>
-                  <p className="text-muted-foreground">The good news is that there is a FOREVER FREE tier. Once registered, you can password-protect one file per day, with each file being a maximum of 250KB in size. Try it out, and if you like what you see, you can opt to pay for higher limits. For $6.99 per month (or $70 per year), the Starter tier allows you to password-protect up to 10 files per day, with each file being up to 1MB in size. Our Pro tier allows you to password-protect up to 50 files per day, each of up to 10MB in size and you are also able to specify the length and format of any generated passwords. That costs $15.99 per month or $150 per year. We also offer a Life Time Deal for $120 one-time payment with all Pro features and no recurring billing. Contact us if your needs exceed these limits.</p>
+                  <p className="text-muted-foreground">The good news is that there is a FOREVER FREE tier. Once registered, you can password-protect one file per day, with each file being a maximum of 250KB in size. Try it out, and if you like what you see, you can opt to pay for higher limits. For $6.99 per month (or $70 per year), the Starter tier allows you to password-protect up to 10 files per day, with each file being up to 1MB in size. Our Pro tier allows you to password-protect and/or watermark up to 50 files per day, each of up to 10MB in size, and you can also specify the length and format of any generated passwords. That costs $15.99 per month or $150 per year. We also offer a Life Time Deal for $120 one-time payment with all Pro features and no recurring billing. Contact us if your needs exceed these limits.</p>
                 </CardContent>
               </Card>
 
