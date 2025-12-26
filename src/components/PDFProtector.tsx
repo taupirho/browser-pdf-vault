@@ -9,6 +9,8 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { PrivacyIndicator } from "./PrivacyIndicator";
+import { WatermarkSettings, defaultWatermarkOptions, type WatermarkOptions } from "./WatermarkSettings";
+import { applyWatermark } from "@/lib/watermarkPdf";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from '@supabase/supabase-js';
 interface ProcessedFile {
@@ -50,6 +52,7 @@ export function PDFProtector({
   });
   const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [savingSettings, setSavingSettings] = useState(false);
+  const [watermarkOptions, setWatermarkOptions] = useState<WatermarkOptions>(defaultWatermarkOptions);
 
   // Check subscription and get user profile
   const checkSubscription = useCallback(async () => {
@@ -356,6 +359,12 @@ export function PDFProtector({
 
       // Load the existing PDF with pdf-lib-plus-encrypt
       const existingPdf = await PDFDocument.load(arrayBuffer);
+
+      // Apply watermark if enabled (Pro/LTD users only)
+      const isPremiumUser = userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd");
+      if (isPremiumUser && watermarkOptions.enabled) {
+        await applyWatermark(existingPdf, watermarkOptions);
+      }
 
       // Encrypt the PDF using pdf-lib-plus-encrypt's encrypt method
       existingPdf.encrypt({
@@ -676,6 +685,14 @@ export function PDFProtector({
             </div>
           </CardContent>
         </Card>}
+
+      {/* Watermark Options for Pro/LTD users */}
+      {user && userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && (
+        <WatermarkSettings
+          options={watermarkOptions}
+          onChange={setWatermarkOptions}
+        />
+      )}
 
       {/* Success Card - shows file info */}
       {processedFile && <Card className="shadow-glow bg-gradient-card border-trust/30">

@@ -11,6 +11,8 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { PrivacyIndicator } from "./PrivacyIndicator";
+import { WatermarkSettings, defaultWatermarkOptions, type WatermarkOptions } from "./WatermarkSettings";
+import { applyWatermark } from "@/lib/watermarkPdf";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from '@supabase/supabase-js';
 
@@ -60,6 +62,7 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     includeSymbols: true
   });
   const [savingSettings, setSavingSettings] = useState(false);
+  const [watermarkOptions, setWatermarkOptions] = useState<WatermarkOptions>(defaultWatermarkOptions);
   const { toast } = useToast();
 
   // Fetch user profile on mount and when user changes
@@ -340,6 +343,13 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
     const password = generateSecurePassword();
     
     const existingPdf = await PDFDocument.load(arrayBuffer);
+    
+    // Apply watermark if enabled (Pro/LTD users only)
+    const isPremiumUser = userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd");
+    if (isPremiumUser && watermarkOptions.enabled) {
+      await applyWatermark(existingPdf, watermarkOptions);
+    }
+    
     existingPdf.encrypt({
       userPassword: password,
       ownerPassword: password + '_owner',
@@ -781,6 +791,14 @@ export function BatchPDFProtector({ user, onLoginRequired }: BatchPDFProtectorPr
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Watermark Options for Pro/LTD users */}
+      {user && userProfile && (userProfile.subscription_tier === "pro" || userProfile.subscription_tier === "ltd") && (
+        <WatermarkSettings
+          options={watermarkOptions}
+          onChange={setWatermarkOptions}
+        />
       )}
 
       {/* File Queue */}

@@ -52,14 +52,14 @@ const Pricing = () => {
     name: "Pro",
     price: "$15.99",
     description: "For power users and businesses",
-    features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords", "Batch Encryption Mode"],
+    features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords", "Batch Encryption Mode", "PDF Watermarking"],
     buttonText: "Choose Pro",
     popular: false
   }, {
     name: "Life Time Deal",
     price: "$120",
     description: "Lifetime access with Pro features",
-    features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords", "Batch Encryption Mode", "Lifetime access - pay once"],
+    features: ["50 PDFs per day", "Max file size: 10MB", "Secure encryption", "Custom passwords", "Batch Encryption Mode", "PDF Watermarking", "Lifetime access - pay once"],
     buttonText: "Choose LTD",
     popular: true
   }];
