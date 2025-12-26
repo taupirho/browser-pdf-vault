@@ -674,16 +674,29 @@ export function PDFProtector({
                       e.currentTarget.value = "";
                     }} disabled={isProcessing} />
                     <Label htmlFor="pdf-upload" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 cursor-pointer" onClick={e => {
-                // Check daily limit before opening file dialog
-                if (userProfile && userProfile.daily_usage_count >= userProfile.max_daily_files) {
-                  e.preventDefault();
-                  toast({
-                    title: "Daily Limit Reached",
-                    description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
-                    variant: "destructive"
-                  });
-                }
-              }}>
+                      // Validate selection BEFORE opening file picker
+                      const isPremium = Boolean(userProfile && (userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd'));
+                      const hasWatermark = isPremium && watermarkOptions.enabled;
+                      if (!passwordProtectionEnabled && !hasWatermark) {
+                        e.preventDefault();
+                        toast({
+                          title: "No Protection Selected",
+                          description: "Please enable at least password protection or watermark.",
+                          variant: "destructive"
+                        });
+                        return;
+                      }
+
+                      // Check daily limit before opening file dialog
+                      if (userProfile && userProfile.daily_usage_count >= userProfile.max_daily_files) {
+                        e.preventDefault();
+                        toast({
+                          title: "Daily Limit Reached",
+                          description: `You've reached your daily limit of ${userProfile.max_daily_files} files. Upgrade your plan or try again tomorrow.`,
+                          variant: "destructive"
+                        });
+                      }
+                    }}>
                       {isProcessing ? <>
                           <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                           Processing...
@@ -713,7 +726,22 @@ export function PDFProtector({
               // Allow selecting the same file again to re-trigger validation/toasts
               e.currentTarget.value = "";
             }} disabled={isProcessing} />
-            <Label htmlFor="pdf-upload-compact" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 cursor-pointer">
+            <Label
+              htmlFor="pdf-upload-compact"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3 cursor-pointer"
+              onClick={(e) => {
+                const isPremium = Boolean(userProfile && (userProfile.subscription_tier === 'pro' || userProfile.subscription_tier === 'ltd'));
+                const hasWatermark = isPremium && watermarkOptions.enabled;
+                if (!passwordProtectionEnabled && !hasWatermark) {
+                  e.preventDefault();
+                  toast({
+                    title: "No Protection Selected",
+                    description: "Please enable at least password protection or watermark.",
+                    variant: "destructive"
+                  });
+                }
+              }}
+            >
               <FileText className="mr-2 h-4 w-4" />
               Choose Another File
             </Label>
