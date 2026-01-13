@@ -46,56 +46,19 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
-    // Ensure a 100% off promo code exists for general testing (PRO100)
-    const TEST_PROMO_CODE = "PRO100";
-    try {
-      const existingPromo = await stripe.promotionCodes.list({ code: TEST_PROMO_CODE, active: true, limit: 1 });
-      if (existingPromo.data.length === 0) {
-        logStep("Creating 100% off coupon and promo code", { code: TEST_PROMO_CODE });
-        const coupon = await stripe.coupons.create({
-          percent_off: 100,
-          duration: "once", // first invoice free
-        });
-        await stripe.promotionCodes.create({
-          coupon: coupon.id,
-          code: TEST_PROMO_CODE,
-          active: true,
-        });
-        logStep("Promo code created", { code: TEST_PROMO_CODE, couponId: coupon.id });
-      } else {
-        logStep("Promo code already exists", { code: TEST_PROMO_CODE, promoId: existingPromo.data[0].id });
-      }
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      logStep("Failed ensuring promo code (non-fatal)", { message: msg });
-    }
+    // Validate origin against allowlist to prevent open redirect attacks
+    const allowedOrigins = [
+      "https://securepdfprotector.com",
+      "https://www.securepdfprotector.com",
+      "https://preview--securepdf-password-protector.lovable.app",
+      Deno.env.get("ALLOWED_ORIGIN") // Allow configurable origin via secret
+    ].filter(Boolean);
+    
+    const requestOrigin = req.headers.get("origin");
+    const safeOrigin = allowedOrigins.includes(requestOrigin || "") 
+      ? requestOrigin 
+      : allowedOrigins[0] || "https://securepdfprotector.com";
 
-    // Ensure a 100% off STARTER-only promo code (STARTER100)
-    let starterPromoId: string | undefined;
-    try {
-      const STARTER_PROMO_CODE = "STARTER100";
-      const existingStarter = await stripe.promotionCodes.list({ code: STARTER_PROMO_CODE, active: true, limit: 1 });
-      if (existingStarter.data.length === 0) {
-        logStep("Creating STARTER100 100% off coupon and promo code", { code: STARTER_PROMO_CODE });
-        const couponStarter = await stripe.coupons.create({
-          percent_off: 100,
-          duration: "once", // first invoice free for Starter
-        });
-        const starterPromo = await stripe.promotionCodes.create({
-          coupon: couponStarter.id,
-          code: STARTER_PROMO_CODE,
-          active: true,
-        });
-        starterPromoId = starterPromo.id;
-        logStep("STARTER100 promo code created", { code: STARTER_PROMO_CODE, couponId: couponStarter.id, promoId: starterPromoId });
-      } else {
-        starterPromoId = existingStarter.data[0].id;
-        logStep("STARTER100 promo code already exists", { promoId: starterPromoId });
-      }
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      logStep("Failed ensuring STARTER100 promo code (non-fatal)", { message: msg });
-    }
     // Check if customer exists
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
@@ -107,10 +70,9 @@ if (customers.data.length > 0) {
   const activeSubs = await stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 });
   if (activeSubs.data.length > 0) {
     logStep("Active subscription exists - redirecting to portal", { subscriptionId: activeSubs.data[0].id });
-    const origin = req.headers.get("origin") || "http://localhost:3000";
     const portal = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${origin}/pricing`,
+      return_url: `${safeOrigin}/pricing`,
     });
     return new Response(JSON.stringify({ url: portal.url, type: "portal" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -161,10 +123,9 @@ if (customers.data.length > 0) {
         },
       ],
       mode: isLTD ? "payment" : "subscription",
-      success_url: `${req.headers.get("origin")}/pricing?success=true&plan=${plan}`,
-      cancel_url: `${req.headers.get("origin")}/pricing?canceled=true`,
+      success_url: `${safeOrigin}/pricing?success=true&plan=${plan}`,
+      cancel_url: `${safeOrigin}/pricing?canceled=true`,
       allow_promotion_codes: true,
-      discounts: plan === "starter" && starterPromoId ? [{ promotion_code: starterPromoId }] : undefined,
       metadata: {
         user_id: user.id,
         plan: selectedPlan.tier

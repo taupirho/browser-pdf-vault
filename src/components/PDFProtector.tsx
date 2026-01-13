@@ -425,12 +425,12 @@ export function PDFProtector({
       });
 
       // Log to PDF history (don't await - fire and forget, non-blocking)
+      // Note: Password is NOT stored for security - users must save it at download time
       supabase.from('pdf_history').insert({
         user_id: user.id,
         file_name: file.name,
         original_size_bytes: file.size,
-        protected_size_bytes: pdfBytes.byteLength,
-        password: password || null
+        protected_size_bytes: pdfBytes.byteLength
       }).then(({
         error
       }) => {
@@ -450,6 +450,35 @@ export function PDFProtector({
       });
     } catch (error) {
       console.error('PDF processing error:', error);
+      
+      // Rollback usage count on failure - decrement the count we incremented earlier
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const { data: currentProfile } = await supabase
+          .from('profiles')
+          .select('daily_usage_count')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (currentProfile && currentProfile.daily_usage_count > 0) {
+          await supabase
+            .from('profiles')
+            .update({
+              daily_usage_count: currentProfile.daily_usage_count - 1,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', user.id);
+          
+          // Update local state
+          setUserProfile(prev => prev ? {
+            ...prev,
+            daily_usage_count: Math.max(0, prev.daily_usage_count - 1)
+          } : null);
+        }
+      } catch (rollbackError) {
+        console.error('Failed to rollback usage count:', rollbackError);
+      }
+      
       toast({
         title: "Processing Failed",
         description: "There was an error protecting your PDF. Please try again.",
