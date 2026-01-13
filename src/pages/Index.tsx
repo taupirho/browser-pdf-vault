@@ -177,7 +177,7 @@ const Index = () => {
               Sign In
             </Button>}
             <ThemeToggle />
-            <MobileMenu user={user} />
+            <MobileMenu user={user} onSignIn={() => setShowAuthModal(true)} onSignOut={handleSignOut} />
           </div>
         </div>
 

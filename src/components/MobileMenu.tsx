@@ -11,9 +11,11 @@ import {
 
 interface MobileMenuProps {
   user: { id: string } | null;
+  onSignIn?: () => void;
+  onSignOut?: () => void;
 }
 
-export function MobileMenu({ user }: MobileMenuProps) {
+export function MobileMenu({ user, onSignIn, onSignOut }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -56,6 +58,21 @@ export function MobileMenu({ user }: MobileMenuProps) {
               </Link>
             </SheetClose>
           )}
+          <div className="border-t border-border pt-4 mt-2">
+            {user ? (
+              <SheetClose asChild>
+                <Button variant="outline" className="w-full" onClick={onSignOut}>
+                  Sign Out
+                </Button>
+              </SheetClose>
+            ) : (
+              <SheetClose asChild>
+                <Button variant="default" className="w-full" onClick={onSignIn}>
+                  Sign In
+                </Button>
+              </SheetClose>
+            )}
+          </div>
         </nav>
       </SheetContent>
     </Sheet>
