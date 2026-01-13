@@ -153,9 +153,7 @@ const Index = () => {
 
           {/* Center text - hidden on mobile/tablet, visible on larger screens */}
           <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2">
-            <span className="font-bold bg-gradient-hero bg-clip-text text-transparent whitespace-nowrap text-xl">
-              Free, Secure PDF Password Protection
-            </span>
+            <span className="font-bold bg-gradient-hero bg-clip-text text-transparent whitespace-nowrap text-xl">Secure PDF Password Protection</span>
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">
@@ -185,9 +183,7 @@ const Index = () => {
 
         {/* Mobile tagline - visible only on mobile */}
         <div className="md:hidden mt-2 text-center">
-          <span className="font-medium bg-gradient-hero bg-clip-text text-transparent text-center text-lg">
-            Free, Secure PDF Password Protection
-          </span>
+          <span className="font-medium bg-gradient-hero bg-clip-text text-transparent text-center text-lg">Secure PDF Password Protection</span>
         </div>
       </div>
     </header>
