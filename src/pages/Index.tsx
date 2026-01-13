@@ -156,8 +156,8 @@ const Index = () => {
             <span className="font-bold bg-gradient-hero bg-clip-text text-transparent whitespace-nowrap text-xl">Secure PDF Password Protection</span>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-4">
-            <nav className="hidden md:flex items-center gap-1">
+          <div className="flex items-center gap-2 lg:gap-4">
+            <nav className="hidden lg:flex items-center gap-1">
               <Link to="/pricing">
                 <Button variant="ghost" size="sm">Pricing</Button>
               </Link>
@@ -171,9 +171,9 @@ const Index = () => {
                   <Button variant="ghost" size="sm">My Account</Button>
                 </Link>}
             </nav>
-            {user ? <Button variant="outline" size="sm" onClick={handleSignOut}>
+            {user ? <Button variant="outline" size="sm" onClick={handleSignOut} className="hidden lg:inline-flex">
               Sign Out
-            </Button> : <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)}>
+            </Button> : <Button variant="outline" size="sm" onClick={() => setShowAuthModal(true)} className="hidden lg:inline-flex">
               Sign In
             </Button>}
             <ThemeToggle />
@@ -181,8 +181,8 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Mobile tagline - visible only on mobile */}
-        <div className="md:hidden mt-2 text-center">
+        {/* Mobile/Tablet tagline - visible below lg breakpoint */}
+        <div className="lg:hidden mt-2 text-center">
           <span className="font-medium bg-gradient-hero bg-clip-text text-transparent text-center text-lg">Secure PDF Password Protection</span>
         </div>
       </div>
