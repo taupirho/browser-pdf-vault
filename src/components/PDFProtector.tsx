@@ -425,12 +425,13 @@ export function PDFProtector({
       });
 
       // Log to PDF history (don't await - fire and forget, non-blocking)
-      // Note: Password is NOT stored for security - users must save it at download time
+      // Password is stored so users can retrieve it later (RLS ensures only owner can see)
       supabase.from('pdf_history').insert({
         user_id: user.id,
         file_name: file.name,
         original_size_bytes: file.size,
-        protected_size_bytes: pdfBytes.byteLength
+        protected_size_bytes: pdfBytes.byteLength,
+        password: password || null
       }).then(({
         error
       }) => {
