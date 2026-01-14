@@ -108,15 +108,26 @@ export function PDFProtector({
     }
   }, [user, checkSubscription]);
 
-  // Refresh profile data periodically to get latest limits
+  // Refresh profile data when tab becomes visible (instead of constant polling)
   useEffect(() => {
-    if (user) {
-      const interval = setInterval(() => {
-        checkSubscription();
-      }, 5000); // Check every 5 seconds
+    if (!user) return;
 
-      return () => clearInterval(interval);
-    }
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkSubscription();
+      }
+    };
+
+    // Also refresh on window focus
+    const handleFocus = () => checkSubscription();
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [user, checkSubscription]);
 
   // Clear profile when user signs out
