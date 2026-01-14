@@ -49,10 +49,22 @@ serve(async (req) => {
     const customerId = customers.data[0].id;
     logStep("Found Stripe customer", { customerId });
 
-    const origin = req.headers.get("origin") || "http://localhost:3000";
+    // Validate origin against allowlist to prevent open redirect attacks
+    const allowedOrigins = [
+      "https://pdfsecure.lovable.app",
+      "https://securepdfprotector.com",
+      "https://www.securepdfprotector.com",
+      Deno.env.get("ALLOWED_ORIGIN")
+    ].filter(Boolean);
+    
+    const requestOrigin = req.headers.get("origin");
+    const safeOrigin = allowedOrigins.includes(requestOrigin || "") 
+      ? requestOrigin 
+      : allowedOrigins[0] || "https://pdfsecure.lovable.app";
+
     const portalSession = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: `${origin}/pricing?portal_return=1`,
+      return_url: `${safeOrigin}/pricing?portal_return=1`,
     });
     
     logStep("Customer portal session created", { 
