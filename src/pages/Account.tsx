@@ -95,15 +95,14 @@ const Account = () => {
         });
       }
 
-      // Fetch PDF history from safe view (excludes passwords)
+      // Fetch PDF history including passwords
       const {
         data: historyData
-      } = await supabase.from("pdf_history_safe").select("id, file_name, original_size_bytes, protected_size_bytes, created_at").eq("user_id", session.user.id).order("created_at", {
+      } = await supabase.from("pdf_history").select("id, file_name, original_size_bytes, protected_size_bytes, created_at, password").eq("user_id", session.user.id).order("created_at", {
         ascending: false
       }).limit(50);
       if (historyData) {
-        // Map to include password as null initially (fetched on demand)
-        setPdfHistory(historyData.map(item => ({ ...item, password: null })));
+        setPdfHistory(historyData);
       }
       setIsLoading(false);
     };
@@ -141,44 +140,7 @@ const Account = () => {
     await supabase.auth.signOut();
     navigate("/");
   };
-  const [loadingPasswords, setLoadingPasswords] = useState<Set<string>>(new Set());
-  
-  const fetchPassword = async (id: string) => {
-    setLoadingPasswords(prev => new Set(prev).add(id));
-    try {
-      const { data, error } = await supabase.functions.invoke("get-pdf-password", {
-        body: { pdf_history_id: id }
-      });
-      if (error) throw error;
-      if (data?.password) {
-        setPdfHistory(prev => prev.map(item => 
-          item.id === id ? { ...item, password: data.password } : item
-        ));
-        setVisiblePasswords(prev => new Set(prev).add(id));
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Unable to retrieve password. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoadingPasswords(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(id);
-        return newSet;
-      });
-    }
-  };
-
   const togglePasswordVisibility = (id: string) => {
-    const item = pdfHistory.find(p => p.id === id);
-    // If password not yet fetched, fetch it
-    if (!item?.password && !visiblePasswords.has(id)) {
-      fetchPassword(id);
-      return;
-    }
-    
     setVisiblePasswords(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
@@ -419,7 +381,6 @@ const Account = () => {
                   });
                   const isPasswordVisible = visiblePasswords.has(item.id);
                   const isCopied = copiedPasswordId === item.id;
-                  const isLoadingPassword = loadingPasswords.has(item.id);
                   return <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors">
                           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                             <FileText className="h-5 w-5 text-primary" />
@@ -431,34 +392,19 @@ const Account = () => {
                             <p className="text-xs text-muted-foreground">
                               {originalSizeKB} KB → {protectedSizeKB} KB
                             </p>
-                            <div className="flex items-center gap-2 mt-1">
-                              {isLoadingPassword ? (
-                                <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                  Loading...
-                                </span>
-                              ) : item.password ? (
-                                <>
-                                  <code className="text-xs bg-background px-2 py-0.5 rounded font-mono">
-                                    {isPasswordVisible ? item.password : "••••••••••••"}
-                                  </code>
-                                  <button onClick={() => togglePasswordVisibility(item.id)} className="text-muted-foreground hover:text-foreground transition-colors" title={isPasswordVisible ? "Hide password" : "Show password"}>
-                                    {isPasswordVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                                  </button>
-                                  <button onClick={() => copyPassword(item.id, item.password!)} className="text-muted-foreground hover:text-foreground transition-colors" title="Copy password">
-                                    {isCopied ? <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
-                                  </button>
-                                </>
-                              ) : (
-                                <button 
-                                  onClick={() => togglePasswordVisibility(item.id)} 
-                                  className="text-xs text-primary hover:underline flex items-center gap-1"
-                                >
-                                  <Eye className="h-3 w-3" />
-                                  Show password
+                            {item.password && (
+                              <div className="flex items-center gap-2 mt-1">
+                                <code className="text-xs bg-background px-2 py-0.5 rounded font-mono">
+                                  {isPasswordVisible ? item.password : "••••••••••••"}
+                                </code>
+                                <button onClick={() => togglePasswordVisibility(item.id)} className="text-muted-foreground hover:text-foreground transition-colors" title={isPasswordVisible ? "Hide password" : "Show password"}>
+                                  {isPasswordVisible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                                 </button>
-                              )}
-                            </div>
+                                <button onClick={() => copyPassword(item.id, item.password!)} className="text-muted-foreground hover:text-foreground transition-colors" title="Copy password">
+                                  {isCopied ? <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
+                                </button>
+                              </div>
+                            )}
                           </div>
                           <div className="text-right flex-shrink-0">
                             <p className="text-sm text-muted-foreground">{formattedDate}</p>
