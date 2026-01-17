@@ -214,33 +214,7 @@ export type Database = {
       }
     }
     Views: {
-      pdf_history_safe: {
-        Row: {
-          created_at: string | null
-          file_name: string | null
-          id: string | null
-          original_size_bytes: number | null
-          protected_size_bytes: number | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          file_name?: string | null
-          id?: string | null
-          original_size_bytes?: number | null
-          protected_size_bytes?: number | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          file_name?: string | null
-          id?: string | null
-          original_size_bytes?: number | null
-          protected_size_bytes?: number | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
