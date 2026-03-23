@@ -146,27 +146,6 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
         return;
       }
 
-      // If we have a referral code and a new user, create the referral record
-      if (referralCode && signUpData.user) {
-        // Look up the referrer by their referral code
-        const { data: referrerProfile } = await supabase
-          .from("profiles")
-          .select("user_id")
-          .eq("referral_code", referralCode.toUpperCase())
-          .maybeSingle();
-
-        if (referrerProfile) {
-          // Create referral record (will be processed when user upgrades)
-          await supabase.from("referrals").insert({
-            referrer_id: referrerProfile.user_id,
-            referred_id: signUpData.user.id,
-            referral_code: referralCode.toUpperCase(),
-          });
-          
-          // Clear the referral code from sessionStorage
-          sessionStorage.removeItem('referral_code');
-        }
-      }
 
       toast({
         title: "Check your email",
