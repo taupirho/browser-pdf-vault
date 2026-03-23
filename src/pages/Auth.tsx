@@ -114,8 +114,6 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
     e.preventDefault();
     setIsLoading(true);
 
-    // Get referral code from sessionStorage if exists
-    const referralCode = sessionStorage.getItem('referral_code');
 
     try {
       const redirectUrl = `${window.location.origin}/`;
