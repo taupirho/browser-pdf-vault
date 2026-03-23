@@ -24,13 +24,7 @@ const Index = () => {
   const [userTier, setUserTier] = useState<string>('free');
   const navigate = useNavigate();
   useEffect(() => {
-    // Capture referral code before cleaning URL
     const currentUrl = new URL(window.location.href);
-    const refCode = currentUrl.searchParams.get('ref');
-    if (refCode) {
-      // Store referral code in sessionStorage for later use during signup
-      sessionStorage.setItem('referral_code', refCode);
-    }
 
     // Clean URLs with query parameters for SEO
     if (currentUrl.search) {

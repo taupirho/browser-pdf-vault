@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Shield, User, CreditCard, FileText, Calendar, TrendingUp, Crown, Loader2, History, Clock, Eye, EyeOff, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ReferralCard } from "@/components/ReferralCard";
+
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 interface PdfHistoryItem {
   id: string;
@@ -234,8 +234,6 @@ const Account = () => {
           <p className="text-muted-foreground mt-1">Manage your subscription and view usage</p>
         </div>
 
-        {/* Referral Program - Prominent placement */}
-        <ReferralCard />
 
         <div className="grid gap-6 md:grid-cols-2 mt-6">
           {/* Subscription Card */}

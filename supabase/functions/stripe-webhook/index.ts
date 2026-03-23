@@ -126,15 +126,6 @@ serve(async (req) => {
 
         logStep("Profile updated to LTD", { userId, previousTier });
 
-        // Process referral reward if user was referred
-        try {
-          await supabaseClient.functions.invoke("process-referral-reward", {
-            body: { referred_user_id: userId },
-          });
-          logStep("Referral reward processed", { userId });
-        } catch (referralError) {
-          logStep("Referral reward processing failed (continuing)", { error: referralError });
-        }
 
         // Send confirmation email
         if (profile?.email) {
@@ -209,17 +200,6 @@ serve(async (req) => {
 
         logStep("Profile updated", { userId, plan, previousTier });
 
-        // Process referral reward if user was referred and upgrading from free
-        if (previousTier === "free") {
-          try {
-            await supabaseClient.functions.invoke("process-referral-reward", {
-              body: { referred_user_id: userId },
-            });
-            logStep("Referral reward processed", { userId });
-          } catch (referralError) {
-            logStep("Referral reward processing failed (continuing)", { error: referralError });
-          }
-        }
 
         // Send confirmation email
         if (profile?.email) {
