@@ -26,10 +26,19 @@ const Index = () => {
   useEffect(() => {
     const currentUrl = new URL(window.location.href);
 
-    // Clean URLs with query parameters for SEO
-    if (currentUrl.search) {
-      // Remove query parameters and update URL without reload
-      window.history.replaceState({}, document.title, currentUrl.pathname);
+    // Clean URLs with non-internal query parameters for SEO
+    const hasNonInternalParams = Array.from(currentUrl.searchParams.keys()).some(
+      key => !key.startsWith('__')
+    );
+    if (hasNonInternalParams) {
+      const cleanUrl = new URL(currentUrl.href);
+      Array.from(cleanUrl.searchParams.keys()).forEach(key => {
+        if (!key.startsWith('__')) cleanUrl.searchParams.delete(key);
+      });
+      const newUrl = cleanUrl.searchParams.toString()
+        ? `${cleanUrl.pathname}?${cleanUrl.searchParams.toString()}`
+        : cleanUrl.pathname;
+      window.history.replaceState({}, document.title, newUrl);
     }
 
     // Set canonical URL dynamically
