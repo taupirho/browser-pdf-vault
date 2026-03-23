@@ -234,8 +234,6 @@ const Account = () => {
           <p className="text-muted-foreground mt-1">Manage your subscription and view usage</p>
         </div>
 
-        {/* Referral Program - Prominent placement */}
-        <ReferralCard />
 
         <div className="grid gap-6 md:grid-cols-2 mt-6">
           {/* Subscription Card */}
