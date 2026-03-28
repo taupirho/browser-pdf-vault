@@ -27,6 +27,12 @@ const Index = () => {
     const currentUrl = new URL(window.location.href);
     const isLovablePreview = currentUrl.searchParams.has('__lovable_token');
 
+    // Capture referral code from URL before cleaning
+    const refCode = currentUrl.searchParams.get('ref');
+    if (refCode) {
+      localStorage.setItem('referral_code', refCode);
+    }
+
     // Clean URLs with non-internal query parameters for SEO (skip in Lovable preview)
     if (!isLovablePreview) {
       const hasNonInternalParams = Array.from(currentUrl.searchParams.keys()).some(

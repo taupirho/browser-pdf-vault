@@ -22,6 +22,7 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [activeTab, setActiveTab] = useState<"signin" | "signup" | "forgot">("signin");
@@ -32,6 +33,12 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
     toast
   } = useToast();
   useEffect(() => {
+    // Load referral code from localStorage if available
+    const storedRefCode = localStorage.getItem('referral_code');
+    if (storedRefCode) {
+      setReferralCode(storedRefCode);
+    }
+
     // Set up auth state listener FIRST
     const {
       data: {
@@ -114,7 +121,6 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
     e.preventDefault();
     setIsLoading(true);
 
-
     try {
       const redirectUrl = `${window.location.origin}/`;
 
@@ -146,6 +152,31 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
         return;
       }
 
+      // Create referral record if a referral code was used
+      if (referralCode && signUpData?.user) {
+        try {
+          // Look up the referrer by their referral code
+          const { data: referrerProfile } = await supabase
+            .from('profiles')
+            .select('user_id')
+            .eq('referral_code', referralCode)
+            .single();
+
+          if (referrerProfile) {
+            await supabase.from('referrals').insert({
+              referrer_id: referrerProfile.user_id,
+              referred_id: signUpData.user.id,
+              referral_code: referralCode,
+              status: 'pending'
+            });
+          }
+          // Clear stored referral code
+          localStorage.removeItem('referral_code');
+        } catch (refError) {
+          console.error('Error creating referral record:', refError);
+          // Don't block sign-up if referral tracking fails
+        }
+      }
 
       toast({
         title: "Check your email",
@@ -387,6 +418,10 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
               <div className="space-y-2">
                 <Label htmlFor="company-name">Company Name (Optional)</Label>
                 <Input id="company-name" type="text" placeholder="Enter your company name" value={companyName} onChange={e => setCompanyName(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="referral-code">Referral Code (Optional)</Label>
+                <Input id="referral-code" type="text" placeholder="Enter referral code" value={referralCode} onChange={e => setReferralCode(e.target.value)} />
               </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Creating account..." : "Create Account"}
