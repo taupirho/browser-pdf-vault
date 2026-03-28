@@ -70,10 +70,12 @@ const Account = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [pdfHistory, setPdfHistory] = useState<PdfHistoryItem[]>([]);
+  const [referrals, setReferrals] = useState<ReferralInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isManagingSubscription, setIsManagingSubscription] = useState(false);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
   const [copiedPasswordId, setCopiedPasswordId] = useState<string | null>(null);
+  const [copiedReferralLink, setCopiedReferralLink] = useState(false);
   const navigate = useNavigate();
   const {
     toast
@@ -95,7 +97,7 @@ const Account = () => {
       const {
         data: profileData,
         error
-      } = await supabase.from("profiles").select("subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count, last_usage_reset, created_at, email").eq("user_id", session.user.id).single();
+      } = await supabase.from("profiles").select("subscription_tier, max_file_size_kb, max_daily_files, daily_usage_count, last_usage_reset, created_at, email, referral_code, bonus_daily_files, bonus_expires_at").eq("user_id", session.user.id).single();
       if (!error && profileData) {
         // Check if usage should be reset (new day)
         const today = new Date().toISOString().split("T")[0];
@@ -104,6 +106,16 @@ const Account = () => {
           ...profileData,
           daily_usage_count: effectiveUsageCount
         });
+      }
+
+      // Fetch referrals
+      const { data: referralData } = await supabase
+        .from("referrals")
+        .select("id, referred_id, status, created_at, converted_at, reward_granted")
+        .eq("referrer_id", session.user.id)
+        .order("created_at", { ascending: false });
+      if (referralData) {
+        setReferrals(referralData);
       }
 
       // Fetch PDF history including passwords
