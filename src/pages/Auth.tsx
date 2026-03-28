@@ -121,7 +121,6 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
     e.preventDefault();
     setIsLoading(true);
 
-
     try {
       const redirectUrl = `${window.location.origin}/`;
 
@@ -153,6 +152,31 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
         return;
       }
 
+      // Create referral record if a referral code was used
+      if (referralCode && signUpData?.user) {
+        try {
+          // Look up the referrer by their referral code
+          const { data: referrerProfile } = await supabase
+            .from('profiles')
+            .select('user_id')
+            .eq('referral_code', referralCode)
+            .single();
+
+          if (referrerProfile) {
+            await supabase.from('referrals').insert({
+              referrer_id: referrerProfile.user_id,
+              referred_id: signUpData.user.id,
+              referral_code: referralCode,
+              status: 'pending'
+            });
+          }
+          // Clear stored referral code
+          localStorage.removeItem('referral_code');
+        } catch (refError) {
+          console.error('Error creating referral record:', refError);
+          // Don't block sign-up if referral tracking fails
+        }
+      }
 
       toast({
         title: "Check your email",
