@@ -390,6 +390,63 @@ const Account = () => {
             </CardContent>
           </Card>
 
+          {/* Referral Program Card */}
+          <Card className="shadow-card bg-card border-border/50 md:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="h-5 w-5 text-primary" />
+                Referral Program
+              </CardTitle>
+              <CardDescription>
+                Invite friends and earn bonus daily files when they sign up
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {profile.referral_code ? (
+                <>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                    <Share2 className="h-5 w-5 text-primary flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-muted-foreground">Your Referral Link</p>
+                      <code className="text-sm font-mono break-all">
+                        https://securepdf.io/?ref={profile.referral_code}
+                      </code>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={copyReferralLink}>
+                      {copiedReferralLink ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Users className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Referrals</p>
+                      <p className="font-medium">{referrals.length}</p>
+                    </div>
+                  </div>
+
+                  {profile.bonus_daily_files > 0 && (
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                      <Gift className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">+{profile.bonus_daily_files} bonus files/day</p>
+                        {profile.bonus_expires_at && (
+                          <p className="text-xs text-muted-foreground">
+                            Expires {new Date(profile.bonus_expires_at).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Your referral code is being generated. Please refresh the page.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
           {/* PDF History Card */}
           <Card className="shadow-card bg-card border-border/50 md:col-span-2">
             <CardHeader>
