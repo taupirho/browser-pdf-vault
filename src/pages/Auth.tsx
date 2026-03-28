@@ -22,6 +22,7 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
   const [password, setPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
   const [activeTab, setActiveTab] = useState<"signin" | "signup" | "forgot">("signin");
