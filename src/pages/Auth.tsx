@@ -33,6 +33,12 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
     toast
   } = useToast();
   useEffect(() => {
+    // Load referral code from localStorage if available
+    const storedRefCode = localStorage.getItem('referral_code');
+    if (storedRefCode) {
+      setReferralCode(storedRefCode);
+    }
+
     // Set up auth state listener FIRST
     const {
       data: {
