@@ -28,6 +28,17 @@ interface UserProfile {
   last_usage_reset: string;
   created_at: string;
   email: string;
+  referral_code: string | null;
+  bonus_daily_files: number;
+  bonus_expires_at: string | null;
+}
+interface ReferralInfo {
+  id: string;
+  referred_id: string;
+  status: string;
+  created_at: string;
+  converted_at: string | null;
+  reward_granted: boolean;
 }
 const tierConfig: Record<string, {
   label: string;

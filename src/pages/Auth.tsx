@@ -419,6 +419,10 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
                 <Label htmlFor="company-name">Company Name (Optional)</Label>
                 <Input id="company-name" type="text" placeholder="Enter your company name" value={companyName} onChange={e => setCompanyName(e.target.value)} />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="referral-code">Referral Code (Optional)</Label>
+                <Input id="referral-code" type="text" placeholder="Enter referral code" value={referralCode} onChange={e => setReferralCode(e.target.value)} />
+              </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Creating account..." : "Create Account"}
               </Button>
