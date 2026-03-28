@@ -191,6 +191,25 @@ const Account = () => {
       });
     }
   };
+  const copyReferralLink = async () => {
+    if (!profile?.referral_code) return;
+    const link = `https://securepdf.io/?ref=${profile.referral_code}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopiedReferralLink(true);
+      toast({
+        title: "Referral Link Copied!",
+        description: "Share this link with friends to earn bonus files."
+      });
+      setTimeout(() => setCopiedReferralLink(false), 2000);
+    } catch {
+      toast({
+        title: "Copy Failed",
+        description: "Unable to copy link. Please copy it manually.",
+        variant: "destructive"
+      });
+    }
+  };
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
