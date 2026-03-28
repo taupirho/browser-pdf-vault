@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Shield, User, CreditCard, FileText, Calendar, TrendingUp, Crown, Loader2, History, Clock, Eye, EyeOff, Copy, Check } from "lucide-react";
+import { Shield, User, CreditCard, FileText, Calendar, TrendingUp, Crown, Loader2, History, Clock, Eye, EyeOff, Copy, Check, Share2, Gift, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 import type { User as SupabaseUser } from "@supabase/supabase-js";
