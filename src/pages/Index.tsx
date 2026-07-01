@@ -205,6 +205,7 @@ const Index = () => {
 
       <div className="max-w-4xl mx-auto">
         <main className="container mx-auto space-y-12 px-4 py-8">
+          <h1 className="sr-only">Secure PDF Password Protection & AES-256 Encryption</h1>
           {/* Mode Toggle */}
           <div className="flex justify-center">
             <Tabs value={mode} onValueChange={v => setMode(v as 'single' | 'batch')}>
