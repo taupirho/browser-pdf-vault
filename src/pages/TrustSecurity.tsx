@@ -128,19 +128,13 @@ const TrustSecurity = () => {
   };
   return <div className="min-h-screen bg-background">
     <Helmet>
-      <title>SecurePDF Trust & Security – Data Protection, AES-256 & GDPR Compliance</title>
-
-      <meta
-        name="description"
-        content="Learn how SecurePDF protects your PDFs with AES-256 encryption, GDPR-compliant practices, and strong security measures. Submit DSAR requests and understand our commitment to privacy and data protection."
-      />
-
-      <meta
-        name="keywords"
-        content="SecurePDF security, GDPR compliance, data protection, AES-256 encryption, DSAR requests, privacy-first PDF protection, trust and security"
-      />
-
+      <title>Trust & Security – SecurePDF</title>
+      <meta name="description" content="AES-256, GDPR-compliant PDF protection. Submit DSAR requests and learn how SecurePDF protects your data." />
+      <meta name="keywords" content="SecurePDF security, GDPR compliance, AES-256 encryption, DSAR requests" />
       <link rel="canonical" href="https://securepdf.io/trust-security" />
+      <meta property="og:title" content="Trust & Security – SecurePDF" />
+      <meta property="og:description" content="AES-256, GDPR-compliant PDF protection and DSAR requests." />
+      <meta property="og:url" content="https://securepdf.io/trust-security" />
     </Helmet>
 
     {/* Header */}

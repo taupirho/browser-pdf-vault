@@ -24,5 +24,14 @@
     <loc>https://securepdf.io/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  <url>
+    <loc>https://securepdf.io/pricing</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://securepdf.io/trust-security</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>

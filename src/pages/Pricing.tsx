@@ -293,19 +293,13 @@ const Pricing = () => {
   };
   return <div className="min-h-screen bg-background">
     <Helmet>
-      <title>SecurePDF Pricing – Free & Pro Plans for PDF Password Protection</title>
-
-      <meta
-        name="description"
-        content="Find the perfect SecurePDF plan for your document protection needs. Free plan includes 2 PDFs/day. Upgrade to Starter (10/day) or Pro (50/day) for faster, unlimited, and enhanced PDF encryption features."
-      />
-
-      <meta
-        name="keywords"
-        content="SecurePDF pricing, PDF encryption plans, PDF password protection cost, SecurePDF Pro, SecurePDF subscription, upgrade PDF tools"
-      />
-
+      <title>SecurePDF Pricing – Free, Starter & Pro Plans</title>
+      <meta name="description" content="Choose a SecurePDF plan: Free (1/day), Starter (10/day), Pro (50/day), or Lifetime. AES-256 PDF protection." />
+      <meta name="keywords" content="SecurePDF pricing, PDF encryption plans, PDF password protection cost, SecurePDF Pro" />
       <link rel="canonical" href="https://securepdf.io/pricing" />
+      <meta property="og:title" content="SecurePDF Pricing – Free, Starter & Pro Plans" />
+      <meta property="og:description" content="Free, Starter, Pro and Lifetime plans for AES-256 PDF password protection." />
+      <meta property="og:url" content="https://securepdf.io/pricing" />
     </Helmet>
 
     {/* Header */}
