@@ -11,20 +11,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://securepdf.io/privacy-policy</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://securepdf.io/terms-of-service</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://securepdf.io/contact</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  <url>
     <loc>https://securepdf.io/pricing</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -33,5 +19,25 @@
     <loc>https://securepdf.io/trust-security</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://securepdf.io/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://securepdf.io/auth</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://securepdf.io/privacy-policy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://securepdf.io/terms-of-service</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>
