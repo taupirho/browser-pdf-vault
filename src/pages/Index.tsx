@@ -143,13 +143,13 @@ const Index = () => {
   }];
   return <div className="min-h-screen bg-background">
     <Helmet>
-      <title>SecurePDF.io – Free Online PDF Password Protection & AES-256 Encryption</title>
-
-      <meta name="description" content="Secure your PDF files instantly with client-side AES-256 encryption. 100% browser-based, no uploads, full privacy, and completely free. Protect sensitive documents with passwords in seconds." />
-
-      <meta name="keywords" content="SecurePDF, PDF password protection, encrypt PDF, secure PDF online, AES-256 encryption, client-side encryption, protect PDF, password lock PDF" />
-
+      <title>SecurePDF – Free Online PDF Password Protection</title>
+      <meta name="description" content="Client-side AES-256 PDF encryption. 100% browser-based, no uploads, free. Password-protect sensitive documents in seconds." />
+      <meta name="keywords" content="SecurePDF, PDF password protection, encrypt PDF, AES-256 encryption, client-side encryption" />
       <link rel="canonical" href="https://securepdf.io/" />
+      <meta property="og:title" content="SecurePDF – Free Online PDF Password Protection" />
+      <meta property="og:description" content="Client-side AES-256 PDF encryption. 100% browser-based, no uploads, free." />
+      <meta property="og:url" content="https://securepdf.io/" />
     </Helmet>
 
     {/* Header */}
