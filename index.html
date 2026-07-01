@@ -37,6 +37,56 @@
     </script>
     <meta name="msapplication-TileColor" content="#000000" />
 
+    <!-- Structured Data: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "SecurePDF",
+      "url": "https://securepdf.io/",
+      "logo": "https://securepdf.io/og-image.png",
+      "email": "info@securepdf.io",
+      "address": {
+        "@type": "PostalAddress",
+        "addressRegion": "Scotland",
+        "addressCountry": "GB"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "info@securepdf.io",
+        "contactType": "customer support"
+      }
+    }
+    </script>
+
+    <!-- Structured Data: WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "SecurePDF",
+      "url": "https://securepdf.io/"
+    }
+    </script>
+
+    <!-- Structured Data: FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type":"Question","name":"What is your pricing model?","acceptedAnswer":{"@type":"Answer","text":"There is a forever free tier allowing one password-protected PDF per day (up to 250KB). Paid tiers include Starter ($6.99/mo), Pro ($15.99/mo) with watermarking and 50 files per day at 10MB each, and a Lifetime Deal ($120 one-time) with all Pro features."}},
+        {"@type":"Question","name":"Are my payment details secure?","acceptedAnswer":{"@type":"Answer","text":"Yes. Payments are handled by Stripe, a PCI DSS Level 1 provider. We never see or store full card numbers or CVCs."}},
+        {"@type":"Question","name":"What happens to my files?","acceptedAnswer":{"@type":"Answer","text":"Your files never leave your browser. They are processed locally and the protected PDF is downloaded to your device. Only the generated password is stored so you can retrieve it from your account."}},
+        {"@type":"Question","name":"What if I lose the password?","acceptedAnswer":{"@type":"Answer","text":"We keep the last 50 generated passwords and their filenames in your My Account page so you can look them up if you forget."}},
+        {"@type":"Question","name":"Are my PDFs really secure?","acceptedAnswer":{"@type":"Answer","text":"Yes. We use AES-256 encryption with cryptographically secure random passwords, all processed in your browser."}},
+        {"@type":"Question","name":"Can I use this for sensitive documents?","acceptedAnswer":{"@type":"Answer","text":"Yes. All processing happens locally in your browser and files never touch our servers, making SecurePDF suitable for confidential business, legal, and medical documents."}},
+        {"@type":"Question","name":"What is PDF watermarking?","acceptedAnswer":{"@type":"Answer","text":"Pro and Lifetime Deal users can add customizable text watermarks to PDFs, with control over position, opacity, size, rotation, and color. Watermarking runs entirely in your browser."}},
+        {"@type":"Question","name":"What browsers are supported?","acceptedAnswer":{"@type":"Answer","text":"SecurePDF works in all modern browsers including Chrome, Firefox, Safari, and Edge on both desktop and mobile."}}
+      ]
+    }
+    </script>
+
   </head>
 
   <body>

@@ -310,6 +310,7 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
     return <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
+          <h1 className="sr-only">Update your SecurePDF password</h1>
           <CardTitle>Update Your Password</CardTitle>
           <CardDescription>
             Enter your new password below
@@ -366,6 +367,7 @@ export default function Auth({ isModal = false, onSuccess }: AuthProps = {}) {
     )}
     <Card className={cardClass}>
       <CardHeader>
+        {!isModal && <h1 className="sr-only">Sign in to SecurePDF</h1>}
         <CardTitle>Welcome to SecurePDF</CardTitle>
         <CardDescription>
           Sign in to your account or create a new one to get started
