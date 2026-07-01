@@ -49,13 +49,13 @@ const About = () => {
   }];
   return <div className="min-h-screen bg-background">
       <Helmet>
-        <title>About SecurePDF - Privacy-First PDF Password Protection Service</title>
-
-        <meta name="description" content="Learn how SecurePDF keeps your documents safe with zero-knowledge encryption, AES-256 security, no file uploads, and complete browser-based privacy protection." />
-
-        <meta name="keywords" content="SecurePDF, PDF encryption, browser-based security, zero knowledge, AES-256, secure PDF tool, PDF protector, password protect PDF" />
-
+        <title>About SecurePDF – Privacy-First PDF Protection</title>
+        <meta name="description" content="How SecurePDF safeguards documents with zero-knowledge, AES-256, no uploads, and browser-based privacy." />
+        <meta name="keywords" content="SecurePDF, PDF encryption, browser-based security, zero knowledge, AES-256" />
         <link rel="canonical" href="https://securepdf.io/about" />
+        <meta property="og:title" content="About SecurePDF – Privacy-First PDF Protection" />
+        <meta property="og:description" content="Zero-knowledge, AES-256, browser-based PDF password protection." />
+        <meta property="og:url" content="https://securepdf.io/about" />
       </Helmet>
 
       {/* Header */}

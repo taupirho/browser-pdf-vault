@@ -1,0 +1,18 @@
+# SecurePDF
+
+> Free, browser-based PDF password protection with AES-256 encryption. Files never leave your device — all processing happens locally in your browser.
+
+SecurePDF lets anyone add strong password protection to PDF documents without uploading them to a server. It uses the Web Crypto API and pdf-lib to encrypt files entirely client-side, so contents remain private.
+
+## Pages
+
+- [Home](/): Password-protect PDFs in your browser with AES-256 encryption.
+- [Pricing](/pricing): Free, Starter, Pro and Lifetime plans.
+- [About](/about): How SecurePDF works and our privacy-first approach.
+- [Trust & Security](/trust-security): Security model, GDPR compliance, DSAR requests.
+- [Contact](/contact): Support and business enquiries.
+
+## Optional
+
+- [Privacy Policy](/privacy-policy)
+- [Terms of Service](/terms-of-service)

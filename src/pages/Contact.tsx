@@ -88,19 +88,13 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Contact SecurePDF Support – Get Expert Help with PDF Encryption & Password Protection</title>
-
-        <meta
-          name="description"
-          content="Get fast, secure support from the SecurePDF team. Whether you need help with PDF password protection, encryption issues, privacy questions, or business partnerships — our team is here to assist you."
-        />
-
-        <meta
-          name="keywords"
-          content="SecurePDF support, PDF encryption help, contact SecurePDF, PDF password protection assistance, privacy support, security inquiries, business contact"
-        />
-
+        <title>Contact SecurePDF – Support & Enquiries</title>
+        <meta name="description" content="Contact SecurePDF for help with PDF password protection, encryption, privacy questions or business enquiries." />
+        <meta name="keywords" content="SecurePDF support, contact SecurePDF, PDF encryption help" />
         <link rel="canonical" href="https://securepdf.io/contact" />
+        <meta property="og:title" content="Contact SecurePDF – Support & Enquiries" />
+        <meta property="og:description" content="Get help with PDF password protection and encryption from the SecurePDF team." />
+        <meta property="og:url" content="https://securepdf.io/contact" />
       </Helmet>
 
 
