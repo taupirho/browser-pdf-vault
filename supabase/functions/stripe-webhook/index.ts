@@ -57,10 +57,10 @@ serve(async (req) => {
       const plan = session.metadata?.plan;
 
       if (!userId || !plan) {
-        logStep("Missing metadata", { userId, plan });
-        return new Response(JSON.stringify({ error: "Missing user_id or plan in metadata" }), {
+        logStep("Ignoring event - not from this app (missing user_id/plan metadata)", { sessionId: session.id });
+        return new Response(JSON.stringify({ ignored: true, reason: "event not from this app" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400,
+          status: 200,
         });
       }
 
